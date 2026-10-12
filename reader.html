@@ -16,6 +16,11 @@
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
+<!-- PDF.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs"
+        type="module">
+    </script>
+
 </head>
 
 <body class="reader-page">
@@ -34,23 +39,86 @@
 
     </header>
 
-    <main class="reader">
+     <main id="pdf-container"></main>
 
-        <iframe
-            src="https://okrydssukwavgveerlpv.supabase.co/storage/v1/object/public/pdf/Evil%20deed/01.%20EVIL%20DEED.pdf"
-            class="pdf-viewer">
-        </iframe>
 
-    </main>
-
-    <script>
+    <script type="module">
 
         const tg = window.Telegram.WebApp;
 
         tg.ready();
         tg.expand();
 
+
+        // PDF dari Supabase
+        const pdfUrl =
+            "https://okrydssukwavgveerlpv.supabase.co/storage/v1/object/public/pdf/Evil%20deed/01.%20EVIL%20DEED.pdf";
+
+
+        // Import PDF.js
+        import {
+            getDocument,
+            GlobalWorkerOptions
+        } from "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs";
+
+
+        // Worker PDF.js
+        GlobalWorkerOptions.workerSrc =
+            "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.worker.min.mjs";
+
+
+        // Membuka PDF
+        const pdf = await getDocument(pdfUrl).promise;
+
+
+        const container =
+            document.getElementById("pdf-container");
+
+
+        // Menampilkan semua halaman
+        for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
+
+            const page =
+                await pdf.getPage(pageNumber);
+
+
+            const viewport =
+                page.getViewport({
+                    scale: 1.5
+                });
+
+
+            const canvas =
+                document.createElement("canvas");
+
+
+            const context =
+                canvas.getContext("2d");
+
+
+            canvas.width =
+                viewport.width;
+
+            canvas.height =
+                viewport.height;
+
+
+            canvas.className =
+                "pdf-page";
+
+
+            container.appendChild(canvas);
+
+
+            await page.render({
+                canvasContext: context,
+                viewport: viewport
+            }).promise;
+
+        }
+
     </script>
+
 
 </body>
 
