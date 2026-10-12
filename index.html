@@ -18,22 +18,75 @@
 
 <body>
 
-    <header>
+    <header class="main-header">
         <h1>STORY ABOUT US</h1>
     </header>
 
-    <main>
+    <main class="home">
 
-        <h2>Evil Deed</h2>
+        <h2>Daftar Judul</h2>
 
-        <div class="chapter-card">
+        <!-- Evil Deed -->
+        <div
+            class="manhwa-card"
+            onclick="openTitle('evil-deed')"
+        >
+            <div class="cover-placeholder">
+                <span>EVIL<br>DEED</span>
+            </div>
 
-            <h3>Chapter 1</h3>
+            <div class="manhwa-info">
+                <h3>Evil Deed</h3>
+                <p>Chapter 1</p>
+            </div>
+        </div>
 
-            <button onclick="openReader()">
-                Baca
-            </button>
 
+        <!-- Semantic Error -->
+        <div
+            class="manhwa-card"
+            onclick="openTitle('semantic-error')"
+        >
+            <div class="cover-placeholder">
+                <span>SEMANTIC<br>ERROR</span>
+            </div>
+
+            <div class="manhwa-info">
+                <h3>Semantic Error</h3>
+                <p>Chapter 1</p>
+            </div>
+        </div>
+
+
+        <!-- Guiding Hazard -->
+        <div
+            class="manhwa-card"
+            onclick="openTitle('guiding-hazard')"
+        >
+            <div class="cover-placeholder">
+                <span>GUIDING<br>HAZARD</span>
+            </div>
+
+            <div class="manhwa-info">
+                <h3>Guiding Hazard</h3>
+                <p>Chapter 1</p>
+            </div>
+        </div>
+
+
+        <!-- Dash -->
+        <div
+            class="manhwa-card"
+            onclick="openTitle('dash')"
+        >
+            <div class="cover-placeholder">
+                <span>DASH</span>
+            </div>
+
+            <div class="manhwa-info">
+                <h3>Dash</h3>
+                <p>Chapter 1</p>
+            </div>
         </div>
 
     </main>
