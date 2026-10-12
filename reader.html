@@ -10,16 +10,17 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Reader</title>
+    <title>Chapter 1</title>
+
+    <link rel="stylesheet" href="style.css">
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 </head>
 
-
 <body>
 
-    <header class="header">
+    <header class="reader-header">
 
         <button onclick="history.back()">
             ←
@@ -38,11 +39,20 @@
 
         <iframe
             src="pdf/Evil Deed/01. EVIL DEED.pdf"
-            class="pdf-reader">
+            class="pdf-viewer">
         </iframe>
 
     </main>
 
+
+    <script>
+
+        const tg = window.Telegram.WebApp;
+
+        tg.ready();
+        tg.expand();
+
+    </script>
 
 </body>
 
