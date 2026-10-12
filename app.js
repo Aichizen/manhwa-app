@@ -7,7 +7,7 @@ tg.expand();
 function openTitle(title) {
 
     window.location.href =
-        "chapters.html?title=" + title;
+        "chapter.html?title=" + title;
 
 }
 
