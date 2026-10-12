@@ -1,36 +1,35 @@
 /* =====================================================
    STORY ABOUT US
-   DREAMY DARK THEME
+   CLEAN DREAMY DARK THEME
 ===================================================== */
 
+/* =========================
+   GLOBAL
+========================= */
 
 * {
     box-sizing: border-box;
 }
 
-
 html {
-    background: #111526;
+    background: #101424;
 }
 
-
 body {
-
     margin: 0;
+    min-height: 100vh;
 
     background:
         radial-gradient(
-            circle at 85% 5%,
+            circle at 90% 5%,
             rgba(133, 104, 190, 0.18),
             transparent 25%
         ),
-
         radial-gradient(
-            circle at 15% 60%,
+            circle at 10% 55%,
             rgba(75, 73, 150, 0.12),
             transparent 30%
         ),
-
         linear-gradient(
             180deg,
             #101424 0%,
@@ -46,57 +45,49 @@ body {
         "Segoe UI",
         sans-serif;
 
-    min-height: 100vh;
-
     -webkit-tap-highlight-color: transparent;
 }
 
+button {
+    font: inherit;
+}
 
 
 /* =====================================================
-   HOME
+   INDEX / HOME
 ===================================================== */
 
 .home-page {
-
     width: 100%;
-
     max-width: 700px;
-
     margin: 0 auto;
-
-    padding:
-        28px
-        18px
-        50px;
-
+    padding: 28px 18px 50px;
 }
-
-
-
-/* =====================================================
-   HEADER
-===================================================== */
 
 .home-header {
-
     position: relative;
-
-    padding:
-        15px
-        5px
-        25px;
-
+    padding: 15px 5px 25px;
 }
 
-
 .home-header h1 {
-    background: linear-gradient(
-        90deg,
-        #c8a8ff,
-        #ffffff,
-        #d9c9ff
-    );
+    margin: 0;
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size: clamp(36px, 9vw, 52px);
+    line-height: 1.05;
+    font-weight: 700;
+
+    background:
+        linear-gradient(
+            90deg,
+            #c8a8ff,
+            #ffffff,
+            #d9c9ff
+        );
 
     background-clip: text;
     -webkit-background-clip: text;
@@ -105,40 +96,29 @@ body {
     -webkit-text-fill-color: transparent;
 }
 
-
 .home-header p {
+    margin: 16px 0 0;
 
-    margin:
-        16px
-        0
-        0;
+    max-width: 470px;
 
     color: #a7a7d0;
 
     font-size: 15px;
-
     line-height: 1.55;
 
-    letter-spacing: 1.5px;
-
+    letter-spacing: 1.2px;
 }
 
 
-
-/* =====================================================
-   DECORATIVE MOON
-===================================================== */
+/* Decorative moon */
 
 .moon-decoration {
-
     position: absolute;
 
     right: 8px;
-
     top: -5px;
 
     width: 55px;
-
     height: 55px;
 
     border-radius: 50%;
@@ -150,23 +130,19 @@ body {
             #e9b8c6
         );
 
-    color: transparent;
-
     box-shadow:
         0 0 25px
         rgba(255, 220, 210, 0.35);
 
+    pointer-events: none;
 }
 
-
 .moon-decoration::after {
-
     content: "";
 
     position: absolute;
 
     width: 55px;
-
     height: 55px;
 
     border-radius: 50%;
@@ -174,42 +150,34 @@ body {
     background: #111526;
 
     left: -15px;
-
     top: -8px;
-
 }
 
 
-
-/* =====================================================
+/* =========================
    MANGA GRID
-===================================================== */
+========================= */
 
 .manga-grid {
-
     display: grid;
 
     grid-template-columns:
         repeat(2, minmax(0, 1fr));
 
     gap: 18px;
-
 }
 
 
-
-/* =====================================================
+/* =========================
    MANGA CARD
-===================================================== */
+========================= */
 
 .manga-card {
-
     overflow: hidden;
 
     border-radius: 20px;
 
     background:
-
         linear-gradient(
             145deg,
             rgba(48, 53, 88, 0.95),
@@ -221,50 +189,37 @@ body {
         rgba(135, 139, 190, 0.22);
 
     box-shadow:
-
         0 10px 30px
         rgba(0, 0, 0, 0.25),
-
         inset 0 1px 0
-        rgba(255,255,255,0.05);
+        rgba(255, 255, 255, 0.05);
 
     cursor: pointer;
 
     transition:
         transform 0.18s ease,
         box-shadow 0.18s ease;
-
 }
-
 
 .manga-card:active {
-
-    transform:
-        scale(0.97);
-
+    transform: scale(0.97);
 }
 
 
-
-/* =====================================================
+/* =========================
    COVER
-===================================================== */
+========================= */
 
 .cover-wrapper {
-
     width: 100%;
 
     aspect-ratio: 1.55 / 1;
 
     overflow: hidden;
-
 }
 
-
 .manga-cover {
-
     width: 100%;
-
     height: 100%;
 
     display: block;
@@ -273,25 +228,18 @@ body {
 
     transition:
         transform 0.3s ease;
-
 }
-
 
 .manga-card:hover .manga-cover {
-
-    transform:
-        scale(1.03);
-
+    transform: scale(1.03);
 }
 
 
-
-/* =====================================================
+/* =========================
    CARD BOTTOM
-===================================================== */
+========================= */
 
 .manga-card-bottom {
-
     min-height: 78px;
 
     display: flex;
@@ -307,12 +255,9 @@ body {
         13px
         12px
         16px;
-
 }
 
-
 .manga-card-bottom h2 {
-
     margin: 0;
 
     font-family:
@@ -321,29 +266,23 @@ body {
         serif;
 
     font-size: 19px;
-
     line-height: 1.15;
 
     color: #f4f0ff;
-
 }
 
 
-
-/* =====================================================
-   FAVORITE
-===================================================== */
+/* =========================
+   FAVORITE BUTTON
+========================= */
 
 .favorite-btn {
-
     flex-shrink: 0;
 
     width: 46px;
-
     height: 46px;
 
     border: none;
-
     border-radius: 50%;
 
     background:
@@ -352,18 +291,17 @@ body {
     display: flex;
 
     align-items: center;
-
     justify-content: center;
 
     cursor: pointer;
-
 }
 
+.favorite-btn:active {
+    transform: scale(0.92);
+}
 
 .favorite-btn svg {
-
     width: 25px;
-
     height: 25px;
 
     fill: none;
@@ -371,19 +309,16 @@ body {
     stroke: #ffffff;
 
     stroke-width: 1.7;
-
 }
-
 
 
 /* =====================================================
    CHAPTER PAGE
 ===================================================== */
 
-.chapter-page {
-
+.chapter-page,
+.chapters {
     width: 100%;
-
     max-width: 700px;
 
     margin: 0 auto;
@@ -392,17 +327,14 @@ body {
         22px
         18px
         50px;
-
 }
 
 
-
-/* =====================================================
+/* =========================
    CHAPTER HEADER
-===================================================== */
+========================= */
 
 .chapter-header {
-
     display: flex;
 
     align-items: center;
@@ -410,14 +342,10 @@ body {
     gap: 15px;
 
     margin-bottom: 25px;
-
 }
 
-
 .back-btn {
-
     width: 46px;
-
     height: 46px;
 
     flex-shrink: 0;
@@ -432,16 +360,17 @@ body {
     display: flex;
 
     align-items: center;
-
     justify-content: center;
 
+    cursor: pointer;
 }
 
+.back-btn:active {
+    transform: scale(0.92);
+}
 
 .back-btn svg {
-
     width: 27px;
-
     height: 27px;
 
     fill: none;
@@ -450,11 +379,11 @@ body {
 
     stroke-width: 2;
 
+    stroke-linecap: round;
+    stroke-linejoin: round;
 }
 
-
 .small-label {
-
     display: block;
 
     margin-bottom: 3px;
@@ -464,12 +393,9 @@ body {
     font-size: 10px;
 
     letter-spacing: 2px;
-
 }
 
-
 .chapter-header h1 {
-
     margin: 0;
 
     font-family:
@@ -480,181 +406,112 @@ body {
     font-size: 25px;
 
     color: #f5f1ff;
-
 }
 
 
-
-/* =====================================================
-   LARGE COVER
-===================================================== */
+/* =========================
+   CHAPTER COVER
+========================= */
 
 .chapter-cover-section {
-
-    text-align: center;
-
-    margin-bottom: 32px;
-
-}
-
-
-.large-cover-wrapper {
-
-    width: 220px;
-
-    max-width: 70vw;
-
-    margin:
-        0
-        auto
-        18px;
-
-    border-radius: 18px;
-
-    overflow: hidden;
-
-    border:
-        1px solid
-        rgba(150, 150, 200, 0.25);
-
-    box-shadow:
-        0 18px 45px
-        rgba(0,0,0,0.4);
-
-}
-
-
-.large-cover {
-
-    width: 100%;
-
-    display: block;
-
-    aspect-ratio: 3 / 4;
-
-    object-fit: cover;
-
-}
-
-
-.chapter-cover-section h2 {
-
-    margin:
-        0
-        0
-        8px;
-
-    font-family:
-        Georgia,
-        "Times New Roman",
-        serif;
-
-    font-size: 27px;
-
-}
-
-
-.cover-description {
-
-    max-width: 500px;
-
-    margin:
-        0
-        auto;
-
-    color: #9f9fca;
-
-    font-size: 13px;
-
-    line-height: 1.6;
-
-}
-
-
-
-/* =====================================================
-   CHAPTER SECTION
-===================================================== */
-
-.chapter-section {
-
-    margin-top: 20px;
-
-}
-
-
-.section-title {
-
     display: flex;
+
+    flex-direction: column;
 
     align-items: center;
 
-    justify-content: space-between;
+    text-align: center;
 
-    margin-bottom: 13px;
+    margin-bottom: 30px;
+}
 
+.chapter-cover {
+    display: flex;
+
+    justify-content: center;
+
+    width: 100%;
+
+    margin:
+        5px 0
+        25px;
+}
+
+.chapter-cover img,
+.chapter-cover-section img {
+    width: 150px;
+    height: 215px;
+
+    display: block;
+
+    object-fit: cover;
+
+    border-radius: 16px;
+
+    box-shadow:
+        0 14px 35px
+        rgba(0, 0, 0, 0.38);
+
+    border:
+        1px solid
+        rgba(180, 170, 230, 0.18);
 }
 
 
-.section-title h2 {
+/* =========================
+   CHAPTER TITLE
+========================= */
 
-    margin: 0;
+.chapters h2 {
+    margin:
+        0 0
+        14px;
 
     font-family:
         Georgia,
         "Times New Roman",
         serif;
 
-    font-size: 22px;
+    font-size: 24px;
 
+    color: #f5f1ff;
 }
 
 
-.section-title span {
-
-    color: #9293bb;
-
-    font-size: 12px;
-
-}
-
-
-
-/* =====================================================
+/* =========================
    CHAPTER LIST
-===================================================== */
+========================= */
 
-.chapter-list {
-
+.chapter-list,
+.chapters-list {
     display: flex;
 
     flex-direction: column;
 
     gap: 10px;
-
 }
 
-
 .chapter-item {
-
     width: 100%;
 
     min-height: 68px;
 
     padding:
-        13px
-        15px
-        13px
+        14px
         18px;
 
     border:
         1px solid
-        rgba(130, 134, 180, 0.2);
+        rgba(135, 139, 190, 0.22);
 
-    border-radius: 15px;
+    border-radius: 16px;
 
     background:
-        rgba(41, 45, 76, 0.85);
+        linear-gradient(
+            145deg,
+            rgba(42, 46, 78, 0.96),
+            rgba(34, 38, 65, 0.98)
+        );
 
     color: #ffffff;
 
@@ -668,38 +525,21 @@ body {
 
     cursor: pointer;
 
+    box-shadow:
+        0 8px 20px
+        rgba(0, 0, 0, 0.16);
+
     transition:
         transform 0.15s ease,
         background 0.15s ease;
-
 }
-
 
 .chapter-item:active {
-
-    transform:
-        scale(0.98);
+    transform: scale(0.98);
 
     background:
-        rgba(60, 64, 100, 0.9);
-
+        rgba(57, 61, 99, 0.98);
 }
-
-
-.chapter-number {
-
-    display: block;
-
-    margin-bottom: 5px;
-
-    color: #9999c5;
-
-    font-size: 10px;
-
-    letter-spacing: 1.8px;
-
-}
-
 
 .chapter-name {
     font-family:
@@ -707,264 +547,27 @@ body {
         "Times New Roman",
         serif;
 
-    font-size: 20px;
+    font-size: 17px;
+
     color: #f5f1ff;
 }
 
-
 .chapter-arrow {
+    flex-shrink: 0;
 
-    font-size: 30px;
+    color: #c5b1ff;
+
+    font-size: 28px;
 
     line-height: 1;
-
-    color: #aaa5d3;
-
 }
 
-
-
-/* =====================================================
-   HP KECIL
-===================================================== */
-
-@media (max-width: 380px) {
-
-    .home-page {
-
-        padding:
-            22px
-            13px
-            40px;
-
-    }
-
-
-    .home-header h1 {
-
-        font-size: 35px;
-
-    }
-
-
-    .home-header p {
-
-        font-size: 13px;
-
-    }
-
-
-    .manga-grid {
-
-        gap: 12px;
-
-    }
-
-
-    .manga-card {
-
-        border-radius: 16px;
-
-    }
-
-
-    .manga-card-bottom {
-
-        min-height: 65px;
-
-        padding:
-            9px
-            9px
-            9px
-            12px;
-
-    }
-
-
-    .manga-card-bottom h2 {
-
-        font-size: 16px;
-
-    }
-
-
-    .favorite-btn {
-
-        width: 38px;
-
-        height: 38px;
-
-    }
-
-
-    .favorite-btn svg {
-
-        width: 21px;
-
-        height: 21px;
-
-    }
-
-}
 
 /* =====================================================
    READER
 ===================================================== */
 
-.reader-page {
-    width: 100%;
-    min-height: 100vh;
-
-    margin: 0;
-    padding: 0;
-
-    background: #101424;
-    color: #ffffff;
-}
-
-
-/* HEADER READER */
-
-.reader-header {
-    position: sticky;
-    top: 0;
-    z-index: 100;
-
-    width: 100%;
-
-    height: 58px;
-
-    padding: 0 15px;
-
-    display: flex;
-    align-items: center;
-
-    gap: 12px;
-
-    background: rgba(16, 20, 36, 0.95);
-
-    backdrop-filter: blur(10px);
-
-    border-bottom:
-        1px solid
-        rgba(150, 150, 200, 0.15);
-}
-
-
-.reader-header h1 {
-    margin: 0;
-
-    font-family:
-        Georgia,
-        "Times New Roman",
-        serif;
-
-    font-size: 19px;
-
-    color: #f5f1ff;
-}
-
-
-.reader-back {
-    width: 40px;
-    height: 40px;
-
-    padding: 0;
-
-    border: none;
-    border-radius: 50%;
-
-    background:
-        rgba(65, 69, 108, 0.7);
-
-    color: white;
-
-    font-size: 25px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-
-/* PDF CONTAINER */
-
-#pdf-container {
-
-    width: 100%;
-
-    margin: 0;
-    padding: 0;
-
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-
-    background: #000000;
-}
-
-
-/* SETIAP HALAMAN PDF */
-
-.pdf-page {
-
-    display: block;
-
-    width: 100%;
-
-    height: auto;
-
-    margin: 0 auto;
-
-    padding: 0;
-
-    background: #000000;
-}
-
-
-/* CANVAS PDF.JS */
-
-.pdf-page canvas {
-
-    display: block;
-
-    width: 100% !important;
-
-    height: auto !important;
-
-    margin: 0 auto;
-}
-
-
-/* HP */
-
-@media (max-width: 600px) {
-
-    .reader-header {
-        height: 52px;
-        padding: 0 12px;
-    }
-
-    .reader-header h1 {
-        font-size: 17px;
-    }
-
-    #pdf-container {
-        width: 100%;
-    }
-
-    .pdf-page {
-        width: 100%;
-    }
-
-}
-
-/* =====================================================
-   READER PAGE
-===================================================== */
-
 .reader-body {
-
     margin: 0;
 
     padding: 0;
@@ -974,16 +577,14 @@ body {
     background: #000000;
 
     color: #ffffff;
-
 }
 
 
-/* =====================================================
+/* =========================
    READER HEADER
-===================================================== */
+========================= */
 
 .reader-header {
-
     position: sticky;
 
     top: 0;
@@ -994,8 +595,7 @@ body {
 
     height: 58px;
 
-    padding:
-        0 12px;
+    padding: 0 12px;
 
     display: flex;
 
@@ -1006,27 +606,17 @@ body {
     background:
         rgba(16, 20, 36, 0.96);
 
-    backdrop-filter:
-        blur(12px);
+    backdrop-filter: blur(12px);
 
-    -webkit-backdrop-filter:
-        blur(12px);
+    -webkit-backdrop-filter: blur(12px);
 
     border-bottom:
         1px solid
         rgba(150, 150, 200, 0.15);
-
 }
 
-
-/* =====================================================
-   BACK BUTTON
-===================================================== */
-
 .reader-back {
-
     width: 40px;
-
     height: 40px;
 
     padding: 0;
@@ -1040,29 +630,22 @@ body {
     background:
         rgba(65, 69, 108, 0.75);
 
+    color: #ffffff;
+
     display: flex;
 
     align-items: center;
-
     justify-content: center;
 
     cursor: pointer;
-
 }
-
 
 .reader-back:active {
-
-    transform:
-        scale(0.92);
-
+    transform: scale(0.92);
 }
 
-
 .reader-back svg {
-
     width: 24px;
-
     height: 24px;
 
     fill: none;
@@ -1074,23 +657,13 @@ body {
     stroke-linecap: round;
 
     stroke-linejoin: round;
-
 }
-
-
-/* =====================================================
-   READER TITLE
-===================================================== */
 
 .reader-title-area {
-
     min-width: 0;
-
 }
 
-
 .reader-title-area span {
-
     display: block;
 
     margin-bottom: 2px;
@@ -1106,12 +679,9 @@ body {
     overflow: hidden;
 
     text-overflow: ellipsis;
-
 }
 
-
 .reader-title-area h1 {
-
     margin: 0;
 
     font-family:
@@ -1126,16 +696,14 @@ body {
     color: #f5f1ff;
 
     white-space: nowrap;
-
 }
 
 
-/* =====================================================
-   PDF CONTAINER
-===================================================== */
+/* =========================
+   PDF
+========================= */
 
 #pdf-container {
-
     width: 100%;
 
     margin: 0;
@@ -1143,50 +711,36 @@ body {
     padding: 0;
 
     background: #000000;
-
 }
 
-
-/* =====================================================
-   PDF PAGE
-===================================================== */
-
 .pdf-page {
-
     width: 100%;
 
     margin: 0;
-
     padding: 0;
 
     background: #000000;
 
     line-height: 0;
-
 }
-
 
 .pdf-page canvas {
-
     display: block;
 
-    width: 100%;
+    width: 100% !important;
 
-    height: auto;
+    height: auto !important;
 
     margin: 0;
-
     padding: 0;
-
 }
 
 
-/* =====================================================
+/* =========================
    LOADING
-===================================================== */
+========================= */
 
 .reader-loading {
-
     min-height:
         calc(100vh - 58px);
 
@@ -1195,36 +749,23 @@ body {
     flex-direction: column;
 
     align-items: center;
-
     justify-content: center;
 
-    background:
-        #101424;
+    background: #101424;
 
     color: #aaa8ca;
-
 }
 
-
 .reader-loading p {
-
     margin-top: 16px;
 
     font-size: 13px;
 
     letter-spacing: 0.5px;
-
 }
 
-
-/* =====================================================
-   SPINNER
-===================================================== */
-
 .loading-spinner {
-
     width: 38px;
-
     height: 38px;
 
     border-radius: 50%;
@@ -1238,28 +779,20 @@ body {
 
     animation:
         reader-spin 0.8s linear infinite;
-
 }
-
 
 @keyframes reader-spin {
-
     to {
-
-        transform:
-            rotate(360deg);
-
+        transform: rotate(360deg);
     }
-
 }
 
 
-/* =====================================================
-   ERROR
-===================================================== */
+/* =========================
+   READER ERROR
+========================= */
 
 .reader-error {
-
     min-height:
         calc(100vh - 58px);
 
@@ -1270,21 +803,15 @@ body {
     flex-direction: column;
 
     align-items: center;
-
     justify-content: center;
 
     text-align: center;
 
-    background:
-        #101424;
-
+    background: #101424;
 }
 
-
 .error-icon {
-
     width: 48px;
-
     height: 48px;
 
     border-radius: 50%;
@@ -1292,7 +819,6 @@ body {
     display: flex;
 
     align-items: center;
-
     justify-content: center;
 
     background:
@@ -1303,12 +829,9 @@ body {
     font-size: 24px;
 
     margin-bottom: 15px;
-
 }
 
-
 .reader-error h2 {
-
     margin: 0 0 8px;
 
     font-family:
@@ -1317,12 +840,9 @@ body {
         serif;
 
     font-size: 20px;
-
 }
 
-
 .reader-error p {
-
     max-width: 300px;
 
     margin: 0;
@@ -1332,16 +852,9 @@ body {
     font-size: 13px;
 
     line-height: 1.5;
-
 }
 
-
-/* =====================================================
-   RETRY BUTTON
-===================================================== */
-
 .retry-button {
-
     margin-top: 20px;
 
     padding:
@@ -1351,59 +864,170 @@ body {
 
     border-radius: 20px;
 
-    background:
-        #7165a5;
+    background: #7165a5;
 
     color: #ffffff;
 
     font-size: 13px;
 
     cursor: pointer;
-
 }
 
-
 .retry-button:active {
-
-    transform:
-        scale(0.96);
-
+    transform: scale(0.96);
 }
 
 
 /* =====================================================
-   HP
+   MOBILE
 ===================================================== */
 
 @media (max-width: 600px) {
 
-    .reader-header {
-
-        height: 54px;
-
+    .home-page {
+        padding:
+            24px
+            14px
+            40px;
     }
 
+    .home-header {
+        padding:
+            12px
+            4px
+            22px;
+    }
+
+    .home-header h1 {
+        font-size: 39px;
+    }
+
+    .home-header p {
+        font-size: 14px;
+
+        letter-spacing: 1px;
+    }
+
+    .moon-decoration {
+        width: 45px;
+        height: 45px;
+
+        right: 5px;
+    }
+
+    .moon-decoration::after {
+        width: 45px;
+        height: 45px;
+    }
+
+    .manga-grid {
+        gap: 12px;
+    }
+
+    .manga-card {
+        border-radius: 16px;
+    }
+
+    .manga-card-bottom {
+        min-height: 64px;
+
+        padding:
+            10px
+            10px
+            10px
+            12px;
+    }
+
+    .manga-card-bottom h2 {
+        font-size: 16px;
+    }
+
+    .favorite-btn {
+        width: 38px;
+        height: 38px;
+    }
+
+    .favorite-btn svg {
+        width: 21px;
+        height: 21px;
+    }
+
+
+    .chapter-page,
+    .chapters {
+        padding:
+            18px
+            14px
+            40px;
+    }
+
+    .chapter-header h1 {
+        font-size: 22px;
+    }
+
+    .chapter-cover img,
+    .chapter-cover-section img {
+        width: 140px;
+        height: 200px;
+    }
+
+    .chapter-item {
+        min-height: 62px;
+
+        padding:
+            13px
+            16px;
+    }
+
+    .chapter-name {
+        font-size: 16px;
+    }
+
+    .chapter-arrow {
+        font-size: 25px;
+    }
+
+
+    .reader-header {
+        height: 54px;
+    }
 
     .reader-title-area h1 {
-
         font-size: 17px;
-
     }
-
 
     .reader-title-area span {
-
         font-size: 8px;
-
     }
-
 
     .reader-back {
-
         width: 38px;
-
         height: 38px;
+    }
+}
 
+
+/* =====================================================
+   VERY SMALL PHONES
+===================================================== */
+
+@media (max-width: 380px) {
+
+    .manga-grid {
+        gap: 9px;
     }
 
+    .manga-card-bottom h2 {
+        font-size: 14px;
+    }
+
+    .favorite-btn {
+        width: 34px;
+        height: 34px;
+    }
+
+    .favorite-btn svg {
+        width: 19px;
+        height: 19px;
+    }
 }
