@@ -3,13 +3,10 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>STORY ABOUT US</title>
+    <title>Story About Us</title>
 
     <link rel="stylesheet" href="style.css">
 
@@ -18,80 +15,190 @@
 
 <body>
 
-    <header class="main-header">
-        <h1>STORY ABOUT US</h1>
-    </header>
+    <main class="home-page">
 
-    <main class="home">
+        <!-- HEADER -->
+        <header class="home-header">
 
-        <h2>Daftar Judul</h2>
-
-        <!-- Evil Deed -->
-        <div
-            class="manhwa-card"
-            onclick="openTitle('evil-deed')"
-        >
-            <div class="cover-placeholder">
-                <span>EVIL<br>DEED</span>
+            <div class="moon-decoration">
+                ☾
             </div>
 
-            <div class="manhwa-info">
-                <h3>Evil Deed</h3>
-                <p>Chapter 1</p>
-            </div>
-        </div>
+            <h1>Story About Us</h1>
+
+            <p>
+                A few stories, memories, and moments<br>
+                that led us here.
+            </p>
+
+        </header>
 
 
-        <!-- Semantic Error -->
-        <div
-            class="manhwa-card"
-            onclick="openTitle('semantic-error')"
-        >
-            <div class="cover-placeholder">
-                <span>SEMANTIC<br>ERROR</span>
-            </div>
-
-            <div class="manhwa-info">
-                <h3>Semantic Error</h3>
-                <p>Chapter 1</p>
-            </div>
-        </div>
+        <!-- DAFTAR MANHWA -->
+        <section class="manga-grid">
 
 
-        <!-- Guiding Hazard -->
-        <div
-            class="manhwa-card"
-            onclick="openTitle('guiding-hazard')"
-        >
-            <div class="cover-placeholder">
-                <span>GUIDING<br>HAZARD</span>
-            </div>
+            <!-- EVIL DEED -->
+            <article class="manga-card"
+                     onclick="openTitle('evil-deed')">
 
-            <div class="manhwa-info">
-                <h3>Guiding Hazard</h3>
-                <p>Chapter 1</p>
-            </div>
-        </div>
+                <div class="cover-wrapper">
+
+                    <img
+                        src="covers/evil-deed.png"
+                        alt="Evil Deed"
+                        class="manga-cover"
+                    >
+
+                </div>
+
+                <div class="manga-card-bottom">
+
+                    <h2>Evil Deed</h2>
+
+                    <button
+                        class="favorite-btn"
+                        onclick="event.stopPropagation()">
+
+                        <svg viewBox="0 0 24 24">
+                            <path
+                                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z">
+                            </path>
+                        </svg>
+
+                    </button>
+
+                </div>
+
+            </article>
 
 
-        <!-- Dash -->
-        <div
-            class="manhwa-card"
-            onclick="openTitle('dash')"
-        >
-            <div class="cover-placeholder">
-                <span>DASH</span>
-            </div>
+            <!-- SEMANTIC ERROR -->
+            <article class="manga-card"
+                     onclick="openTitle('semantic-error')">
 
-            <div class="manhwa-info">
-                <h3>Dash</h3>
-                <p>Chapter 1</p>
-            </div>
-        </div>
+                <div class="cover-wrapper">
+
+                    <img
+                        src="covers/semantic-error.jpg"
+                        alt="Semantic Error"
+                        class="manga-cover"
+                    >
+
+                </div>
+
+                <div class="manga-card-bottom">
+
+                    <h2>Semantic Error</h2>
+
+                    <button
+                        class="favorite-btn"
+                        onclick="event.stopPropagation()">
+
+                        <svg viewBox="0 0 24 24">
+                            <path
+                                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z">
+                            </path>
+                        </svg>
+
+                    </button>
+
+                </div>
+
+            </article>
+
+
+            <!-- GUIDING HAZARD -->
+            <article class="manga-card"
+                     onclick="openTitle('guiding-hazard')">
+
+                <div class="cover-wrapper">
+
+                    <img
+                        src="covers/guiding-hazard.jpg"
+                        alt="Guiding Hazard"
+                        class="manga-cover"
+                    >
+
+                </div>
+
+                <div class="manga-card-bottom">
+
+                    <h2>Guiding Hazard</h2>
+
+                    <button
+                        class="favorite-btn"
+                        onclick="event.stopPropagation()">
+
+                        <svg viewBox="0 0 24 24">
+                            <path
+                                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z">
+                            </path>
+                        </svg>
+
+                    </button>
+
+                </div>
+
+            </article>
+
+
+            <!-- DASH -->
+            <article class="manga-card"
+                     onclick="openTitle('dash')">
+
+                <div class="cover-wrapper">
+
+                    <img
+                        src="covers/dash.jpg"
+                        alt="Dash"
+                        class="manga-cover"
+                    >
+
+                </div>
+
+                <div class="manga-card-bottom">
+
+                    <h2>Dash</h2>
+
+                    <button
+                        class="favorite-btn"
+                        onclick="event.stopPropagation()">
+
+                        <svg viewBox="0 0 24 24">
+                            <path
+                                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z">
+                            </path>
+                        </svg>
+
+                    </button>
+
+                </div>
+
+            </article>
+
+
+        </section>
 
     </main>
 
-    <script src="app.js"></script>
+
+    <script>
+
+        const tg = window.Telegram.WebApp;
+
+        tg.ready();
+        tg.expand();
+
+
+        function openTitle(title) {
+
+            window.location.href =
+                "chapter.html?title=" + title;
+
+        }
+
+    </script>
 
 </body>
 

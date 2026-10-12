@@ -1,197 +1,1409 @@
+/* =====================================================
+   STORY ABOUT US
+   DREAMY DARK THEME
+===================================================== */
+
+
 * {
     box-sizing: border-box;
 }
 
+
+html {
+    background: #111526;
+}
+
+
 body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-    background: #0f0f0f;
-    color: white;
-    font-family: Arial, sans-serif;
-}
 
-#app {
-    max-width: 600px;
-    margin: auto;
+    margin: 0;
+
+    background:
+        radial-gradient(
+            circle at 85% 5%,
+            rgba(133, 104, 190, 0.18),
+            transparent 25%
+        ),
+
+        radial-gradient(
+            circle at 15% 60%,
+            rgba(75, 73, 150, 0.12),
+            transparent 30%
+        ),
+
+        linear-gradient(
+            180deg,
+            #101424 0%,
+            #151a30 50%,
+            #101423 100%
+        );
+
+    color: #f3f1ff;
+
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
     min-height: 100vh;
+
+    -webkit-tap-highlight-color: transparent;
 }
 
-.header {
+
+
+/* =====================================================
+   HOME
+===================================================== */
+
+.home-page {
+
+    width: 100%;
+
+    max-width: 700px;
+
+    margin: 0 auto;
+
+    padding:
+        28px
+        18px
+        50px;
+
+}
+
+
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+.home-header {
+
+    position: relative;
+
+    padding:
+        15px
+        5px
+        25px;
+
+}
+
+
+.home-header h1 {
+    background: linear-gradient(
+        90deg,
+        #c8a8ff,
+        #ffffff,
+        #d9c9ff
+    );
+
+    background-clip: text;
+    -webkit-background-clip: text;
+
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+}
+
+
+.home-header p {
+
+    margin:
+        16px
+        0
+        0;
+
+    color: #a7a7d0;
+
+    font-size: 15px;
+
+    line-height: 1.55;
+
+    letter-spacing: 1.5px;
+
+}
+
+
+
+/* =====================================================
+   DECORATIVE MOON
+===================================================== */
+
+.moon-decoration {
+
+    position: absolute;
+
+    right: 8px;
+
+    top: -5px;
+
+    width: 55px;
+
     height: 55px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 15px;
 
-    background: #151515;
+    border-radius: 50%;
 
-    position: sticky;
-    top: 0;
-    z-index: 10;
+    background:
+        linear-gradient(
+            135deg,
+            #fff1d7,
+            #e9b8c6
+        );
+
+    color: transparent;
+
+    box-shadow:
+        0 0 25px
+        rgba(255, 220, 210, 0.35);
+
 }
 
-.header h1 {
-    font-size: 16px;
-    margin: 0;
+
+.moon-decoration::after {
+
+    content: "";
+
+    position: absolute;
+
+    width: 55px;
+
+    height: 55px;
+
+    border-radius: 50%;
+
+    background: #111526;
+
+    left: -15px;
+
+    top: -8px;
+
 }
 
-.header button {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 22px;
+
+
+/* =====================================================
+   MANGA GRID
+===================================================== */
+
+.manga-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 18px;
+
 }
 
-.cover-section {
-    width: 100%;
-}
 
-.cover {
-    width: 100%;
-    max-height: 500px;
-    object-fit: cover;
-    display: block;
-}
 
-.info {
-    padding: 20px;
-}
+/* =====================================================
+   MANGA CARD
+===================================================== */
 
-.info h2 {
-    margin-top: 0;
-    font-size: 24px;
-}
+.manga-card {
 
-.rating {
-    color: #aaa;
-    font-size: 14px;
-}
+    overflow: hidden;
 
-.description {
-    color: #bbb;
-    line-height: 1.6;
-}
+    border-radius: 20px;
 
-.buttons {
-    display: flex;
-    gap: 10px;
-}
+    background:
 
-.buttons button {
-    flex: 1;
-    padding: 12px;
+        linear-gradient(
+            145deg,
+            rgba(48, 53, 88, 0.95),
+            rgba(34, 38, 65, 0.98)
+        );
 
-    border: 0;
-    border-radius: 10px;
+    border:
+        1px solid
+        rgba(135, 139, 190, 0.22);
 
-    background: #252525;
-    color: white;
-}
+    box-shadow:
 
-.chapters {
-    padding: 0 20px 30px;
-}
+        0 10px 30px
+        rgba(0, 0, 0, 0.25),
 
-.chapters h2 {
-    font-size: 20px;
-}
-
-.chapter {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-
-    padding: 17px;
-
-    margin-bottom: 8px;
-
-    background: #191919;
-
-    border-radius: 10px;
+        inset 0 1px 0
+        rgba(255,255,255,0.05);
 
     cursor: pointer;
+
+    transition:
+        transform 0.18s ease,
+        box-shadow 0.18s ease;
+
 }
+
+
+.manga-card:active {
+
+    transform:
+        scale(0.97);
+
+}
+
+
+
+/* =====================================================
+   COVER
+===================================================== */
+
+.cover-wrapper {
+
+    width: 100%;
+
+    aspect-ratio: 1.55 / 1;
+
+    overflow: hidden;
+
+}
+
+
+.manga-cover {
+
+    width: 100%;
+
+    height: 100%;
+
+    display: block;
+
+    object-fit: cover;
+
+    transition:
+        transform 0.3s ease;
+
+}
+
+
+.manga-card:hover .manga-cover {
+
+    transform:
+        scale(1.03);
+
+}
+
+
+
+/* =====================================================
+   CARD BOTTOM
+===================================================== */
+
+.manga-card-bottom {
+
+    min-height: 78px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 8px;
+
+    padding:
+        12px
+        13px
+        12px
+        16px;
+
+}
+
+
+.manga-card-bottom h2 {
+
+    margin: 0;
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size: 19px;
+
+    line-height: 1.15;
+
+    color: #f4f0ff;
+
+}
+
+
+
+/* =====================================================
+   FAVORITE
+===================================================== */
+
+.favorite-btn {
+
+    flex-shrink: 0;
+
+    width: 46px;
+
+    height: 46px;
+
+    border: none;
+
+    border-radius: 50%;
+
+    background:
+        rgba(91, 92, 143, 0.6);
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    cursor: pointer;
+
+}
+
+
+.favorite-btn svg {
+
+    width: 25px;
+
+    height: 25px;
+
+    fill: none;
+
+    stroke: #ffffff;
+
+    stroke-width: 1.7;
+
+}
+
+
+
+/* =====================================================
+   CHAPTER PAGE
+===================================================== */
+
+.chapter-page {
+
+    width: 100%;
+
+    max-width: 700px;
+
+    margin: 0 auto;
+
+    padding:
+        22px
+        18px
+        50px;
+
+}
+
+
+
+/* =====================================================
+   CHAPTER HEADER
+===================================================== */
+
+.chapter-header {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 15px;
+
+    margin-bottom: 25px;
+
+}
+
+
+.back-btn {
+
+    width: 46px;
+
+    height: 46px;
+
+    flex-shrink: 0;
+
+    border: none;
+
+    border-radius: 50%;
+
+    background:
+        rgba(65, 69, 108, 0.65);
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+}
+
+
+.back-btn svg {
+
+    width: 27px;
+
+    height: 27px;
+
+    fill: none;
+
+    stroke: #ffffff;
+
+    stroke-width: 2;
+
+}
+
+
+.small-label {
+
+    display: block;
+
+    margin-bottom: 3px;
+
+    color: #999ac4;
+
+    font-size: 10px;
+
+    letter-spacing: 2px;
+
+}
+
+
+.chapter-header h1 {
+
+    margin: 0;
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size: 25px;
+
+    color: #f5f1ff;
+
+}
+
+
+
+/* =====================================================
+   LARGE COVER
+===================================================== */
+
+.chapter-cover-section {
+
+    text-align: center;
+
+    margin-bottom: 32px;
+
+}
+
+
+.large-cover-wrapper {
+
+    width: 220px;
+
+    max-width: 70vw;
+
+    margin:
+        0
+        auto
+        18px;
+
+    border-radius: 18px;
+
+    overflow: hidden;
+
+    border:
+        1px solid
+        rgba(150, 150, 200, 0.25);
+
+    box-shadow:
+        0 18px 45px
+        rgba(0,0,0,0.4);
+
+}
+
+
+.large-cover {
+
+    width: 100%;
+
+    display: block;
+
+    aspect-ratio: 3 / 4;
+
+    object-fit: cover;
+
+}
+
+
+.chapter-cover-section h2 {
+
+    margin:
+        0
+        0
+        8px;
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size: 27px;
+
+}
+
+
+.cover-description {
+
+    max-width: 500px;
+
+    margin:
+        0
+        auto;
+
+    color: #9f9fca;
+
+    font-size: 13px;
+
+    line-height: 1.6;
+
+}
+
+
+
+/* =====================================================
+   CHAPTER SECTION
+===================================================== */
+
+.chapter-section {
+
+    margin-top: 20px;
+
+}
+
+
+.section-title {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    margin-bottom: 13px;
+
+}
+
+
+.section-title h2 {
+
+    margin: 0;
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size: 22px;
+
+}
+
+
+.section-title span {
+
+    color: #9293bb;
+
+    font-size: 12px;
+
+}
+
+
+
+/* =====================================================
+   CHAPTER LIST
+===================================================== */
+
+.chapter-list {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 10px;
+
+}
+
 
 .chapter-item {
+
+    width: 100%;
+
+    min-height: 68px;
+
+    padding:
+        13px
+        15px
+        13px
+        18px;
+
+    border:
+        1px solid
+        rgba(130, 134, 180, 0.2);
+
+    border-radius: 15px;
+
+    background:
+        rgba(41, 45, 76, 0.85);
+
+    color: #ffffff;
+
     display: flex;
-    justify-content: space-between;
+
     align-items: center;
 
-    padding: 15px 16px;
-    margin-bottom: 10px;
+    justify-content: space-between;
 
-    background: #1a1a1a;
-    border-radius: 10px;
+    text-align: left;
 
-    color: white;
     cursor: pointer;
+
+    transition:
+        transform 0.15s ease,
+        background 0.15s ease;
+
 }
 
-.chapter:hover {
-    background: #252525;
+
+.chapter-item:active {
+
+    transform:
+        scale(0.98);
+
+    background:
+        rgba(60, 64, 100, 0.9);
+
 }
+
+
+.chapter-number {
+
+    display: block;
+
+    margin-bottom: 5px;
+
+    color: #9999c5;
+
+    font-size: 10px;
+
+    letter-spacing: 1.8px;
+
+}
+
+
+.chapter-name {
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size: 20px;
+    color: #f5f1ff;
+}
+
+
+.chapter-arrow {
+
+    font-size: 30px;
+
+    line-height: 1;
+
+    color: #aaa5d3;
+
+}
+
+
+
+/* =====================================================
+   HP KECIL
+===================================================== */
+
+@media (max-width: 380px) {
+
+    .home-page {
+
+        padding:
+            22px
+            13px
+            40px;
+
+    }
+
+
+    .home-header h1 {
+
+        font-size: 35px;
+
+    }
+
+
+    .home-header p {
+
+        font-size: 13px;
+
+    }
+
+
+    .manga-grid {
+
+        gap: 12px;
+
+    }
+
+
+    .manga-card {
+
+        border-radius: 16px;
+
+    }
+
+
+    .manga-card-bottom {
+
+        min-height: 65px;
+
+        padding:
+            9px
+            9px
+            9px
+            12px;
+
+    }
+
+
+    .manga-card-bottom h2 {
+
+        font-size: 16px;
+
+    }
+
+
+    .favorite-btn {
+
+        width: 38px;
+
+        height: 38px;
+
+    }
+
+
+    .favorite-btn svg {
+
+        width: 21px;
+
+        height: 21px;
+
+    }
+
+}
+
+/* =====================================================
+   READER
+===================================================== */
+
+.reader-page {
+    width: 100%;
+    min-height: 100vh;
+
+    margin: 0;
+    padding: 0;
+
+    background: #101424;
+    color: #ffffff;
+}
+
+
+/* HEADER READER */
 
 .reader-header {
-    height: 55px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
 
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    width: 100%;
+
+    height: 58px;
 
     padding: 0 15px;
 
-    background: #111;
-    color: white;
+    display: flex;
+    align-items: center;
 
-    box-sizing: border-box;
+    gap: 12px;
+
+    background: rgba(16, 20, 36, 0.95);
+
+    backdrop-filter: blur(10px);
+
+    border-bottom:
+        1px solid
+        rgba(150, 150, 200, 0.15);
 }
 
-.reader-page {
-    margin: 0;
-    padding: 0;
-    background: #000;
-}
-
-#pdf-container {
-    width: 100%;
-    background: #000;
-    padding: 0;
-    margin: 0;
-}
-
-.pdf-page {
-    display: block;
-    width: 100%;
-    height: auto;
-    margin: 0 auto 2px auto;
-}
 
 .reader-header h1 {
     margin: 0;
-    font-size: 16px;
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size: 19px;
+
+    color: #f5f1ff;
 }
 
-.reader-header button {
-     width: 40px;
+
+.reader-back {
+    width: 40px;
     height: 40px;
 
+    padding: 0;
+
     border: none;
-    background: transparent;
+    border-radius: 50%;
+
+    background:
+        rgba(65, 69, 108, 0.7);
 
     color: white;
-    font-size: 24px;
 
-    cursor: pointer;
+    font-size: 25px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.reader {
-     width: 100%;
-    height: calc(100vh - 50px);
+
+/* PDF CONTAINER */
+
+#pdf-container {
+
+    width: 100%;
 
     margin: 0;
     padding: 0;
 
-    background: #000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    background: #000000;
+}
+
+
+/* SETIAP HALAMAN PDF */
+
+.pdf-page {
+
+    display: block;
+
+    width: 100%;
+
+    height: auto;
+
+    margin: 0 auto;
+
+    padding: 0;
+
+    background: #000000;
+}
+
+
+/* CANVAS PDF.JS */
+
+.pdf-page canvas {
+
+    display: block;
+
+    width: 100% !important;
+
+    height: auto !important;
+
+    margin: 0 auto;
+}
+
+
+/* HP */
+
+@media (max-width: 600px) {
+
+    .reader-header {
+        height: 52px;
+        padding: 0 12px;
+    }
+
+    .reader-header h1 {
+        font-size: 17px;
+    }
+
+    #pdf-container {
+        width: 100%;
+    }
+
+    .pdf-page {
+        width: 100%;
+    }
+
+}
+
+/* =====================================================
+   READER PAGE
+===================================================== */
+
+.reader-body {
+
+    margin: 0;
+
+    padding: 0;
+
+    min-height: 100vh;
+
+    background: #000000;
+
+    color: #ffffff;
+
+}
+
+
+/* =====================================================
+   READER HEADER
+===================================================== */
+
+.reader-header {
+
+    position: sticky;
+
+    top: 0;
+
+    z-index: 1000;
+
+    width: 100%;
+
+    height: 58px;
+
+    padding:
+        0 12px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    background:
+        rgba(16, 20, 36, 0.96);
+
+    backdrop-filter:
+        blur(12px);
+
+    -webkit-backdrop-filter:
+        blur(12px);
+
+    border-bottom:
+        1px solid
+        rgba(150, 150, 200, 0.15);
+
+}
+
+
+/* =====================================================
+   BACK BUTTON
+===================================================== */
+
+.reader-back {
+
+    width: 40px;
+
+    height: 40px;
+
+    padding: 0;
+
+    flex-shrink: 0;
+
+    border: none;
+
+    border-radius: 50%;
+
+    background:
+        rgba(65, 69, 108, 0.75);
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    cursor: pointer;
+
+}
+
+
+.reader-back:active {
+
+    transform:
+        scale(0.92);
+
+}
+
+
+.reader-back svg {
+
+    width: 24px;
+
+    height: 24px;
+
+    fill: none;
+
+    stroke: #ffffff;
+
+    stroke-width: 2;
+
+    stroke-linecap: round;
+
+    stroke-linejoin: round;
+
+}
+
+
+/* =====================================================
+   READER TITLE
+===================================================== */
+
+.reader-title-area {
+
+    min-width: 0;
+
+}
+
+
+.reader-title-area span {
+
+    display: block;
+
+    margin-bottom: 2px;
+
+    color: #9293bd;
+
+    font-size: 9px;
+
+    letter-spacing: 1.5px;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+}
+
+
+.reader-title-area h1 {
+
+    margin: 0;
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size: 18px;
+
+    line-height: 1.1;
+
+    color: #f5f1ff;
+
+    white-space: nowrap;
+
+}
+
+
+/* =====================================================
+   PDF CONTAINER
+===================================================== */
+
+#pdf-container {
+
+    width: 100%;
+
+    margin: 0;
+
+    padding: 0;
+
+    background: #000000;
+
+}
+
+
+/* =====================================================
+   PDF PAGE
+===================================================== */
+
+.pdf-page {
+
+    width: 100%;
+
+    margin: 0;
+
+    padding: 0;
+
+    background: #000000;
+
+    line-height: 0;
+
+}
+
+
+.pdf-page canvas {
+
+    display: block;
+
+    width: 100%;
+
+    height: auto;
+
+    margin: 0;
+
+    padding: 0;
+
+}
+
+
+/* =====================================================
+   LOADING
+===================================================== */
+
+.reader-loading {
+
+    min-height:
+        calc(100vh - 58px);
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background:
+        #101424;
+
+    color: #aaa8ca;
+
+}
+
+
+.reader-loading p {
+
+    margin-top: 16px;
+
+    font-size: 13px;
+
+    letter-spacing: 0.5px;
+
+}
+
+
+/* =====================================================
+   SPINNER
+===================================================== */
+
+.loading-spinner {
+
+    width: 38px;
+
+    height: 38px;
+
+    border-radius: 50%;
+
+    border:
+        3px solid
+        rgba(180, 170, 230, 0.2);
+
+    border-top-color:
+        #c4a7ff;
+
+    animation:
+        reader-spin 0.8s linear infinite;
+
+}
+
+
+@keyframes reader-spin {
+
+    to {
+
+        transform:
+            rotate(360deg);
+
+    }
+
+}
+
+
+/* =====================================================
+   ERROR
+===================================================== */
+
+.reader-error {
+
+    min-height:
+        calc(100vh - 58px);
+
+    padding: 30px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    text-align: center;
+
+    background:
+        #101424;
+
+}
+
+
+.error-icon {
+
+    width: 48px;
+
+    height: 48px;
+
+    border-radius: 50%;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background:
+        rgba(200, 160, 255, 0.12);
+
+    color: #c5a8ff;
+
+    font-size: 24px;
+
+    margin-bottom: 15px;
+
+}
+
+
+.reader-error h2 {
+
+    margin: 0 0 8px;
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size: 20px;
+
+}
+
+
+.reader-error p {
+
+    max-width: 300px;
+
+    margin: 0;
+
+    color: #9d9dbf;
+
+    font-size: 13px;
+
+    line-height: 1.5;
+
+}
+
+
+/* =====================================================
+   RETRY BUTTON
+===================================================== */
+
+.retry-button {
+
+    margin-top: 20px;
+
+    padding:
+        10px 20px;
+
+    border: none;
+
+    border-radius: 20px;
+
+    background:
+        #7165a5;
+
+    color: #ffffff;
+
+    font-size: 13px;
+
+    cursor: pointer;
+
+}
+
+
+.retry-button:active {
+
+    transform:
+        scale(0.96);
+
+}
+
+
+/* =====================================================
+   HP
+===================================================== */
+
+@media (max-width: 600px) {
+
+    .reader-header {
+
+        height: 54px;
+
+    }
+
+
+    .reader-title-area h1 {
+
+        font-size: 17px;
+
+    }
+
+
+    .reader-title-area span {
+
+        font-size: 8px;
+
+    }
+
+
+    .reader-back {
+
+        width: 38px;
+
+        height: 38px;
+
+    }
+
 }

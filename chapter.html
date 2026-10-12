@@ -5,10 +5,8 @@
 
     <meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
     <title>Chapter</title>
 
@@ -18,48 +16,174 @@
 
 </head>
 
+
 <body>
 
-    <header class="reader-header">
 
-        <button onclick="history.back()">
-            ←
-        </button>
-
-        <h1 id="titleName">Judul</h1>
-
-        <div></div>
-
-    </header>
+    <main class="chapter-page">
 
 
-    <main class="chapters">
+        <!-- HEADER -->
+        <header class="chapter-header">
 
-        <h2>Pilihan Chapter</h2>
+            <button
+                class="back-btn"
+                onclick="history.back()">
 
-        <div
-            class="chapter-item"
-            onclick="openChapter(1)"
-        >
-            <span>Chapter 1</span>
-            <span>›</span>
-        </div>
+                <svg viewBox="0 0 24 24">
 
-        <div
-            class="chapter-item"
-            onclick="openChapter(2)"
-        >
-            <span>Chapter 2</span>
-            <span>›</span>
-        </div>
+                    <path d="M15 18l-6-6 6-6"></path>
 
-        <div
-            class="chapter-item"
-            onclick="openChapter(3)"
-        >
-            <span>Chapter 3</span>
-            <span>›</span>
-        </div>
+                </svg>
+
+            </button>
+
+
+            <div>
+
+                <span class="small-label">
+                    STORY ABOUT US
+                </span>
+
+                <h1 id="titleName">
+                    Evil Deed
+                </h1>
+
+            </div>
+
+        </header>
+
+
+
+        <!-- COVER -->
+        <section class="chapter-cover-section">
+
+            <div class="large-cover-wrapper">
+
+                <img
+                    id="coverImage"
+                    src="covers/evil-deed.png"
+                    alt="Evil Deed"
+                    class="large-cover"
+                >
+
+            </div>
+
+
+            <h2 id="coverTitle">
+                Evil Deed
+            </h2>
+
+
+            <p class="cover-description">
+                Choose a chapter and continue the story.
+            </p>
+
+        </section>
+
+
+
+        <!-- CHAPTER LIST -->
+        <section class="chapter-section">
+
+            <div class="section-title">
+
+                <h2>Chapters</h2>
+
+                <span id="chapterCount">
+                    4 Chapters
+                </span>
+
+            </div>
+
+
+            <div class="chapter-list">
+
+
+                <!-- CHAPTER 4 -->
+                <button
+                    class="chapter-item"
+                    onclick="openChapter(4)">
+
+                    <div>
+
+                        <span class="chapter-number">
+                            CHAPTER 04
+                        </span>
+
+                    </div>
+
+                    <span class="chapter-arrow">
+                        ›
+                    </span>
+
+                </button>
+
+
+                <!-- CHAPTER 3 -->
+                <button
+                    class="chapter-item"
+                    onclick="openChapter(3)">
+
+                    <div>
+
+                        <span class="chapter-number">
+                            CHAPTER 03
+                        </span>
+
+                    </div>
+
+                    <span class="chapter-arrow">
+                        ›
+                    </span>
+
+                </button>
+
+
+                <!-- CHAPTER 2 -->
+                <button
+                    class="chapter-item"
+                    onclick="openChapter(2)">
+
+                    <div>
+
+                        <span class="chapter-number">
+                            CHAPTER 02
+                        </span>
+
+                    </div>
+
+                    <span class="chapter-arrow">
+                        ›
+                    </span>
+
+                </button>
+
+
+                <!-- CHAPTER 1 -->
+                <button
+                    class="chapter-item"
+                    onclick="openChapter(1)">
+
+                    <div>
+
+                        <span class="chapter-number">
+                            CHAPTER 01
+                        </span>
+
+                    </div>
+
+                    <span class="chapter-arrow">
+                        ›
+                    </span>
+
+                </button>
+
+
+            </div>
+
+        </section>
+
 
     </main>
 
@@ -72,31 +196,70 @@
         tg.expand();
 
 
-        // Membaca judul dari URL
-        const params = new URLSearchParams(window.location.search);
+        const params =
+            new URLSearchParams(window.location.search);
 
-        const title = params.get("title");
+        const title =
+            params.get("title");
 
 
-        // Mengubah nama judul
-        const titleNames = {
+        const titles = {
 
-            "evil-deed": "Evil Deed",
+            "evil-deed": {
+                name: "Evil Deed",
+                cover: "covers/evil-deed.png",
+                description:
+                    "A story of memories, secrets, and the moments that changed everything."
+            },
 
-            "semantic-error": "Semantic Error",
+            "semantic-error": {
+                name: "Semantic Error",
+                cover: "covers/semantic-error.jpg",
+                description:
+                    "Sometimes the biggest errors lead to the most unexpected stories."
+            },
 
-            "guiding-hazard": "Guiding Hazard",
+            "guiding-hazard": {
+                name: "Guiding Hazard",
+                cover: "covers/guiding-hazard.jpg",
+                description:
+                    "A story waiting to unfold."
+            },
 
-            "dash": "Dash"
+            "dash": {
+                name: "Dash",
+                cover: "covers/dash.jpg",
+                description:
+                    "A story waiting to unfold."
+            }
 
         };
 
 
-        document.getElementById("titleName").textContent =
-            titleNames[title] || "Judul";
+        const currentTitle =
+            titles[title] || titles["evil-deed"];
 
 
-        // Membuka chapter
+        document.getElementById("titleName")
+            .textContent = currentTitle.name;
+
+
+        document.getElementById("coverTitle")
+            .textContent = currentTitle.name;
+
+
+        document.getElementById("coverImage")
+            .src = currentTitle.cover;
+
+
+        document.getElementById("coverImage")
+            .alt = currentTitle.name;
+
+
+        document.querySelector(".cover-description")
+            .textContent = currentTitle.description;
+
+
         function openChapter(chapter) {
 
             window.location.href =
@@ -108,6 +271,7 @@
         }
 
     </script>
+
 
 </body>
 

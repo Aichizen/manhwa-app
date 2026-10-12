@@ -7,43 +7,122 @@
 
     <meta
         name="viewport"
-        content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
     >
 
-    <title>Chapter 1</title>
+    <title>Chapter</title>
 
     <link rel="stylesheet" href="style.css">
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-    <!-- PDF.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs"
-        type="module">
-    </script>
-
 </head>
 
-<body class="reader-page">
+
+<body class="reader-body">
+
+
+    <!-- HEADER READER -->
 
     <header class="reader-header">
 
-        <button onclick="history.back()">
-            ←
+        <button
+            class="reader-back"
+            onclick="history.back()"
+            aria-label="Kembali"
+        >
+
+            <svg viewBox="0 0 24 24">
+
+                <path d="M15 18l-6-6 6-6"></path>
+
+            </svg>
+
         </button>
 
-        <h1>Chapter 1</h1>
 
-        <button>
-            ⋮
-        </button>
+        <div class="reader-title-area">
+
+            <span id="readerMangaTitle">
+                STORY ABOUT US
+            </span>
+
+            <h1 id="readerTitle">
+                Chapter 1
+            </h1>
+
+        </div>
 
     </header>
 
 
+
+    <!-- LOADING -->
+
+    <div
+        id="loading"
+        class="reader-loading"
+    >
+
+        <div class="loading-spinner"></div>
+
+        <p>Loading chapter...</p>
+
+    </div>
+
+
+
+    <!-- ERROR -->
+
+    <div
+        id="error"
+        class="reader-error"
+        style="display: none;"
+    >
+
+        <div class="error-icon">
+            !
+        </div>
+
+        <h2>Chapter tidak dapat dibuka</h2>
+
+        <p id="errorMessage">
+            Terjadi kesalahan saat memuat PDF.
+        </p>
+
+        <button
+            onclick="location.reload()"
+            class="retry-button"
+        >
+            Coba Lagi
+        </button>
+
+    </div>
+
+
+
+    <!-- PDF -->
+
     <main id="pdf-container"></main>
 
 
+
+    <!-- PDF.JS -->
+
     <script type="module">
+
+        import * as pdfjsLib from
+            "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs";
+
+
+        pdfjsLib.GlobalWorkerOptions.workerSrc =
+            "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.worker.min.mjs";
+
+
+
+        /* ==========================================
+           TELEGRAM
+        ========================================== */
 
         const tg = window.Telegram.WebApp;
 
@@ -51,74 +130,463 @@
         tg.expand();
 
 
-        // PDF dari Supabase
-        const pdfUrl =
-            "https://pub-669fb553c1ec4a6e8c26bdad175e1e39.r2.dev/Evil%20Deed/01.%20EVIL%20DEED.pdf";
+
+        /* ==========================================
+           AMBIL PARAMETER URL
+        ========================================== */
+
+        const params =
+            new URLSearchParams(window.location.search);
 
 
-        // Import PDF.js
-        import {
-            getDocument,
-            GlobalWorkerOptions
-        } from "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs";
+        const title =
+            params.get("title");
 
 
-        // Worker PDF.js
-        GlobalWorkerOptions.workerSrc =
-            "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.worker.min.mjs";
+        const chapter =
+            params.get("chapter");
 
 
-        // Membuka PDF
-        const pdf = await getDocument(pdfUrl).promise;
+
+        /* ==========================================
+           DATA MANHWA
+        ========================================== */
+
+        const mangaData = {
+
+            "evil-deed": {
+
+                name: "Evil Deed",
+
+                folder: "Evil%20Deed",
+
+                filePrefix: "EVIL%20DEED"
+
+            },
 
 
-        const container =
-            document.getElementById("pdf-container");
+            "semantic-error": {
+
+                name: "Semantic Error",
+
+                folder: "Semantic%20Error",
+
+                filePrefix: "SEMANTIC%20ERROR"
+
+            },
 
 
-        // Menampilkan semua halaman
-        for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
+            "guiding-hazard": {
+
+                name: "Guiding Hazard",
+
+                folder: "Guiding%20Hazard",
+
+                filePrefix: "GUIDING%20HAZARD"
+
+            },
+
+
+            "dash": {
+
+                name: "Dash",
+
+                folder: "Dash",
+
+                filePrefix: "DASH"
+
+            }
+
+        };
+
+
+
+        /* ==========================================
+           CEK DATA
+        ========================================== */
+
+        const manga =
+            mangaData[title];
+
+
+        if (!manga || !chapter) {
+
+            showError(
+                "Informasi chapter tidak ditemukan."
+            );
+
+        } else {
+
+            startReader();
+
+        }
+
+
+
+        /* ==========================================
+           MULAI READER
+        ========================================== */
+
+        async function startReader() {
+
+            try {
+
+                const chapterNumber =
+                    parseInt(chapter, 10);
+
+
+                if (
+                    isNaN(chapterNumber) ||
+                    chapterNumber < 1
+                ) {
+
+                    throw new Error(
+                        "Nomor chapter tidak valid."
+                    );
+
+                }
+
+
+                /* ================================
+                   JUDUL
+                ================================= */
+
+                document.title =
+                    manga.name +
+                    " - Chapter " +
+                    chapterNumber;
+
+
+                document.getElementById(
+                    "readerMangaTitle"
+                ).textContent =
+                    manga.name;
+
+
+                document.getElementById(
+                    "readerTitle"
+                ).textContent =
+                    "Chapter " +
+                    chapterNumber;
+
+
+
+                /* ================================
+                   FORMAT NOMOR CHAPTER
+
+                   1  → 01
+                   2  → 02
+                   10 → 10
+                ================================= */
+
+                const paddedChapter =
+                    String(chapterNumber)
+                        .padStart(2, "0");
+
+
+
+                /* ================================
+                   URL PDF R2
+
+                   Untuk sementara menggunakan
+                   r2.dev.
+
+                   Nanti setelah custom domain
+                   aktif, cukup ganti BASE_URL.
+                ================================= */
+
+                const R2_BASE_URL =
+                    "https://pub-669fb553c1ec4a6e8c26bdad175e1e39.r2.dev";
+
+
+                const pdfUrl =
+                    `${R2_BASE_URL}/${manga.folder}/${paddedChapter}.%20${manga.filePrefix}.pdf`;
+
+
+                console.log(
+                    "PDF:",
+                    pdfUrl
+                );
+
+
+
+                /* ================================
+                   LOAD PDF
+                ================================= */
+
+                await loadPDF(pdfUrl);
+
+
+            } catch (error) {
+
+                console.error(error);
+
+                showError(
+                    error.message ||
+                    "PDF gagal dimuat."
+                );
+
+            }
+
+        }
+
+
+
+        /* ==========================================
+           LOAD PDF.JS
+        ========================================== */
+
+        async function loadPDF(pdfUrl) {
+
+            const container =
+                document.getElementById(
+                    "pdf-container"
+                );
+
+
+            container.innerHTML = "";
+
+
+            try {
+
+                const loadingTask =
+                    pdfjsLib.getDocument({
+                        url: pdfUrl,
+
+                        withCredentials: false
+                    });
+
+
+                const pdf =
+                    await loadingTask.promise;
+
+
+                console.log(
+                    "Jumlah halaman:",
+                    pdf.numPages
+                );
+
+
+                /* ==============================
+                   RENDER SEMUA HALAMAN
+                ============================== */
+
+                for (
+                    let pageNumber = 1;
+                    pageNumber <= pdf.numPages;
+                    pageNumber++
+                ) {
+
+                    await renderPage(
+                        pdf,
+                        pageNumber,
+                        container
+                    );
+
+                }
+
+
+                hideLoading();
+
+
+            } catch (error) {
+
+                console.error(
+                    "PDF.js error:",
+                    error
+                );
+
+
+                throw new Error(
+                    "PDF tidak dapat dimuat. Periksa koneksi internet atau alamat PDF."
+                );
+
+            }
+
+        }
+
+
+
+        /* ==========================================
+           RENDER SATU HALAMAN
+        ========================================== */
+
+        async function renderPage(
+            pdf,
+            pageNumber,
+            container
+        ) {
 
             const page =
-                await pdf.getPage(pageNumber);
+                await pdf.getPage(
+                    pageNumber
+                );
+
+
+            /* ==============================
+               SKALA
+
+               Kita render lebih besar supaya
+               gambar tetap tajam di HP.
+            ============================== */
+
+            const baseViewport =
+                page.getViewport({
+                    scale: 1
+                });
+
+
+            const screenWidth =
+                window.innerWidth;
+
+
+            const scale =
+                (screenWidth * 2) /
+                baseViewport.width;
 
 
             const viewport =
                 page.getViewport({
-                    scale: 1.5
+                    scale: scale
                 });
 
 
+
+            /* ==============================
+               WRAPPER HALAMAN
+            ============================== */
+
+            const pageWrapper =
+                document.createElement(
+                    "div"
+                );
+
+
+            pageWrapper.className =
+                "pdf-page";
+
+
+
+            /* ==============================
+               CANVAS
+            ============================== */
+
             const canvas =
-                document.createElement("canvas");
+                document.createElement(
+                    "canvas"
+                );
 
 
             const context =
-                canvas.getContext("2d");
+                canvas.getContext(
+                    "2d"
+                );
 
 
             canvas.width =
                 viewport.width;
 
+
             canvas.height =
                 viewport.height;
 
 
-            canvas.className =
-                "pdf-page";
+            canvas.style.width =
+                "100%";
 
 
-            container.appendChild(canvas);
+            canvas.style.height =
+                "auto";
 
+
+
+            pageWrapper.appendChild(
+                canvas
+            );
+
+
+            container.appendChild(
+                pageWrapper
+            );
+
+
+
+            /* ==============================
+               RENDER
+            ============================== */
 
             await page.render({
-                canvasContext: context,
-                viewport: viewport
+
+                canvasContext:
+                    context,
+
+                viewport:
+                    viewport
+
             }).promise;
 
         }
 
+
+
+        /* ==========================================
+           HIDE LOADING
+        ========================================== */
+
+        function hideLoading() {
+
+            const loading =
+                document.getElementById(
+                    "loading"
+                );
+
+
+            loading.style.display =
+                "none";
+
+        }
+
+
+
+        /* ==========================================
+           ERROR
+        ========================================== */
+
+        function showError(message) {
+
+            const loading =
+                document.getElementById(
+                    "loading"
+                );
+
+
+            const error =
+                document.getElementById(
+                    "error"
+                );
+
+
+            const errorMessage =
+                document.getElementById(
+                    "errorMessage"
+                );
+
+
+            loading.style.display =
+                "none";
+
+
+            error.style.display =
+                "flex";
+
+
+            errorMessage.textContent =
+                message;
+
+        }
+
     </script>
+
 
 </body>
 
