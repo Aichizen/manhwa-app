@@ -413,16 +413,25 @@ button {
    CHAPTER COVER
 ========================= */
 
-.chapter-cover-section {
-    display: flex;
+.chapter-cover-section h2 {
+    margin: 18px 0 5px;
 
-    flex-direction: column;
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
 
-    align-items: center;
+    font-size: 24px;
 
-    text-align: center;
+    color: #f5f1ff;
+}
 
-    margin-bottom: 30px;
+.cover-description {
+    margin: 0;
+
+    color: #9999bd;
+
+    font-size: 13px;
 }
 
 .chapter-cover {

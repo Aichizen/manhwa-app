@@ -56,32 +56,28 @@
 
 
         <!-- COVER -->
-        <section class="chapter-cover-section">
+<section class="chapter-cover-section">
 
-            <div class="large-cover-wrapper">
+    <div class="large-cover-wrapper">
 
-                <img
-                    id="coverImage"
-                    src="https://cdn.storyabout-us.com/Covers/evil-deed.png"
-                    alt="Evil Deed"
-                    class="large-cover"
-                >
+        <img
+            id="coverImage"
+            src=""
+            alt="Cover"
+            class="large-cover"
+        >
 
-            </div>
+    </div>
 
+    <h2 id="coverTitle">
+        Judul
+    </h2>
 
-            <h2 id="coverTitle">
-                Evil Deed
-            </h2>
+    <p class="cover-description">
+        Choose a chapter and continue the story.
+    </p>
 
-
-            <p class="cover-description">
-                Choose a chapter and continue the story.
-            </p>
-
-        </section>
-
-
+</section>
 
         <!-- CHAPTER LIST -->
         <section class="chapter-section">
@@ -192,45 +188,24 @@
         tg.expand();
 
 
-        const params =
-            new URLSearchParams(window.location.search);
+    const params = new URLSearchParams(window.location.search);
 
-        const title =
-            params.get("title");
+    const title = params.get("title");
 
+    const coverImage = document.getElementById("coverImage");
+    const coverTitle = document.getElementById("coverTitle");
 
-        const titles = {
+    if (title) {
 
-            "evil-deed": {
-                name: "Evil Deed",
-                cover: "covers/evil-deed.png",
-                description:
-                    "A story of memories, secrets, and the moments that changed everything."
-            },
+        const coverUrl =
+            `https://cdn.storyabout-us.com/Covers/${title}.png`;
 
-            "semantic-error": {
-                name: "Semantic Error",
-                cover: "covers/semantic-error.jpg",
-                description:
-                    "Sometimes the biggest errors lead to the most unexpected stories."
-            },
+        coverImage.src = coverUrl;
 
-            "guiding-hazard": {
-                name: "Guiding Hazard",
-                cover: "covers/guiding-hazard.jpg",
-                description:
-                    "A story waiting to unfold."
-            },
-
-            "dash": {
-                name: "Dash",
-                cover: "covers/dash.jpg",
-                description:
-                    "A story waiting to unfold."
-            }
-
-        };
-
+        coverTitle.textContent = title
+            .replace(/-/g, " ")
+            .replace(/\b\w/g, letter => letter.toUpperCase());
+    }
 
         const currentTitle =
             titles[title] || titles["evil-deed"];
