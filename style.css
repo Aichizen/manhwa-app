@@ -114,6 +114,21 @@ body {
     cursor: pointer;
 }
 
+.chapter-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 15px 16px;
+    margin-bottom: 10px;
+
+    background: #1a1a1a;
+    border-radius: 10px;
+
+    color: white;
+    cursor: pointer;
+}
+
 .chapter:hover {
     background: #252525;
 }
