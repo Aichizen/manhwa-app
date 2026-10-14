@@ -1,140 +1,617 @@
 <!doctype html>
-<html lang="en">
+<html lang="id">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Add Chapter | Story About Us</title>
   <style>
-    :root { color-scheme:dark; --text:#f4f2fa; --muted:#bbb7cc; --accent:#d4b1ff; --line:rgba(255,255,255,.18); }
-    * { box-sizing:border-box; }
-    body { margin:0; min-height:100vh; padding:32px 16px; color:var(--text); font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif; background:linear-gradient(rgba(10,10,28,.4),rgba(10,10,28,.62)),url("homepage-bg.png") center/cover fixed; }
-    main { width:min(100%,680px); margin:auto; }
-    a { color:inherit; text-decoration:none; }
-    .back { display:inline-block; margin-bottom:22px; color:var(--muted); }
-    .panel { padding:clamp(22px,5vw,38px); border:1px solid var(--line); border-radius:20px; background:rgba(24,22,42,.88); backdrop-filter:blur(10px); }
-    h1 { margin:0 0 6px; font:clamp(28px,5vw,36px)/1.15 Georgia,"Times New Roman",serif; }
-    .intro { margin:0 0 24px; color:var(--muted); }
-    label { display:block; margin:18px 0 7px; font-weight:650; }
-    input,select { width:100%; padding:12px 14px; border:1px solid var(--line); border-radius:10px; background:rgba(10,11,22,.76); color:var(--text); font:inherit; }
-    input[type=file] { padding:10px; } input[readonly] { color:var(--accent); }
-    .hint { margin:5px 0 0; color:var(--muted); font-size:13px; }
-    button { width:100%; margin-top:24px; padding:13px 18px; border:0; border-radius:10px; background:var(--accent); color:#20182b; font:700 16px system-ui,sans-serif; cursor:pointer; }
-    button:disabled { opacity:.65; cursor:wait; }
-    #status { min-height:24px; margin:16px 0 0; color:var(--muted); white-space:pre-wrap; }
-    #status.error { color:#ff9c9c; } #status.success { color:#95e0ad; }
+    :root {
+      color-scheme: dark;
+      --text: #f4f2fa;
+      --muted: #bbb7cc;
+      --accent: #d4b1ff;
+      --line: rgba(255,255,255,.18);
+      --panel: rgba(24,22,42,.84);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 32px 16px;
+      color: var(--text);
+      font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+      background:
+        linear-gradient(rgba(10,10,28,.4), rgba(10,10,28,.62)),
+        url("homepage-bg.png") center/cover fixed;
+    }
+
+    main {
+      width: min(100%, 760px);
+      margin: auto;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .back {
+      display: inline-block;
+      margin-bottom: 22px;
+      color: var(--muted);
+    }
+
+    .panel {
+      padding: clamp(22px, 5vw, 40px);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: var(--panel);
+      backdrop-filter: blur(10px);
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font: clamp(30px, 6vw, 42px)/1.1 Georgia, "Times New Roman", serif;
+    }
+
+    .intro {
+      margin: 0 0 28px;
+      color: var(--muted);
+    }
+
+    .field {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    input,
+    select,
+    button {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      color: var(--text);
+      background: rgba(255,255,255,.07);
+      font: inherit;
+    }
+
+    input,
+    select {
+      min-height: 48px;
+      padding: 11px 13px;
+      outline: none;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: rgba(212,177,255,.7);
+      box-shadow: 0 0 0 3px rgba(212,177,255,.1);
+    }
+
+    input[type="file"] {
+      padding: 10px;
+    }
+
+    select option {
+      background: #18162a;
+      color: var(--text);
+    }
+
+    .info {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 12px;
+      margin: 0 0 22px;
+    }
+
+    .info-box {
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: rgba(255,255,255,.05);
+    }
+
+    .info-label {
+      display: block;
+      margin-bottom: 3px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .info-value {
+      font-weight: 700;
+    }
+
+    .file-list {
+      display: none;
+      margin-top: 14px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+
+    .file-list.show {
+      display: block;
+    }
+
+    .file-head,
+    .file-row {
+      display: grid;
+      grid-template-columns: 1fr 120px;
+      gap: 12px;
+      align-items: center;
+      padding: 11px 13px;
+    }
+
+    .file-head {
+      color: var(--muted);
+      font-size: 13px;
+      background: rgba(255,255,255,.06);
+    }
+
+    .file-row {
+      border-top: 1px solid rgba(255,255,255,.08);
+      font-size: 14px;
+    }
+
+    .file-name {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .chapter-number {
+      text-align: right;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    button {
+      min-height: 50px;
+      margin-top: 8px;
+      padding: 12px 16px;
+      cursor: pointer;
+      border-color: rgba(212,177,255,.45);
+      background: rgba(212,177,255,.16);
+      transition: .2s ease;
+    }
+
+    button:hover:not(:disabled) {
+      background: rgba(212,177,255,.25);
+      transform: translateY(-1px);
+    }
+
+    button:disabled {
+      opacity: .45;
+      cursor: not-allowed;
+    }
+
+    .status {
+      display: none;
+      margin-top: 18px;
+      padding: 14px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.05);
+      white-space: pre-wrap;
+    }
+
+    .status.show {
+      display: block;
+    }
+
+    .status.success {
+      border-color: rgba(120,220,160,.4);
+    }
+
+    .status.error {
+      border-color: rgba(255,110,110,.45);
+    }
+
+    .hint {
+      margin: 7px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .loading {
+      color: var(--muted);
+    }
+
+    @media (max-width: 520px) {
+      .info {
+        grid-template-columns: 1fr;
+      }
+
+      .file-head,
+      .file-row {
+        grid-template-columns: 1fr 85px;
+      }
+
+      .file-name {
+        font-size: 13px;
+      }
+    }
   </style>
 </head>
+
 <body>
   <main>
-    <a class="back" href="admin.html">← Back to Admin</a>
+    <a class="back" href="admin.html">← Back to Admin Panel</a>
+
     <section class="panel">
       <h1>Add Chapter</h1>
-      <p class="intro">Nomor chapter berikutnya dihitung otomatis dari folder manhwa.</p>
-      <form id="addChapterForm">
-        <label for="adminToken">Admin token</label>
-        <input id="adminToken" name="adminToken" type="password" autocomplete="off" required>
+      <p class="intro">
+        Pilih manhwa, lalu unggah beberapa PDF sekaligus. Nomor chapter akan
+        otomatis dimulai dari chapter terakhir +1 berdasarkan urutan nama file A–Z.
+      </p>
 
-        <label for="mangaSelect">Manhwa</label>
-        <select id="mangaSelect" name="mangaId" required>
-          <option value="">Loading manhwa...</option>
+      <div class="field">
+        <label for="adminToken">Admin Token</label>
+        <input
+          id="adminToken"
+          type="password"
+          autocomplete="off"
+          placeholder="Masukkan ADMIN_TOKEN"
+        >
+      </div>
+
+      <div class="field">
+        <label for="mangaSelect">Pilih Manhwa</label>
+        <select id="mangaSelect">
+          <option value="">Memuat daftar manhwa...</option>
         </select>
+      </div>
 
-        <label for="chapterNumber">Next chapter</label>
-        <input id="chapterNumber" name="chapter" type="text" value="" placeholder="Select manhwa first" readonly required>
-        <p class="hint">Nomor ini akan menjadi nama PDF, misalnya <code>005.pdf</code>.</p>
+      <div class="info">
+        <div class="info-box">
+          <span class="info-label">Chapter terakhir</span>
+          <span class="info-value" id="lastChapter">—</span>
+        </div>
+        <div class="info-box">
+          <span class="info-label">Chapter berikutnya</span>
+          <span class="info-value" id="nextChapter">—</span>
+        </div>
+      </div>
 
-        <label for="chapterPdf">PDF file</label>
-        <input id="chapterPdf" name="pdf" type="file" accept="application/pdf,.pdf" required>
-        <p class="hint">Maksimal 50 MB.</p>
+      <div class="field">
+        <label for="pdfFiles">PDF Chapter</label>
+        <input id="pdfFiles" type="file" accept="application/pdf,.pdf" multiple>
+        <p class="hint">
+          File akan diurutkan berdasarkan nama A–Z. Nomor chapter tidak mengikuti
+          angka pada nama file.
+        </p>
+      </div>
 
-        <button id="submitButton" type="submit">UPLOAD CHAPTER</button>
-        <p id="status" role="status" aria-live="polite"></p>
-      </form>
+      <div id="fileList" class="file-list">
+        <div class="file-head">
+          <span>Nama File</span>
+          <span style="text-align:right">Chapter</span>
+        </div>
+        <div id="fileRows"></div>
+      </div>
+
+      <button id="uploadButton" type="button" disabled>
+        Upload Chapters
+      </button>
+
+      <div id="status" class="status"></div>
     </section>
   </main>
+
   <script>
     const API_BASE = "https://story-about-us-api.aichinose219.workers.dev";
-    const form = document.getElementById("addChapterForm");
+    const MANGA_API = API_BASE + "/api/manga";
+    const CHAPTER_API = API_BASE + "/api/admin/chapter";
+
+    const adminToken = document.getElementById("adminToken");
     const mangaSelect = document.getElementById("mangaSelect");
-    const chapterNumber = document.getElementById("chapterNumber");
-    const statusEl = document.getElementById("status");
-    const submitButton = document.getElementById("submitButton");
-    let selectionRequest = 0;
+    const pdfFiles = document.getElementById("pdfFiles");
+    const uploadButton = document.getElementById("uploadButton");
+    const fileList = document.getElementById("fileList");
+    const fileRows = document.getElementById("fileRows");
+    const lastChapter = document.getElementById("lastChapter");
+    const nextChapter = document.getElementById("nextChapter");
+    const statusBox = document.getElementById("status");
+
+    let mangaData = [];
+    let selectedFiles = [];
+    let currentLastChapter = 0;
+
+    function setStatus(message, type = "") {
+      statusBox.textContent = message;
+      statusBox.className = "status show" + (type ? " " + type : "");
+    }
+
+    function clearStatus() {
+      statusBox.textContent = "";
+      statusBox.className = "status";
+    }
+
+    function getChapterNumber(item) {
+      const number = Number(item?.number);
+      if (Number.isFinite(number)) return number;
+
+      const chapter = String(item?.chapter ?? "");
+      const parsed = Number(chapter);
+      return Number.isFinite(parsed) ? parsed : 0;
+    }
 
     async function loadMangaList() {
       try {
-        const response = await fetch(`${API_BASE}/api/manga`, { cache: "no-store" });
-        if (!response.ok) throw new Error("Could not load manhwa list.");
-        const mangaList = await response.json();
-        mangaSelect.replaceChildren(new Option("Select manhwa", ""));
-        mangaList.forEach(manga => mangaSelect.add(new Option(manga.title || manga.id, manga.id)));
+        const response = await fetch(MANGA_API);
+
+        if (!response.ok) {
+          throw new Error("Gagal mengambil daftar manhwa. HTTP " + response.status);
+        }
+
+        const data = await response.json();
+        mangaData = Array.isArray(data) ? data : (Array.isArray(data.manga) ? data.manga : []);
+
+        mangaData.sort((a, b) =>
+          String(a.title || a.id).localeCompare(
+            String(b.title || b.id),
+            undefined,
+            { sensitivity: "base" }
+          )
+        );
+
+        mangaSelect.innerHTML = '<option value="">Pilih manhwa...</option>';
+
+        for (const manga of mangaData) {
+          const option = document.createElement("option");
+          option.value = manga.id;
+          option.textContent = manga.title || manga.id;
+          mangaSelect.appendChild(option);
+        }
       } catch (error) {
-        mangaSelect.replaceChildren(new Option("Unable to load manhwa list", ""));
-        statusEl.className = "error";
-        statusEl.textContent = error.message;
+        mangaSelect.innerHTML = '<option value="">Gagal memuat manhwa</option>';
+        setStatus(error.message || "Gagal memuat daftar manhwa.", "error");
       }
     }
 
-    async function setNextChapter(mangaId) {
-      const requestNumber = ++selectionRequest;
-      chapterNumber.value = "";
+    async function loadChapters(mangaId) {
       if (!mangaId) {
-        chapterNumber.placeholder = "Select manhwa first";
+        currentLastChapter = 0;
+        lastChapter.textContent = "—";
+        nextChapter.textContent = "—";
+        updatePreview();
         return;
       }
-      chapterNumber.placeholder = "Loading...";
-      statusEl.className = "";
-      statusEl.textContent = "Checking existing chapters...";
+
       try {
-        const response = await fetch(`${API_BASE}/api/manga/${encodeURIComponent(mangaId)}`, { cache: "no-store" });
-        if (!response.ok) throw new Error("Could not read existing chapters.");
-        const chapters = await response.json();
-        if (requestNumber !== selectionRequest) return;
-        const numbers = Array.isArray(chapters)
-          ? chapters.map(item => Number(item.number)).filter(number => Number.isFinite(number) && number >= 0)
-          : [];
-        const next = numbers.length ? Math.max(...numbers) + 1 : 1;
-        chapterNumber.value = String(next);
-        chapterNumber.placeholder = "";
-        statusEl.textContent = `Next chapter: ${next}`;
+        lastChapter.textContent = "Memuat...";
+        nextChapter.textContent = "Memuat...";
+
+        const response = await fetch(
+          MANGA_API + "/" + encodeURIComponent(mangaId)
+        );
+
+        if (!response.ok) {
+          throw new Error("Gagal mengambil chapter. HTTP " + response.status);
+        }
+
+        const data = await response.json();
+        const chapters = Array.isArray(data)
+          ? data
+          : (Array.isArray(data.chapters) ? data.chapters : []);
+
+        currentLastChapter = chapters.reduce(
+          (highest, item) => Math.max(highest, getChapterNumber(item)),
+          0
+        );
+
+        lastChapter.textContent =
+          currentLastChapter > 0 ? formatChapter(currentLastChapter) : "Belum ada";
+
+        nextChapter.textContent = formatChapter(currentLastChapter + 1);
+        updatePreview();
       } catch (error) {
-        if (requestNumber !== selectionRequest) return;
-        statusEl.className = "error";
-        statusEl.textContent = `${error.message} Nomor chapter tidak dapat dihitung.`;
+        currentLastChapter = 0;
+        lastChapter.textContent = "Gagal";
+        nextChapter.textContent = "—";
+        setStatus(error.message || "Gagal memuat chapter.", "error");
+        updatePreview();
       }
     }
 
-    mangaSelect.addEventListener("change", () => setNextChapter(mangaSelect.value));
-    loadMangaList();
+    function formatChapter(number) {
+      if (!Number.isFinite(number)) return "—";
 
-    form.addEventListener("submit", async event => {
-      event.preventDefault();
-      statusEl.className = "";
-      statusEl.textContent = `Uploading Chapter ${chapterNumber.value}...`;
-      submitButton.disabled = true;
+      if (Number.isInteger(number)) {
+        return String(number).padStart(3, "0");
+      }
+
+      return String(number);
+    }
+
+    function sortFiles(files) {
+      return [...files].sort((a, b) =>
+        a.name.localeCompare(
+          b.name,
+          undefined,
+          {
+            numeric: true,
+            sensitivity: "base"
+          }
+        )
+      );
+    }
+
+    function updatePreview() {
+      fileRows.innerHTML = "";
+
+      if (!selectedFiles.length) {
+        fileList.classList.remove("show");
+        uploadButton.disabled = true;
+        return;
+      }
+
+      selectedFiles.forEach((file, index) => {
+        const row = document.createElement("div");
+        row.className = "file-row";
+
+        const name = document.createElement("span");
+        name.className = "file-name";
+        name.title = file.name;
+        name.textContent = file.name;
+
+        const chapter = document.createElement("span");
+        chapter.className = "chapter-number";
+        chapter.textContent = formatChapter(currentLastChapter + index + 1);
+
+        row.appendChild(name);
+        row.appendChild(chapter);
+        fileRows.appendChild(row);
+      });
+
+      fileList.classList.add("show");
+      uploadButton.disabled = !mangaSelect.value || !selectedFiles.length;
+    }
+
+    mangaSelect.addEventListener("change", async () => {
+      clearStatus();
+      selectedFiles = [];
+      pdfFiles.value = "";
+      updatePreview();
+      await loadChapters(mangaSelect.value);
+    });
+
+    pdfFiles.addEventListener("change", () => {
+      clearStatus();
+      selectedFiles = sortFiles(pdfFiles.files);
+      updatePreview();
+    });
+
+    adminToken.addEventListener("input", () => {
+      uploadButton.disabled = !mangaSelect.value || !selectedFiles.length;
+    });
+
+    uploadButton.addEventListener("click", async () => {
+      const token = adminToken.value.trim();
+      const mangaId = mangaSelect.value;
+
+      if (!token) {
+        setStatus("Masukkan Admin Token terlebih dahulu.", "error");
+        return;
+      }
+
+      if (!mangaId) {
+        setStatus("Pilih manhwa terlebih dahulu.", "error");
+        return;
+      }
+
+      if (!selectedFiles.length) {
+        setStatus("Pilih minimal satu PDF.", "error");
+        return;
+      }
+
+      for (const file of selectedFiles) {
+        const isPdf =
+          file.type === "application/pdf" ||
+          file.name.toLowerCase().endsWith(".pdf");
+
+        if (!isPdf) {
+          setStatus("Semua file harus berupa PDF: " + file.name, "error");
+          return;
+        }
+      }
+
+      const manga = mangaData.find(item => item.id === mangaId);
+      const mangaName = manga?.title || mangaId;
+
+      const confirmed = confirm(
+        "Upload " +
+        selectedFiles.length +
+        " chapter untuk \"" +
+        mangaName +
+        "\"?\n\n" +
+        "Chapter akan dimulai dari " +
+        formatChapter(currentLastChapter + 1) +
+        " dan mengikuti urutan nama file A–Z."
+      );
+
+      if (!confirmed) return;
+
+      uploadButton.disabled = true;
+      uploadButton.textContent = "Uploading...";
+      clearStatus();
+
       try {
-        const formData = new FormData(form);
-        const token = formData.get("adminToken");
-        formData.delete("adminToken");
-        const response = await fetch(`${API_BASE}/api/admin/chapter`, {
+        const formData = new FormData();
+        formData.append("mangaId", mangaId);
+
+        selectedFiles.forEach(file => {
+          formData.append("pdfs", file, file.name);
+        });
+
+        setStatus(
+          "Mengupload " +
+          selectedFiles.length +
+          " file...\nMohon jangan tutup halaman."
+        );
+
+        const response = await fetch(CHAPTER_API, {
           method: "POST",
-          headers: { Authorization: `Bearer ${token}` },
+          headers: {
+            "Authorization": "Bearer " + token
+          },
           body: formData
         });
+
         const result = await response.json().catch(() => ({}));
-        if (!response.ok) throw new Error(result.error || `Request failed (${response.status}).`);
-        statusEl.className = "success";
-        const next = Number(result.chapter) + 1;
-        chapterNumber.value = String(next);
-        document.getElementById("chapterPdf").value = "";
-        statusEl.textContent = `Chapter ${result.chapter} uploaded. Next chapter: ${next}.`;
+
+        if (!response.ok) {
+          throw new Error(
+            result.error ||
+            result.message ||
+            "Upload gagal. HTTP " + response.status
+          );
+        }
+
+        const uploaded = Array.isArray(result.chapters)
+          ? result.chapters
+          : [];
+
+        let message =
+          "Upload berhasil.\n\n" +
+          "Manhwa: " + mangaName + "\n" +
+          "Jumlah: " + (result.count ?? selectedFiles.length) + " chapter";
+
+        if (uploaded.length) {
+          message += "\n\nChapter:\n" +
+            uploaded.map(item =>
+              formatChapter(Number(item.number)) +
+              " ← " +
+              (item.sourceName || item.key || "PDF")
+            ).join("\n");
+        }
+
+        setStatus(message, "success");
+
+        selectedFiles = [];
+        pdfFiles.value = "";
+        fileRows.innerHTML = "";
+        fileList.classList.remove("show");
+
+        await loadChapters(mangaId);
       } catch (error) {
-        statusEl.className = "error";
-        statusEl.textContent = error.message || "Unable to contact the API.";
+        setStatus(error.message || "Upload gagal.", "error");
       } finally {
-        submitButton.disabled = false;
+        uploadButton.disabled = !mangaSelect.value || !selectedFiles.length;
+        uploadButton.textContent = "Upload Chapters";
       }
     });
+
+    loadMangaList();
   </script>
 </body>
 </html>
