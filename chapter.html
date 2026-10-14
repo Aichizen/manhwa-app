@@ -1829,8 +1829,15 @@
                         `;
 
 
-                    const url =
-                        getChapterUrl(
+                    /*
+                     * Buka READER, bukan PDF langsung.
+                     *
+                     * Reader akan mengambil PDF dari API/CDN
+                     * dan menangani perpindahan chapter otomatis.
+                     */
+
+                    const chapterNumber =
+                        getChapterNumber(
                             chapter
                         );
 
@@ -1838,12 +1845,19 @@
                     button.onclick =
                         () => {
 
-                            if (url) {
-
-                                window.location.href =
-                                    url;
-
+                            if (!chapterNumber) {
+                                return;
                             }
+
+
+                            window.location.href =
+                                "reader.html?title=" +
+                                encodeURIComponent(mangaId) +
+                                "&chapter=" +
+                                encodeURIComponent(
+                                    chapterNumber
+                                );
+
                         };
 
 
