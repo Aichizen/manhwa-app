@@ -1700,40 +1700,27 @@
            CHAPTER LABEL
         ===================================================== */
 
-        function getChapterLabel(
-            chapter
-        ) {
+        function getChapterLabel(chapter) {
+            let label;
 
-            if (
-                typeof chapter === "string"
-            ) {
-
-                return chapter
-                    .replace(
-                        /\.pdf$/i,
-                        ""
-                    )
-                    .replace(
-                        /^.*\//,
-                        ""
-                    );
+            if (typeof chapter === "string") {
+                label = chapter
+                    .replace(/\.pdf$/i, "")
+                    .replace(/^.*\//, "");
+            } else {
+                label =
+                    chapter.label ??
+                    chapter.chapter ??
+                    chapter.number ??
+                    chapter.name ??
+                    "Chapter";
             }
 
-
-            return (
-
-                chapter.label ||
-
-                chapter.chapter ||
-
-                chapter.number ||
-
-                chapter.name ||
-
-                "Chapter"
-            );
+            const text = String(label);
+            return /^\d+(?:\.\d+)?$/.test(text)
+                ? text.replace(/^0+(?=\d)/, "")
+                : text;
         }
-
 
         /* =====================================================
            CHAPTER URL

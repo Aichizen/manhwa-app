@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Edit Manhwa | Story About Us</title>
+  <style>
+    :root { color-scheme:dark; --text:#f4f2fa; --muted:#bbb7cc; --accent:#d4b1ff; --line:rgba(255,255,255,.18); --danger:#ff9c9c; --success:#95e0ad; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; padding:32px 16px; color:var(--text); font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif; background:linear-gradient(rgba(10,10,28,.4),rgba(10,10,28,.62)),url("homepage-bg.png") center/cover fixed; }
+    main { width:min(100%,760px); margin:auto; }
+    a { color:inherit; text-decoration:none; }
+    .back { display:inline-block; margin-bottom:22px; color:var(--muted); }
+    .panel { padding:clamp(22px,5vw,38px); border:1px solid var(--line); border-radius:20px; background:rgba(24,22,42,.9); backdrop-filter:blur(10px); }
+    h1 { margin:0 0 6px; font:clamp(28px,5vw,36px)/1.15 Georgia,"Times New Roman",serif; }
+    .intro { margin:0 0 24px; color:var(--muted); }
+    label { display:block; margin:18px 0 7px; font-weight:650; }
+    input,select { width:100%; padding:12px 14px; border:1px solid var(--line); border-radius:10px; background:rgba(10,11,22,.76); color:var(--text); font:inherit; }
+    input[type=file] { padding:9px; }
+    textarea { width:100%; min-height:130px; padding:12px 14px; border:1px solid var(--line); border-radius:10px; background:rgba(10,11,22,.76); color:var(--text); font:inherit; resize:vertical; }
+    .hint { margin:5px 0 0; color:var(--muted); font-size:13px; }
+    button { padding:10px 14px; border:0; border-radius:9px; background:var(--accent); color:#20182b; font:700 14px system-ui,sans-serif; cursor:pointer; }
+    button:disabled { opacity:.6; cursor:wait; }
+    .token-button { width:100%; margin-top:18px; }
+    #status { min-height:24px; margin:16px 0 0; color:var(--muted); white-space:pre-wrap; }
+    #status.error { color:var(--danger); } #status.success { color:var(--success); }
+    .chapter-list { display:grid; gap:12px; margin-top:22px; }
+    .chapter-card { padding:16px; border:1px solid var(--line); border-radius:14px; background:rgba(10,11,22,.48); }
+    .chapter-top { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:12px; }
+    .chapter-title { font-weight:700; color:var(--accent); }
+    .chapter-link { color:var(--muted); font-size:13px; overflow-wrap:anywhere; }
+    .chapter-actions { display:grid; grid-template-columns:minmax(0,1fr) auto auto; align-items:end; gap:9px; }
+    .chapter-actions label { margin:0; font-size:13px; color:var(--muted); }
+    .delete-button { background:rgba(160,55,70,.9); color:#fff; }
+    .row-status { min-height:20px; margin:12px 0 0; color:var(--muted); font-size:14px; }
+    .row-status.loading { color:var(--accent); }
+    .row-status.success { color:var(--success); }
+    .row-status.error { color:var(--danger); }
+    .row-status.loading::before { content:""; display:inline-block; width:12px; height:12px; margin-right:8px; vertical-align:-1px; border:2px solid rgba(212,177,255,.3); border-top-color:var(--accent); border-radius:50%; animation:spin .8s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    [hidden] { display:none !important; }
+    @media(max-width:600px) { .chapter-actions { grid-template-columns:1fr 1fr; } .chapter-actions label { grid-column:1/-1; } .chapter-top { align-items:flex-start; flex-direction:column; } }
+  </style>
+</head>
+<body>
+  <main>
+    <a class="back" href="admin.html">← Kembali ke Admin</a>
+    <section class="panel">
+      <h1>Edit Manhwa</h1>
+      <p class="intro">Pilih manhwa untuk mengganti file PDF atau menghapus chapter.</p>
+      <label for="adminToken">Admin token</label>
+      <input id="adminToken" type="password" autocomplete="off" required>
+      <label for="mangaSelect">Manhwa</label>
+      <select id="mangaSelect"><option value="">Memuat daftar manhwa...</option></select>
+      <button id="loadButton" class="token-button" type="button">TAMPILKAN CHAPTER</button>
+      <p class="hint">Penghapusan chapter tidak dapat dibatalkan. Pastikan chapter yang dipilih sudah benar.</p>
+      <p id="status" role="status" aria-live="polite"></p>
+      <section id="chapterList" class="chapter-list" aria-label="Daftar chapter"></section>
+      <section id="descriptionSection" hidden>
+        <label for="descriptionInput">Deskripsi manhwa</label>
+        <textarea id="descriptionInput" maxlength="5000" placeholder="Tulis deskripsi manhwa..."></textarea>
+        <button id="saveDescriptionButton" type="button" style="width:100%;margin-top:10px">SIMPAN</button>
+      </section>
+    </section>
+  </main>
+  <script>
+    const API_BASE = "https://story-about-us-api.aichinose219.workers.dev";
+    const mangaSelect = document.getElementById("mangaSelect");
+    const tokenInput = document.getElementById("adminToken");
+    const loadButton = document.getElementById("loadButton");
+    const statusEl = document.getElementById("status");
+    const chapterList = document.getElementById("chapterList");
+    const descriptionSection = document.getElementById("descriptionSection");
+    const descriptionInput = document.getElementById("descriptionInput");
+    const saveDescriptionButton = document.getElementById("saveDescriptionButton");
+
+    function setStatus(message, type = "") {
+      statusEl.className = type;
+      statusEl.textContent = message;
+    }
+
+    async function loadMangaList() {
+      try {
+        const response = await fetch(`${API_BASE}/api/manga`, { cache:"no-store" });
+        if (!response.ok) throw new Error(`Daftar manhwa gagal dimuat (${response.status}).`);
+        const list = await response.json();
+        mangaSelect.replaceChildren(new Option("Pilih manhwa", ""));
+        list.forEach(manga => mangaSelect.add(new Option(manga.title || manga.id, manga.id)));
+      } catch (error) {
+        mangaSelect.replaceChildren(new Option("Daftar manhwa tidak tersedia", ""));
+        setStatus(error.message, "error");
+      }
+    }
+
+    function chapterNumber(chapter) {
+      const value = Number(chapter.number ?? chapter.chapter);
+      return Number.isFinite(value) ? value : NaN;
+    }
+
+    function renderChapters(chapters) {
+      chapterList.replaceChildren();
+      if (!chapters.length) {
+        const empty = document.createElement("p");
+        empty.className = "hint";
+        empty.textContent = "Belum ada chapter untuk manhwa ini.";
+        chapterList.append(empty);
+        return;
+      }
+      chapters.sort((a, b) => chapterNumber(a) - chapterNumber(b));
+      chapters.forEach(chapter => {
+        const number = chapterNumber(chapter);
+        const card = document.createElement("article");
+        card.className = "chapter-card";
+        const top = document.createElement("div");
+        top.className = "chapter-top";
+        const title = document.createElement("strong");
+        title.className = "chapter-title";
+        title.textContent = `Chapter ${String(chapter.chapter ?? number).replace(/^0+(?=\d)/, "")}`;
+        const link = document.createElement("a");
+        link.className = "chapter-link";
+        link.href = chapter.url || (chapter.key ? `https://cdn.storyabout-us.com/${chapter.key}` : "#");
+        link.target = "_blank";
+        link.rel = "noopener";
+        link.textContent = chapter.key || chapter.url || "PDF tidak ditemukan";
+        top.append(title, link);
+
+        const actions = document.createElement("div");
+        actions.className = "chapter-actions";
+        const fileLabel = document.createElement("label");
+        fileLabel.textContent = "Pilih PDF pengganti (maks. 50 MB)";
+        const fileInput = document.createElement("input");
+        fileInput.type = "file";
+        fileInput.accept = "application/pdf,.pdf";
+        fileLabel.append(fileInput);
+        const replaceButton = document.createElement("button");
+        replaceButton.type = "button";
+        replaceButton.textContent = "Edit PDF";
+        replaceButton.addEventListener("click", () => replacePdf(chapter, fileInput, replaceButton));
+        const deleteButton = document.createElement("button");
+        deleteButton.type = "button";
+        deleteButton.className = "delete-button";
+        deleteButton.textContent = "Hapus";
+        deleteButton.addEventListener("click", () => deleteChapter(chapter, deleteButton));
+        const rowStatus = document.createElement("p");
+        rowStatus.className = "row-status";
+        rowStatus.setAttribute("role", "status");
+        rowStatus.setAttribute("aria-live", "polite");
+        actions.append(fileLabel, replaceButton, deleteButton);
+        card.append(top, actions, rowStatus);
+        chapterList.append(card);
+      });
+    }
+
+    async function loadChapters() {
+      const mangaId = mangaSelect.value;
+      if (!mangaId) return setStatus("Pilih manhwa terlebih dahulu.", "error");
+      if (!tokenInput.value.trim()) return setStatus("Masukkan admin token.", "error");
+      loadButton.disabled = true;
+      chapterList.replaceChildren();
+      setStatus("Memuat daftar chapter...");
+      try {
+        const response = await fetch(`${API_BASE}/api/manga/${encodeURIComponent(mangaId)}`, { cache:"no-store" });
+        const detail = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(detail.error || `Gagal memuat (${response.status}).`);
+        descriptionInput.value = detail.summary || "";
+        descriptionSection.hidden = false;
+        renderChapters(Array.isArray(detail.chapters) ? detail.chapters : []);
+        setStatus(`${detail.chapters?.length || 0} chapter dimuat.`);
+      } catch (error) {
+        setStatus(error.message || "Tidak dapat memuat chapter.", "error");
+      } finally {
+        loadButton.disabled = false;
+      }
+    }
+
+    async function replacePdf(chapter, fileInput, button) {
+      const rowStatus = button.closest(".chapter-card").querySelector(".row-status");
+      const file = fileInput.files[0];
+      if (!file) {
+        rowStatus.className = "row-status error";
+        rowStatus.textContent = "Pilih file PDF pengganti terlebih dahulu.";
+        return;
+      }
+      if (!file.name.toLowerCase().endsWith(".pdf") || file.size > 50 * 1024 * 1024) {
+        rowStatus.className = "row-status error";
+        rowStatus.textContent = "File harus berupa PDF dengan ukuran maksimal 50 MB.";
+        return;
+      }
+      const number = chapterNumber(chapter);
+      if (!Number.isFinite(number)) {
+        rowStatus.className = "row-status error";
+        rowStatus.textContent = "Nomor chapter tidak valid.";
+        return;
+      }
+      if (!confirm(`Ganti PDF Chapter ${number} dengan file “${file.name}”?`)) return;
+      button.disabled = true;
+      rowStatus.className = "row-status loading";
+      rowStatus.textContent = "PDF sedang diproses dan diunggah...";
+      try {
+        const body = new FormData();
+        body.append("mangaId", mangaSelect.value);
+        body.append("chapterNumber", String(number));
+        body.append("pdf", file, file.name);
+        const response = await fetch(`${API_BASE}/api/admin/chapter/replace`, {
+          method:"POST", headers:{ Authorization:`Bearer ${tokenInput.value.trim()}` }, body
+        });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(result.error || `Gagal mengganti PDF (${response.status}).`);
+        rowStatus.className = "row-status success";
+        rowStatus.textContent = `PDF Chapter ${number} berhasil diganti.`;
+        fileInput.value = "";
+      } catch (error) {
+        rowStatus.className = "row-status error";
+        rowStatus.textContent = error.message || "Tidak dapat mengganti PDF.";
+      } finally {
+        button.disabled = false;
+      }
+    }
+
+    async function deleteChapter(chapter, button) {
+      const card = button.closest(".chapter-card");
+      const rowStatus = card.querySelector(".row-status");
+      const number = chapterNumber(chapter);
+      if (!Number.isFinite(number)) {
+        rowStatus.className = "row-status error";
+        rowStatus.textContent = "Nomor chapter tidak valid.";
+        return;
+      }
+      if (!confirm(`Hapus PDF dan data Chapter ${number}? Tindakan ini tidak dapat dibatalkan.`)) return;
+      button.disabled = true;
+      rowStatus.className = "row-status loading";
+      rowStatus.textContent = "PDF sedang dihapus...";
+      try {
+        const body = new FormData();
+        body.append("mangaId", mangaSelect.value);
+        body.append("chapterNumber", String(number));
+        const response = await fetch(`${API_BASE}/api/admin/chapter/delete`, {
+          method:"POST", headers:{ Authorization:`Bearer ${tokenInput.value.trim()}` }, body
+        });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(result.error || `Gagal menghapus (${response.status}).`);
+        rowStatus.className = "row-status success";
+        rowStatus.textContent = `Chapter ${number} berhasil dihapus.`;
+        card.querySelectorAll("button, input").forEach(control => { control.disabled = true; });
+      } catch (error) {
+        rowStatus.className = "row-status error";
+        rowStatus.textContent = error.message || "Tidak dapat menghapus chapter.";
+      } finally {
+        button.disabled = false;
+      }
+    }
+
+
+    async function saveDescription() {
+      const mangaId = mangaSelect.value;
+      if (!mangaId) return setStatus("Pilih manhwa terlebih dahulu.", "error");
+      if (!tokenInput.value.trim()) return setStatus("Masukkan admin token.", "error");
+      saveDescriptionButton.disabled = true;
+      setStatus("Menyimpan deskripsi...");
+      try {
+        const body = new FormData();
+        body.append("mangaId", mangaId);
+        body.append("summary", descriptionInput.value.trim());
+        const response = await fetch(`${API_BASE}/api/admin/manga/update`, {
+          method:"POST", headers:{ Authorization:`Bearer ${tokenInput.value.trim()}` }, body
+        });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(result.error || `Gagal menyimpan (${response.status}).`);
+        setStatus("Deskripsi manhwa berhasil diperbarui.", "success");
+      } catch (error) {
+        setStatus(error.message || "Tidak dapat menyimpan deskripsi.", "error");
+      } finally {
+        saveDescriptionButton.disabled = false;
+      }
+    }
+    loadButton.addEventListener("click", loadChapters);
+    saveDescriptionButton.addEventListener("click", saveDescription);
+    mangaSelect.addEventListener("change", () => { descriptionSection.hidden = true; chapterList.replaceChildren(); });
+    loadMangaList();
+  </script>
+</body>
+</html>
+
+
+
