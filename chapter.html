@@ -228,6 +228,28 @@
         }
 
 
+        .rating-summary {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 9px;
+            color: #a3a4bd;
+            font-size: 13px;
+        }
+
+        .rating-stars {
+            color: #f3c96b;
+            font-size: 17px;
+            letter-spacing: 1px;
+            line-height: 1;
+        }
+
+        .rating-score {
+            color: #f4f1f8;
+            font-weight: 700;
+        }
+
         .description {
 
             margin-top: 8px;
@@ -1004,6 +1026,12 @@
                 Loading...
             </h2>
 
+            <div class="rating-summary" aria-label="Community rating">
+                <span id="ratingStars" class="rating-stars" aria-hidden="true">☆☆☆☆☆</span>
+                <span id="ratingScore" class="rating-score">—</span>
+                <span id="ratingCount">(No ratings yet)</span>
+            </div>
+
 
             <p
                 id="description"
@@ -1491,6 +1519,17 @@
 
                 cover.alt =
                     title;
+
+
+                // Keep the existing description when no summary is provided.
+                const summary =
+                    typeof manga.summary === "string"
+                        ? manga.summary.trim()
+                        : "";
+
+                if (summary) {
+                    document.getElementById("description").textContent = summary;
+                }
 
 
                 document.title =
@@ -2090,6 +2129,8 @@
                         : [];
 
 
+                updateRatingSummary(comments);
+
                 renderComments(
                     comments
                 );
@@ -2115,6 +2156,29 @@
         /* =====================================================
            RENDER COMMENTS
         ===================================================== */
+
+        function updateRatingSummary(comments) {
+            const ratings = comments
+                .map(comment => Number(comment.rating))
+                .filter(rating => Number.isInteger(rating) && rating >= 1 && rating <= 5);
+            const stars = document.getElementById("ratingStars");
+            const score = document.getElementById("ratingScore");
+            const count = document.getElementById("ratingCount");
+
+            if (ratings.length === 0) {
+                stars.textContent = "☆☆☆☆☆";
+                score.textContent = "—";
+                count.textContent = "(No ratings yet)";
+                return;
+            }
+
+            const average = ratings.reduce((total, rating) => total + rating, 0) / ratings.length;
+            const roundedStars = Math.round(average);
+            stars.textContent = "★".repeat(roundedStars) + "☆".repeat(5 - roundedStars);
+            score.textContent = average.toFixed(1);
+            count.textContent = `(${ratings.length} ${ratings.length === 1 ? "rating" : "ratings"})`;
+        }
+
 
         function renderComments(
             comments

@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin Panel | Story About Us</title>
+  <style>
+    :root { color-scheme: dark; --bg:#111318; --panel:#1b1e25; --muted:#a9afbd; --text:#f4f5f7; --accent:#e8b86d; --line:#343945; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; padding:32px 16px; background:linear-gradient(rgba(10,10,28,.42),rgba(10,10,28,.58)),url("homepage-bg.png") center / cover fixed; color:var(--text); font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif; }
+    main { width:min(100%,680px); margin:0 auto; }
+    a { color:var(--accent); text-decoration:none; }
+    .back { display:inline-block; margin-bottom:20px; color:var(--muted); }
+    .panel { padding:clamp(20px,5vw,36px); background:rgba(27,30,37,.9); backdrop-filter:blur(8px); border:1px solid rgba(255,255,255,.16); border-radius:18px; }
+    h1 { margin:0 0 6px; font-size:clamp(25px,5vw,34px); }
+    .intro { margin:0 0 28px; color:var(--muted); }
+    label { display:block; margin:18px 0 7px; font-weight:650; }
+    input,textarea { width:100%; padding:12px 14px; border:1px solid var(--line); border-radius:10px; background:#12151b; color:var(--text); font:inherit; }
+    input[type=file] { padding:10px; }
+    textarea { min-height:140px; resize:vertical; }
+    .hint { margin:5px 0 0; color:var(--muted); font-size:13px; }
+    button { width:100%; margin-top:24px; padding:13px 18px; border:0; border-radius:10px; background:var(--accent); color:#20190f; font:700 16px system-ui,sans-serif; cursor:pointer; }
+    button:disabled { opacity:.65; cursor:wait; }
+    #status { min-height:24px; margin:16px 0 0; color:var(--muted); white-space:pre-wrap; }
+    #status.error { color:#ff9c9c; } #status.success { color:#95e0ad; }
+  </style>
+</head>
+<body>
+  <main>
+    <a class="back" href="index.html">← Back to Homepage</a>
+    <section class="panel">
+      <h1>Add Manhwa</h1>
+      <p class="intro">Tambahkan judul, cover, dan summary opsional ke perpustakaan.</p>
+      <form id="addMangaForm">
+        <label for="adminToken">Admin token</label>
+        <input id="adminToken" name="adminToken" type="password" autocomplete="off" required>
+        <p class="hint">Token admin yang disetel sebagai secret <code>ADMIN_TOKEN</code> di Cloudflare Worker.</p>
+
+        <label for="title">Title</label>
+        <input id="title" name="title" maxlength="120" required>
+        <label for="summary">Summary <span class="hint">(optional)</span></label>
+        <textarea id="summary" name="summary" maxlength="5000" placeholder="Tulis ringkasan cerita jika tersedia..."></textarea>
+
+        <label for="cover">Cover</label>
+        <input id="cover" name="cover" type="file" accept="image/jpeg,image/png,image/webp" required>
+        <p class="hint">JPG, PNG, atau WebP; maksimal 8 MB.</p>
+
+        <button id="submitButton" type="submit">ADD MANHWA</button>
+        <p id="status" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+    <section class="panel" style="margin-top:20px">
+      <h1>Add Chapter</h1>
+      <p class="intro">Unggah PDF chapter ke manhwa yang sudah ada.</p>
+      <form id="addChapterForm">
+        <label for="chapterToken">Admin token</label>
+        <input id="chapterToken" name="adminToken" type="password" autocomplete="off" required>
+
+        <label for="mangaSelect">Manhwa</label>
+        <select id="mangaSelect" name="mangaId" required style="width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:#12151b;color:var(--text);font:inherit">
+          <option value="">Memuat daftar manhwa...</option>
+        </select>
+
+        <label for="chapterNumber">Chapter</label>
+        <input id="chapterNumber" name="chapter" type="number" min="0" step="0.01" placeholder="4" required>
+        <p class="hint">Contoh: chapter 4 akan disimpan sebagai <code>004.pdf</code>.</p>
+
+        <label for="chapterPdf">File PDF</label>
+        <input id="chapterPdf" name="pdf" type="file" accept="application/pdf,.pdf" required>
+        <p class="hint">Maksimal 50 MB.</p>
+
+        <button id="chapterSubmitButton" type="submit">UPLOAD CHAPTER</button>
+        <p id="chapterStatus" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+  </main>
+  <script>
+
+    const API_BASE = "https://story-about-us-api.aichinose219.workers.dev";
+    const form = document.getElementById("addMangaForm");
+    const statusEl = document.getElementById("status");
+    const submitButton = document.getElementById("submitButton");
+    const chapterForm = document.getElementById("addChapterForm");
+    const mangaSelect = document.getElementById("mangaSelect");
+    const chapterStatus = document.getElementById("chapterStatus");
+    const chapterSubmitButton = document.getElementById("chapterSubmitButton");
+
+    fetch(`${API_BASE}/api/manga`)
+      .then(response => {
+        if (!response.ok) throw new Error("Gagal memuat daftar manhwa.");
+        return response.json();
+      })
+      .then(mangaList => {
+        mangaSelect.replaceChildren(new Option("Pilih manhwa", ""));
+        mangaList.forEach(manga => {
+          mangaSelect.add(new Option(manga.title || manga.id, manga.id));
+        });
+      })
+      .catch(() => {
+        mangaSelect.replaceChildren(new Option("Daftar manhwa gagal dimuat", ""));
+      });
+
+    chapterForm.addEventListener("submit", async event => {
+      event.preventDefault();
+      chapterStatus.className = "";
+      chapterStatus.textContent = "Mengunggah PDF...";
+      chapterSubmitButton.disabled = true;
+      try {
+        const formData = new FormData(chapterForm);
+        const token = formData.get("adminToken");
+        formData.delete("adminToken");
+        const response = await fetch(`${API_BASE}/api/admin/chapter`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+          body: formData
+        });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(result.error || `Permintaan gagal (${response.status}).`);
+        chapterStatus.className = "success";
+        chapterStatus.textContent = `Chapter ${result.chapter} berhasil diunggah.`;
+        chapterForm.reset();
+      } catch (error) {
+        chapterStatus.className = "error";
+        chapterStatus.textContent = error.message || "Tidak dapat menghubungi API.";
+      } finally {
+        chapterSubmitButton.disabled = false;
+      }
+    });
+
+    form.addEventListener("submit", async event => {
+      event.preventDefault();
+      statusEl.className = "";
+      statusEl.textContent = "Mengirim data...";
+      submitButton.disabled = true;
+
+      try {
+        const formData = new FormData(form);
+        const token = formData.get("adminToken");
+        formData.delete("adminToken");
+        const response = await fetch(`${API_BASE}/api/admin/manga`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+          body: formData
+        });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(result.error || `Permintaan gagal (${response.status}).`);
+        statusEl.className = "success";
+        statusEl.textContent = `${result.manga?.title || "Manhwa"} berhasil ditambahkan.`;
+        form.reset();
+      } catch (error) {
+        statusEl.className = "error";
+        statusEl.textContent = error.message || "Tidak dapat menghubungi API.";
+      } finally {
+        submitButton.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

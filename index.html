@@ -83,6 +83,30 @@
         }
 
 
+        .admin-link {
+            display: inline-flex;
+            align-items: center;
+            align-self: flex-start;
+            gap: 8px;
+            margin-top: 18px;
+            padding: 10px 15px;
+            border: 1px solid rgba(196,156,255,.38);
+            border-radius: 999px;
+            background: rgba(22,20,44,.52);
+            color: #e1d0ff;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: .3px;
+            text-decoration: none;
+            backdrop-filter: blur(8px);
+            transition: background .2s ease, transform .2s ease;
+        }
+
+        .admin-link:hover {
+            background: rgba(100,73,145,.48);
+            transform: translateY(-1px);
+        }
+
         .hero-title {
             font-family:
                 Georgia,
@@ -780,6 +804,10 @@
                 <br>
                 that led us here.
             </p>
+
+            <a class="admin-link" href="admin.html">
+                Admin · Upload Manhwa
+            </a>
 
         </section>
 
