@@ -1,205 +1,1732 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    >
 
     <title>Story About Us</title>
 
-    <link rel="stylesheet" href="style.css">
-
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            background: #0c1024;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            min-height: 100vh;
+
+            color: #f4f2fa;
+
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
+
+            background:
+                linear-gradient(
+                    180deg,
+                    rgba(10, 13, 30, 0.28),
+                    rgba(10, 13, 30, 0.80)
+                ),
+                url("https://cdn.storyabout-us.com/Theme/homepage-bg.png");
+
+            background-size: cover;
+            background-position: center top;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+
+            overflow-x: hidden;
+        }
+
+
+        /* =====================================================
+           CONTAINER
+        ===================================================== */
+
+        .container {
+            width: 100%;
+            max-width: 760px;
+
+            margin: 0 auto;
+
+            padding:
+                28px 28px 70px 18px;
+        }
+
+
+        /* =====================================================
+           HERO
+        ===================================================== */
+
+        .hero {
+            min-height: 265px;
+
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+
+            padding-bottom: 20px;
+        }
+
+
+        .hero-title {
+            font-family:
+                Georgia,
+                "Times New Roman",
+                serif;
+
+            font-size:
+                clamp(43px, 8vw, 68px);
+
+            line-height: 1;
+
+            letter-spacing: -2px;
+
+            color: #f3f1f8;
+
+            text-shadow:
+                0 3px 20px rgba(0,0,0,.25);
+        }
+
+
+        .hero-title .accent {
+            color: #c49cff;
+        }
+
+
+        .hero-description {
+            max-width: 550px;
+
+            margin-top: 22px;
+
+            color: #aaa9c5;
+
+            font-size: 17px;
+            line-height: 1.65;
+
+            letter-spacing: .8px;
+        }
+
+
+        /* =====================================================
+           SEARCH
+        ===================================================== */
+
+        .search-container {
+            position: relative;
+            z-index: 50;
+
+            width: 100%;
+
+            margin-bottom: 28px;
+        }
+
+
+        .search-wrapper {
+            position: relative;
+        }
+
+
+        .search-icon {
+            position: absolute;
+
+            left: 19px;
+            top: 50%;
+
+            transform: translateY(-50%);
+
+            color: #a8abc5;
+
+            font-size: 21px;
+
+            pointer-events: none;
+        }
+
+
+        .search-box {
+            width: 100%;
+            height: 57px;
+
+            padding:
+                0 18px 0 52px;
+
+            border:
+                1px solid
+                rgba(172,177,218,.22);
+
+            border-radius: 18px;
+
+            outline: none;
+
+            background:
+                rgba(28,32,58,.84);
+
+            color: white;
+
+            font-size: 16px;
+
+            backdrop-filter: blur(14px);
+
+            box-shadow:
+                0 10px 30px
+                rgba(0,0,0,.20);
+        }
+
+
+        .search-box::placeholder {
+            color: #81859f;
+        }
+
+
+        .search-box:focus {
+            border-color:
+                rgba(195,164,255,.45);
+        }
+
+
+        /* =====================================================
+           SEARCH SUGGESTIONS
+        ===================================================== */
+
+        .suggestions {
+            position: absolute;
+
+            left: 0;
+            right: 0;
+
+            top: 65px;
+
+            display: none;
+
+            padding: 8px;
+
+            max-height: 300px;
+
+            overflow-y: auto;
+
+            background:
+                rgba(25,28,50,.97);
+
+            border:
+                1px solid
+                rgba(163,170,208,.20);
+
+            border-radius: 17px;
+
+            box-shadow:
+                0 18px 45px
+                rgba(0,0,0,.38);
+
+            backdrop-filter: blur(18px);
+        }
+
+
+        .suggestions.show {
+            display: block;
+        }
+
+
+        .suggestion-item {
+            width: 100%;
+
+            min-height: 49px;
+
+            display: flex;
+            align-items: center;
+
+            padding: 0 15px;
+
+            border: none;
+            border-radius: 11px;
+
+            background: transparent;
+
+            color: #eeeeF5;
+
+            font-size: 15px;
+
+            text-align: left;
+
+            cursor: pointer;
+        }
+
+
+        .suggestion-item:hover {
+            background:
+                rgba(108,116,164,.20);
+        }
+
+
+        .no-suggestion {
+            padding: 15px;
+
+            color: #777c97;
+
+            text-align: center;
+        }
+
+
+        /* =====================================================
+           ALPHABET NAVIGATION
+        ===================================================== */
+
+        .alphabet-nav {
+            position: fixed;
+
+            right: 5px;
+            top: 50%;
+
+            transform: translateY(-50%);
+
+            z-index: 100;
+
+            display: flex;
+
+            flex-direction: column;
+
+            align-items: center;
+
+            gap: 2px;
+
+            padding: 7px 4px;
+
+            border-radius: 15px;
+
+            background:
+                rgba(20,24,46,.48);
+
+            backdrop-filter: blur(10px);
+
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+
+        .alphabet-letter {
+            width: 24px;
+            height: 22px;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            border: none;
+
+            border-radius: 6px;
+
+            background: transparent;
+
+            color: #626782;
+
+            font-size: 10px;
+            font-weight: 600;
+
+            cursor: default;
+
+            transition:
+                color .15s ease,
+                background .15s ease,
+                transform .15s ease;
+        }
+
+
+        /* Huruf yang mempunyai manga */
+
+        .alphabet-letter.active {
+            color: #ddd0ff;
+
+            cursor: pointer;
+        }
+
+
+        .alphabet-letter.active:hover {
+            background:
+                rgba(179,153,232,.18);
+
+            color: white;
+        }
+
+
+        .alphabet-letter.active:active {
+            transform: scale(.88);
+        }
+
+
+        /* Huruf yang sedang dipilih */
+
+        .alphabet-letter.current {
+            background:
+                rgba(184,151,238,.28);
+
+            color: white;
+        }
+
+
+        /* =====================================================
+           LETTER SECTION
+        ===================================================== */
+
+        .letter-section {
+            scroll-margin-top: 20px;
+
+            margin-bottom: 30px;
+        }
+
+
+        .letter-title {
+            margin-bottom: 12px;
+
+            padding-left: 3px;
+
+            font-family:
+                Georgia,
+                "Times New Roman",
+                serif;
+
+            font-size: 27px;
+
+            color: #cbaaff;
+
+            font-weight: 700;
+        }
+
+
+        /* =====================================================
+           MANGA GRID
+        ===================================================== */
+
+        .manga-grid {
+            width: 100%;
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(2, minmax(0,1fr));
+
+            gap: 18px;
+        }
+
+
+        /* =====================================================
+           CARD
+        ===================================================== */
+
+        .manga-card {
+            position: relative;
+
+            overflow: hidden;
+
+            min-width: 0;
+
+            border:
+                1px solid
+                rgba(166,174,216,.20);
+
+            border-radius: 22px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(48,54,84,.94),
+                    rgba(37,42,70,.94)
+                );
+
+            box-shadow:
+                0 10px 30px
+                rgba(0,0,0,.22);
+
+            cursor: pointer;
+
+            transition:
+                transform .18s ease;
+        }
+
+
+        .manga-card:hover {
+            transform:
+                translateY(-3px);
+        }
+
+
+        .manga-card:active {
+            transform:
+                scale(.985);
+        }
+
+
+        /* =====================================================
+           COVER
+        ===================================================== */
+
+        .cover-wrapper {
+            position: relative;
+
+            width: 100%;
+
+            aspect-ratio: 16 / 10;
+
+            overflow: hidden;
+
+            background: #292e4c;
+        }
+
+
+        .manga-cover {
+            width: 100%;
+            height: 100%;
+
+            display: block;
+
+            object-fit: cover;
+
+            transition:
+                transform .3s ease;
+        }
+
+
+        .manga-card:hover .manga-cover {
+            transform: scale(1.025);
+        }
+
+
+        /* =====================================================
+           CARD BOTTOM
+        ===================================================== */
+
+        .card-bottom {
+            min-height: 82px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            gap: 10px;
+
+            padding:
+                12px
+                12px
+                12px
+                17px;
+        }
+
+
+        .manga-title {
+            flex: 1;
+
+            min-width: 0;
+
+            color: #f3f1f7;
+
+            font-family:
+                Georgia,
+                "Times New Roman",
+                serif;
+
+            font-size: 20px;
+
+            line-height: 1.08;
+
+            font-weight: 700;
+
+            overflow-wrap: anywhere;
+        }
+
+
+        /* =====================================================
+           FAVORITE
+        ===================================================== */
+
+        .favorite-button {
+            flex-shrink: 0;
+
+            width: 49px;
+            height: 49px;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            border: none;
+
+            border-radius: 50%;
+
+            background:
+                rgba(91,97,145,.75);
+
+            color: #f4f1fa;
+
+            font-size: 30px;
+
+            cursor: pointer;
+        }
+
+
+        .favorite-button.active {
+            color: #d3adff;
+
+            background:
+                rgba(99,83,143,.85);
+        }
+
+
+        /* =====================================================
+           LOADING / ERROR
+        ===================================================== */
+
+        .loading,
+        .error-message,
+        .empty-message {
+            grid-column: 1 / -1;
+
+            padding: 60px 10px;
+
+            color: #858aa5;
+
+            text-align: center;
+        }
+
+
+        .error-message,
+        .empty-message {
+            display: none;
+        }
+
+
+        .error-message.show,
+        .empty-message.show {
+            display: block;
+        }
+
+
+        /* =====================================================
+           MOBILE
+        ===================================================== */
+
+        @media (max-width: 480px) {
+
+            .container {
+                padding:
+                    24px 28px 50px 14px;
+            }
+
+
+            .hero {
+                min-height: 255px;
+            }
+
+
+            .hero-title {
+                font-size: 43px;
+            }
+
+
+            .hero-description {
+                font-size: 15px;
+            }
+
+
+            .manga-grid {
+                gap: 13px;
+            }
+
+
+            .manga-card {
+                border-radius: 19px;
+            }
+
+
+            .card-bottom {
+                min-height: 72px;
+
+                padding:
+                    9px 9px 9px 12px;
+            }
+
+
+            .manga-title {
+                font-size: 17px;
+            }
+
+
+            .favorite-button {
+                width: 43px;
+                height: 43px;
+
+                font-size: 27px;
+            }
+
+
+            /* Alphabet lebih kecil */
+
+            .alphabet-nav {
+                right: 2px;
+
+                gap: 1px;
+
+                padding:
+                    5px 2px;
+            }
+
+
+            .alphabet-letter {
+                width: 21px;
+                height: 19px;
+
+                font-size: 9px;
+            }
+
+
+            .letter-title {
+                font-size: 24px;
+            }
+        }
+
+
+        /* =====================================================
+           VERY SMALL PHONE
+        ===================================================== */
+
+        @media (max-width: 360px) {
+
+            .container {
+                padding-left: 11px;
+                padding-right: 25px;
+            }
+
+
+            .hero-title {
+                font-size: 39px;
+            }
+
+
+            .manga-grid {
+                gap: 10px;
+            }
+
+
+            .manga-title {
+                font-size: 15px;
+            }
+
+
+            .favorite-button {
+                width: 39px;
+                height: 39px;
+
+                font-size: 25px;
+            }
+
+
+            .alphabet-letter {
+                width: 19px;
+                height: 18px;
+
+                font-size: 8px;
+            }
+        }
+
+    </style>
 </head>
+
 
 <body>
 
-    <main class="home-page">
 
-        <!-- HEADER -->
-        <header class="home-header">
+    <!-- =====================================================
+         ALPHABET
+    ====================================================== -->
 
-            <div class="moon-decoration">
-                ☾
-            </div>
+    <nav
+        id="alphabetNav"
+        class="alphabet-nav"
+        aria-label="Manga alphabet navigation"
+    ></nav>
 
-            <h1>Story About Us</h1>
 
-            <p>
-                A few stories, memories, and moments<br>
+    <main class="container">
+
+
+        <!-- =================================================
+             HERO
+        ================================================== -->
+
+        <section class="hero">
+
+            
+            <h1 class="hero-title">
+                <span class="accent">Story</span> About Us
+            </h1>
+
+
+            <p class="hero-description">
+                A few stories, memories, and moments
+                <br>
                 that led us here.
             </p>
 
-        </header>
-
-
-        <!-- DAFTAR MANHWA -->
-        <section class="manga-grid">
-
-
-            <!-- EVIL DEED -->
-            <article class="manga-card"
-                     onclick="openTitle('evil-deed')">
-
-                <div class="cover-wrapper">
-
-                    <img
-                        src="https://cdn.storyabout-us.com/Covers/evil-deed.png"
-                        alt="Evil Deed"
-                        class="manga-cover"
-                    >
-
-                </div>
-
-                <div class="manga-card-bottom">
-
-                    <h2>Evil Deed</h2>
-
-                    <button
-                        class="favorite-btn"
-                        onclick="event.stopPropagation()">
-
-                        <svg viewBox="0 0 24 24">
-                            <path
-                                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z">
-                            </path>
-                        </svg>
-
-                    </button>
-
-                </div>
-
-            </article>
-
-
-            <!-- SEMANTIC ERROR -->
-            <article class="manga-card"
-                     onclick="openTitle('semantic-error')">
-
-                <div class="cover-wrapper">
-
-                    <img
-                        src="covers/semantic-error.jpg"
-                        alt="Semantic Error"
-                        class="manga-cover"
-                    >
-
-                </div>
-
-                <div class="manga-card-bottom">
-
-                    <h2>Semantic Error</h2>
-
-                    <button
-                        class="favorite-btn"
-                        onclick="event.stopPropagation()">
-
-                        <svg viewBox="0 0 24 24">
-                            <path
-                                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z">
-                            </path>
-                        </svg>
-
-                    </button>
-
-                </div>
-
-            </article>
-
-
-            <!-- GUIDING HAZARD -->
-            <article class="manga-card"
-                     onclick="openTitle('guiding-hazard')">
-
-                <div class="cover-wrapper">
-
-                    <img
-                        src="covers/guiding-hazard.jpg"
-                        alt="Guiding Hazard"
-                        class="manga-cover"
-                    >
-
-                </div>
-
-                <div class="manga-card-bottom">
-
-                    <h2>Guiding Hazard</h2>
-
-                    <button
-                        class="favorite-btn"
-                        onclick="event.stopPropagation()">
-
-                        <svg viewBox="0 0 24 24">
-                            <path
-                                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z">
-                            </path>
-                        </svg>
-
-                    </button>
-
-                </div>
-
-            </article>
-
-
-            <!-- DASH -->
-            <article class="manga-card"
-                     onclick="openTitle('dash')">
-
-                <div class="cover-wrapper">
-
-                    <img
-                        src="covers/dash.jpg"
-                        alt="Dash"
-                        class="manga-cover"
-                    >
-
-                </div>
-
-                <div class="manga-card-bottom">
-
-                    <h2>Dash</h2>
-
-                    <button
-                        class="favorite-btn"
-                        onclick="event.stopPropagation()">
-
-                        <svg viewBox="0 0 24 24">
-                            <path
-                                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z">
-                            </path>
-                        </svg>
-
-                    </button>
-
-                </div>
-
-            </article>
-
-
         </section>
+
+
+        <!-- =================================================
+             SEARCH
+        ================================================== -->
+
+        <div class="search-container">
+
+            <div class="search-wrapper">
+
+                <span class="search-icon">
+                    ⌕
+                </span>
+
+
+                <input
+                    id="searchInput"
+                    class="search-box"
+                    type="text"
+                    placeholder="Search manga..."
+                    autocomplete="off"
+                    spellcheck="false"
+                >
+
+
+                <div
+                    id="suggestions"
+                    class="suggestions"
+                ></div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             MANGA LIST
+        ================================================== -->
+
+        <div id="mangaContainer">
+
+            <div class="loading" id="loading">
+                Loading stories...
+            </div>
+
+        </div>
+
+
+        <div
+            id="errorMessage"
+            class="error-message"
+        >
+            Unable to load the manga list.
+        </div>
+
+
+        <div
+            id="emptyMessage"
+            class="empty-message"
+        >
+            No manga found.
+        </div>
+
 
     </main>
 
 
     <script>
 
-        const tg = window.Telegram.WebApp;
+        /* =====================================================
+           TELEGRAM
+        ===================================================== */
 
-        tg.ready();
-        tg.expand();
+        const tg =
+            window.Telegram?.WebApp;
+
+        if (tg) {
+            tg.ready();
+            tg.expand();
+        }
 
 
-        function openTitle(title) {
+        /* =====================================================
+           API
+        ===================================================== */
+
+        const API_URL =
+            "https://story-about-us-api.aichinose219.workers.dev/api/manga";
+
+
+        /* =====================================================
+           ELEMENTS
+        ===================================================== */
+
+        const mangaContainer =
+            document.getElementById(
+                "mangaContainer"
+            );
+
+        const loading =
+            document.getElementById(
+                "loading"
+            );
+
+        const errorMessage =
+            document.getElementById(
+                "errorMessage"
+            );
+
+        const emptyMessage =
+            document.getElementById(
+                "emptyMessage"
+            );
+
+        const searchInput =
+            document.getElementById(
+                "searchInput"
+            );
+
+        const suggestions =
+            document.getElementById(
+                "suggestions"
+            );
+
+        const alphabetNav =
+            document.getElementById(
+                "alphabetNav"
+            );
+
+
+        /* =====================================================
+           DATA
+        ===================================================== */
+
+        let mangaData = [];
+
+        let favorites =
+            JSON.parse(
+                localStorage.getItem(
+                    "storyAboutUsFavorites"
+                ) || "[]"
+            );
+
+
+        /* =====================================================
+           ALPHABET
+        ===================================================== */
+
+        const alphabet =
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                .split("");
+
+
+        /* =====================================================
+           BACK
+        ===================================================== */
+
+        function goBack() {
+
+            if (window.history.length > 1) {
+
+                window.history.back();
+
+            } else {
+
+                window.location.href =
+                    "index.html";
+            }
+        }
+
+
+        /* =====================================================
+           OPEN MANGA
+        ===================================================== */
+
+        function openTitle(id) {
 
             window.location.href =
-                "chapter.html?title=" + title;
-
+                "chapter.html?title=" +
+                encodeURIComponent(id);
         }
+
+
+        /* =====================================================
+           FORMAT TITLE
+        ===================================================== */
+
+        function formatTitle(id) {
+
+            return id
+                .split("-")
+                .map(
+                    word =>
+                        word.charAt(0).toUpperCase() +
+                        word.slice(1)
+                )
+                .join(" ");
+        }
+
+
+        /* =====================================================
+           FAVORITE
+        ===================================================== */
+
+        function toggleFavorite(
+            event,
+            id
+        ) {
+
+            event.stopPropagation();
+
+            const index =
+                favorites.indexOf(id);
+
+
+            if (index === -1) {
+
+                favorites.push(id);
+
+            } else {
+
+                favorites.splice(index, 1);
+            }
+
+
+            localStorage.setItem(
+                "storyAboutUsFavorites",
+                JSON.stringify(favorites)
+            );
+
+
+            renderManga();
+        }
+
+
+        /* =====================================================
+           LOAD MANGA
+        ===================================================== */
+
+        async function loadManga() {
+
+            try {
+
+                loading.style.display =
+                    "block";
+
+                errorMessage.classList.remove(
+                    "show"
+                );
+
+
+                const response =
+                    await fetch(API_URL);
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        "API request failed"
+                    );
+                }
+
+
+                const data =
+                    await response.json();
+
+
+                mangaData =
+                    Array.isArray(data)
+                        ? data
+                        : [];
+
+
+                /*
+                 * A-Z
+                 *
+                 * Menggunakan title dari API.
+                 */
+
+                mangaData.sort(
+                    (a, b) =>
+                        (
+                            a.title ||
+                            formatTitle(a.id)
+                        ).localeCompare(
+                            (
+                                b.title ||
+                                formatTitle(b.id)
+                            ),
+                            undefined,
+                            {
+                                sensitivity: "base"
+                            }
+                        )
+                );
+
+
+                loading.style.display =
+                    "none";
+
+
+                renderManga();
+
+                renderAlphabet();
+
+
+            } catch (error) {
+
+                console.error(
+                    error
+                );
+
+
+                loading.style.display =
+                    "none";
+
+                errorMessage.classList.add(
+                    "show"
+                );
+            }
+        }
+
+
+        /* =====================================================
+           GET FIRST LETTER
+        ===================================================== */
+
+        function getFirstLetter(manga) {
+
+            const title =
+                manga.title ||
+                formatTitle(manga.id);
+
+
+            const first =
+                title
+                    .trim()
+                    .charAt(0)
+                    .toUpperCase();
+
+
+            return /^[A-Z]$/.test(first)
+                ? first
+                : "#";
+        }
+
+
+        /* =====================================================
+           GROUP MANGA
+        ===================================================== */
+
+        function groupManga() {
+
+            const groups = {};
+
+
+            mangaData.forEach(
+                manga => {
+
+                    const letter =
+                        getFirstLetter(manga);
+
+
+                    if (!groups[letter]) {
+
+                        groups[letter] = [];
+                    }
+
+
+                    groups[letter].push(
+                        manga
+                    );
+                }
+            );
+
+
+            return groups;
+        }
+
+
+        /* =====================================================
+           RENDER ALPHABET
+        ===================================================== */
+
+        function renderAlphabet() {
+
+            alphabetNav.innerHTML =
+                "";
+
+
+            const groups =
+                groupManga();
+
+
+            alphabet.forEach(
+                letter => {
+
+                    const button =
+                        document.createElement(
+                            "button"
+                        );
+
+
+                    button.className =
+                        "alphabet-letter";
+
+
+                    button.textContent =
+                        letter;
+
+
+                    /*
+                     * Hanya aktif jika
+                     * huruf tersebut ada
+                     */
+
+                    if (
+                        groups[letter] &&
+                        groups[letter].length
+                    ) {
+
+                        button.classList.add(
+                            "active"
+                        );
+
+
+                        button.onclick =
+                            () =>
+                                scrollToLetter(
+                                    letter
+                                );
+                    }
+
+
+                    alphabetNav.appendChild(
+                        button
+                    );
+                }
+            );
+        }
+
+
+        /* =====================================================
+           SCROLL TO LETTER
+        ===================================================== */
+
+        function scrollToLetter(
+            letter
+        ) {
+
+            const section =
+                document.getElementById(
+                    "letter-" + letter
+                );
+
+
+            if (!section) return;
+
+
+            section.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+        }
+
+
+        /* =====================================================
+           RENDER MANGA
+        ===================================================== */
+
+        function renderManga() {
+
+            mangaContainer.innerHTML =
+                "";
+
+
+            if (
+                mangaData.length === 0
+            ) {
+
+                emptyMessage.classList.add(
+                    "show"
+                );
+
+                return;
+            }
+
+
+            emptyMessage.classList.remove(
+                "show"
+            );
+
+
+            const groups =
+                groupManga();
+
+
+            /*
+             * A-Z
+             */
+
+            alphabet.forEach(
+                letter => {
+
+                    if (
+                        !groups[letter]
+                    ) {
+                        return;
+                    }
+
+
+                    /*
+                     * Section huruf
+                     */
+
+                    const section =
+                        document.createElement(
+                            "section"
+                        );
+
+
+                    section.className =
+                        "letter-section";
+
+
+                    section.id =
+                        "letter-" +
+                        letter;
+
+
+                    /*
+                     * Judul huruf
+                     */
+
+                    const heading =
+                        document.createElement(
+                            "h2"
+                        );
+
+
+                    heading.className =
+                        "letter-title";
+
+
+                    heading.textContent =
+                        letter;
+
+
+                    section.appendChild(
+                        heading
+                    );
+
+
+                    /*
+                     * Grid
+                     */
+
+                    const grid =
+                        document.createElement(
+                            "div"
+                        );
+
+
+                    grid.className =
+                        "manga-grid";
+
+
+                    /*
+                     * Manga sudah
+                     * A-Z dari loadManga()
+                     */
+
+                    groups[letter].forEach(
+                        manga => {
+
+                            grid.appendChild(
+                                createMangaCard(
+                                    manga
+                                )
+                            );
+                        }
+                    );
+
+
+                    section.appendChild(
+                        grid
+                    );
+
+
+                    mangaContainer.appendChild(
+                        section
+                    );
+                }
+            );
+        }
+
+
+        /* =====================================================
+           CREATE CARD
+        ===================================================== */
+
+        function createMangaCard(
+            manga
+        ) {
+
+            const card =
+                document.createElement(
+                    "article"
+                );
+
+
+            card.className =
+                "manga-card";
+
+
+            card.onclick =
+                () =>
+                    openTitle(
+                        manga.id
+                    );
+
+
+            /* COVER */
+
+            const coverWrapper =
+                document.createElement(
+                    "div"
+                );
+
+
+            coverWrapper.className =
+                "cover-wrapper";
+
+
+            const img =
+                document.createElement(
+                    "img"
+                );
+
+
+            img.className =
+                "manga-cover";
+
+
+            img.alt =
+                manga.title ||
+                formatTitle(
+                    manga.id
+                );
+
+
+            img.loading =
+                "lazy";
+
+
+            if (manga.cover) {
+
+                img.src =
+                    manga.cover;
+
+            } else {
+
+                img.src =
+                    "https://cdn.storyabout-us.com/Theme/homepage-bg.png";
+            }
+
+
+            img.onerror =
+                function () {
+
+                    this.src =
+                        "https://cdn.storyabout-us.com/Theme/homepage-bg.png";
+                };
+
+
+            coverWrapper.appendChild(
+                img
+            );
+
+
+            /* BOTTOM */
+
+            const bottom =
+                document.createElement(
+                    "div"
+                );
+
+
+            bottom.className =
+                "card-bottom";
+
+
+            /* TITLE */
+
+            const title =
+                document.createElement(
+                    "h2"
+                );
+
+
+            title.className =
+                "manga-title";
+
+
+            title.textContent =
+                manga.title ||
+                formatTitle(
+                    manga.id
+                );
+
+
+            /* FAVORITE */
+
+            const favorite =
+                document.createElement(
+                    "button"
+                );
+
+
+            favorite.type =
+                "button";
+
+
+            favorite.className =
+                "favorite-button";
+
+
+            const isFavorite =
+                favorites.includes(
+                    manga.id
+                );
+
+
+            favorite.textContent =
+                isFavorite
+                    ? "♥"
+                    : "♡";
+
+
+            if (isFavorite) {
+
+                favorite.classList.add(
+                    "active"
+                );
+            }
+
+
+            favorite.onclick =
+                event =>
+                    toggleFavorite(
+                        event,
+                        manga.id
+                    );
+
+
+            bottom.appendChild(
+                title
+            );
+
+            bottom.appendChild(
+                favorite
+            );
+
+
+            card.appendChild(
+                coverWrapper
+            );
+
+            card.appendChild(
+                bottom
+            );
+
+
+            return card;
+        }
+
+
+        /* =====================================================
+           SEARCH
+        ===================================================== */
+
+        searchInput.addEventListener(
+            "input",
+            function () {
+
+                const query =
+                    this.value
+                        .trim()
+                        .toLowerCase();
+
+
+                if (!query) {
+
+                    suggestions.innerHTML =
+                        "";
+
+                    suggestions.classList.remove(
+                        "show"
+                    );
+
+                    return;
+                }
+
+
+                const results =
+                    mangaData.filter(
+                        manga => {
+
+                            const title =
+                                (
+                                    manga.title ||
+                                    formatTitle(
+                                        manga.id
+                                    )
+                                ).toLowerCase();
+
+
+                            const id =
+                                (
+                                    manga.id ||
+                                    ""
+                                ).toLowerCase();
+
+
+                            return (
+                                title.includes(
+                                    query
+                                ) ||
+                                id.includes(
+                                    query
+                                )
+                            );
+                        }
+                    );
+
+
+                suggestions.innerHTML =
+                    "";
+
+
+                if (
+                    results.length === 0
+                ) {
+
+                    const noResult =
+                        document.createElement(
+                            "div"
+                        );
+
+
+                    noResult.className =
+                        "no-suggestion";
+
+
+                    noResult.textContent =
+                        "No manga found";
+
+
+                    suggestions.appendChild(
+                        noResult
+                    );
+
+
+                    suggestions.classList.add(
+                        "show"
+                    );
+
+                    return;
+                }
+
+
+                results.forEach(
+                    manga => {
+
+                        const item =
+                            document.createElement(
+                                "button"
+                            );
+
+
+                        item.type =
+                            "button";
+
+
+                        item.className =
+                            "suggestion-item";
+
+
+                        item.textContent =
+                            manga.title ||
+                            formatTitle(
+                                manga.id
+                            );
+
+
+                        item.onclick =
+                            () =>
+                                openTitle(
+                                    manga.id
+                                );
+
+
+                        suggestions.appendChild(
+                            item
+                        );
+                    }
+                );
+
+
+                suggestions.classList.add(
+                    "show"
+                );
+            }
+        );
+
+
+        /* =====================================================
+           CLOSE SEARCH
+        ===================================================== */
+
+        document.addEventListener(
+            "click",
+            function (event) {
+
+                if (
+                    !event.target.closest(
+                        ".search-container"
+                    )
+                ) {
+
+                    suggestions.classList.remove(
+                        "show"
+                    );
+                }
+            }
+        );
+
+
+        /* =====================================================
+           START
+        ===================================================== */
+
+        loadManga();
 
     </script>
 
 </body>
-
 </html>

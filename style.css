@@ -1,528 +1,773 @@
-/* =====================================================
+/* =========================================================
    STORY ABOUT US
-   CLEAN DREAMY DARK THEME
-===================================================== */
+   DREAMY NIGHT THEME
+========================================================= */
 
-/* =========================
-   GLOBAL
-========================= */
+
+/* =========================================================
+   RESET
+========================================================= */
 
 * {
     box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
+
 
 html {
-    background: #101424;
+    min-height: 100%;
+    background: #0d1020;
 }
 
+
 body {
-    margin: 0;
     min-height: 100vh;
 
     background:
         radial-gradient(
-            circle at 90% 5%,
-            rgba(133, 104, 190, 0.18),
-            transparent 25%
+            circle at 85% 5%,
+            rgba(113, 92, 161, 0.18),
+            transparent 28%
         ),
         radial-gradient(
             circle at 10% 55%,
-            rgba(75, 73, 150, 0.12),
+            rgba(75, 82, 142, 0.08),
             transparent 30%
         ),
         linear-gradient(
             180deg,
-            #101424 0%,
-            #151a30 50%,
-            #101423 100%
+            #111426 0%,
+            #0d1020 100%
         );
 
-    color: #f3f1ff;
+    color: #ffffff;
 
     font-family:
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
+        Arial,
+        Helvetica,
         sans-serif;
 
-    -webkit-tap-highlight-color: transparent;
+    -webkit-font-smoothing: antialiased;
+
+    overflow-x: hidden;
 }
 
-button {
-    font: inherit;
-}
 
+/* =========================================================
+   MAIN CONTAINER
+========================================================= */
 
-/* =====================================================
-   INDEX / HOME
-===================================================== */
+.container {
 
-.home-page {
     width: 100%;
-    max-width: 700px;
+
+    max-width: 760px;
+
     margin: 0 auto;
-    padding: 28px 18px 50px;
-}
 
-.home-header {
+    padding:
+        34px
+        18px
+        60px;
+
     position: relative;
-    padding: 15px 5px 25px;
 }
 
-.home-header h1 {
-    margin: 0;
+
+/* =========================================================
+   HERO
+========================================================= */
+
+.hero {
+
+    position: relative;
+
+    min-height: 245px;
+
+    margin-bottom: 5px;
+
+    overflow: visible;
+}
+
+
+/* =========================================================
+   HERO TITLE
+========================================================= */
+
+.hero-title {
+
+    position: relative;
+
+    z-index: 2;
+
+    max-width: 620px;
+
+    padding-top: 4px;
 
     font-family:
         Georgia,
         "Times New Roman",
         serif;
 
-    font-size: clamp(36px, 9vw, 52px);
-    line-height: 1.05;
+    font-size: clamp(
+        42px,
+        8vw,
+        68px
+    );
+
+    line-height: 0.98;
+
     font-weight: 700;
 
-    background:
-        linear-gradient(
-            90deg,
-            #c8a8ff,
-            #ffffff,
-            #d9c9ff
-        );
+    letter-spacing: -2px;
 
-    background-clip: text;
-    -webkit-background-clip: text;
+    color: #f2f0f8;
 
-    color: transparent;
-    -webkit-text-fill-color: transparent;
-}
-
-.home-header p {
-    margin: 16px 0 0;
-
-    max-width: 470px;
-
-    color: #a7a7d0;
-
-    font-size: 15px;
-    line-height: 1.55;
-
-    letter-spacing: 1.2px;
+    text-shadow:
+        0 2px 18px
+        rgba(0, 0, 0, 0.18);
 }
 
 
-/* Decorative moon */
+/* "Story" */
 
-.moon-decoration {
+.hero-title span {
+
+    color: #c7a4ff;
+
+    text-shadow:
+        0 0 24px
+        rgba(183, 145, 255, 0.12);
+}
+
+
+/* =========================================================
+   HERO DESCRIPTION
+========================================================= */
+
+.hero-description {
+
+    position: relative;
+
+    z-index: 2;
+
+    max-width: 540px;
+
+    margin-top: 25px;
+
+    color: #989dbb;
+
+    font-size: 18px;
+
+    line-height: 1.65;
+
+    letter-spacing: 1px;
+
+    font-weight: 400;
+}
+
+
+/* =========================================================
+   DREAMY DECORATION
+========================================================= */
+
+.hero-decoration {
+
     position: absolute;
 
-    right: 8px;
-    top: -5px;
+    z-index: 1;
 
-    width: 55px;
-    height: 55px;
+    top: -35px;
+
+    right: -20px;
+
+    width: 310px;
+
+    height: 270px;
+
+    pointer-events: none;
+
+    overflow: visible;
+}
+
+
+/* =========================================================
+   MOON
+========================================================= */
+
+.moon {
+
+    position: absolute;
+
+    top: 30px;
+
+    right: 60px;
+
+    width: 92px;
+
+    height: 92px;
 
     border-radius: 50%;
 
     background:
-        linear-gradient(
-            135deg,
-            #fff1d7,
-            #e9b8c6
+        radial-gradient(
+            circle at 35% 30%,
+            #fff4ef 0%,
+            #f5d5ce 48%,
+            #efc2bc 100%
         );
 
     box-shadow:
         0 0 25px
-        rgba(255, 220, 210, 0.35);
+        rgba(255, 215, 208, 0.18),
 
-    pointer-events: none;
+        0 0 60px
+        rgba(190, 145, 255, 0.08);
 }
 
-.moon-decoration::after {
+
+/*
+    Membuat bulan sabit
+*/
+
+.moon::before {
+
     content: "";
 
     position: absolute;
 
-    width: 55px;
-    height: 55px;
+    width: 92px;
+
+    height: 92px;
+
+    top: -10px;
+
+    left: -25px;
 
     border-radius: 50%;
 
-    background: #111526;
-
-    left: -15px;
-    top: -8px;
+    background: #111426;
 }
 
 
-/* =========================
+/* =========================================================
+   STARS
+========================================================= */
+
+.stars {
+
+    position: absolute;
+
+    top: 25px;
+
+    left: 65px;
+
+    color: #d7b9ff;
+
+    font-family:
+        Georgia,
+        serif;
+
+    font-size: 16px;
+
+    opacity: 0.9;
+}
+
+
+.stars span {
+
+    position: absolute;
+
+    display: block;
+
+    color: #f1d4e6;
+}
+
+
+.stars span:nth-child(1) {
+
+    left: 90px;
+
+    top: 45px;
+
+    font-size: 13px;
+}
+
+
+.stars span:nth-child(2) {
+
+    left: 175px;
+
+    top: 18px;
+
+    font-size: 8px;
+}
+
+
+.stars span:nth-child(3) {
+
+    left: 145px;
+
+    top: 83px;
+
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   SAKURA BRANCH
+========================================================= */
+
+.branch {
+
+    position: absolute;
+
+    right: -15px;
+
+    bottom: 15px;
+
+    width: 220px;
+
+    height: 110px;
+
+    color: #e9a8c8;
+
+    font-size: 26px;
+
+    letter-spacing: 5px;
+
+    transform:
+        rotate(-12deg);
+
+    opacity: 0.9;
+
+    filter:
+        drop-shadow(
+            0 0 10px
+            rgba(230, 160, 205, 0.16)
+        );
+}
+
+
+/* =========================================================
+   SEARCH AREA
+========================================================= */
+
+.search-container {
+
+    position: relative;
+
+    z-index: 10;
+
+    width: 100%;
+
+    margin:
+        0
+        0
+        28px;
+}
+
+
+/* =========================================================
+   SEARCH BOX
+========================================================= */
+
+.search-box {
+
+    width: 100%;
+
+    height: 58px;
+
+    padding:
+        0 20px
+        0 55px;
+
+    border:
+        1px solid
+        rgba(157, 165, 204, 0.20);
+
+    border-radius: 18px;
+
+    outline: none;
+
+    background:
+        rgba(30, 34, 58, 0.88);
+
+    color: #ffffff;
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    font-size: 16px;
+
+    letter-spacing: 0.2px;
+
+    box-shadow:
+        0 8px 25px
+        rgba(0, 0, 0, 0.12);
+
+    backdrop-filter: blur(12px);
+
+    -webkit-backdrop-filter: blur(12px);
+
+    transition:
+        border-color 0.2s ease,
+        background 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+
+.search-box::placeholder {
+
+    color: #737994;
+
+    opacity: 1;
+}
+
+
+.search-box:focus {
+
+    border-color:
+        rgba(184, 154, 255, 0.42);
+
+    background:
+        rgba(34, 38, 65, 0.95);
+
+    box-shadow:
+        0 8px 30px
+        rgba(0, 0, 0, 0.18),
+
+        0 0 0 3px
+        rgba(175, 143, 255, 0.05);
+}
+
+
+/* =========================================================
+   SEARCH ICON
+========================================================= */
+
+.search-icon {
+
+    position: absolute;
+
+    z-index: 2;
+
+    left: 19px;
+
+    top: 50%;
+
+    transform:
+        translateY(-50%);
+
+    color: #969bb8;
+
+    font-size: 23px;
+
+    line-height: 1;
+
+    pointer-events: none;
+}
+
+
+/* =========================================================
+   SEARCH SUGGESTIONS
+========================================================= */
+
+.search-suggestions {
+
+    position: absolute;
+
+    z-index: 100;
+
+    left: 0;
+
+    right: 0;
+
+    top: 67px;
+
+    display: none;
+
+    padding: 8px;
+
+    background:
+        rgba(26, 29, 49, 0.97);
+
+    border:
+        1px solid
+        rgba(155, 164, 205, 0.20);
+
+    border-radius: 17px;
+
+    box-shadow:
+        0 18px 45px
+        rgba(0, 0, 0, 0.35);
+
+    backdrop-filter: blur(18px);
+
+    -webkit-backdrop-filter: blur(18px);
+
+    max-height: 310px;
+
+    overflow-y: auto;
+}
+
+
+.search-suggestions.show {
+
+    display: block;
+}
+
+
+/* =========================================================
+   SUGGESTION ITEM
+========================================================= */
+
+.suggestion {
+
+    width: 100%;
+
+    min-height: 48px;
+
+    display: flex;
+
+    align-items: center;
+
+    padding:
+        0 14px;
+
+    border: none;
+
+    border-radius: 11px;
+
+    background: transparent;
+
+    color: #eeeef5;
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    font-size: 15px;
+
+    font-weight: 500;
+
+    text-align: left;
+
+    cursor: pointer;
+
+    transition:
+        background 0.15s ease,
+        color 0.15s ease;
+}
+
+
+.suggestion:hover {
+
+    background:
+        rgba(110, 119, 165, 0.20);
+
+    color: #ffffff;
+}
+
+
+.suggestion:active {
+
+    background:
+        rgba(135, 117, 187, 0.25);
+}
+
+
+/* =========================================================
+   NO SEARCH RESULT
+========================================================= */
+
+.no-suggestion {
+
+    padding:
+        14px;
+
+    color: #777d98;
+
+    font-size: 14px;
+
+    text-align: center;
+}
+
+
+/* =========================================================
    MANGA GRID
-========================= */
+========================================================= */
 
 .manga-grid {
+
+    width: 100%;
+
     display: grid;
 
     grid-template-columns:
-        repeat(2, minmax(0, 1fr));
+        repeat(
+            2,
+            minmax(0, 1fr)
+        );
 
     gap: 18px;
 }
 
 
-/* =========================
+/* =========================================================
    MANGA CARD
-========================= */
+========================================================= */
 
 .manga-card {
+
+    position: relative;
+
+    min-width: 0;
+
     overflow: hidden;
 
-    border-radius: 20px;
+    border:
+        1px solid
+        rgba(151, 160, 199, 0.19);
+
+    border-radius: 23px;
 
     background:
         linear-gradient(
             145deg,
-            rgba(48, 53, 88, 0.95),
-            rgba(34, 38, 65, 0.98)
+            #303653 0%,
+            #282d4a 100%
         );
 
-    border:
-        1px solid
-        rgba(135, 139, 190, 0.22);
-
     box-shadow:
-        0 10px 30px
-        rgba(0, 0, 0, 0.25),
+        0 10px 25px
+        rgba(0, 0, 0, 0.18),
+
         inset 0 1px 0
-        rgba(255, 255, 255, 0.05);
+        rgba(255, 255, 255, 0.025);
 
     cursor: pointer;
 
+    transform:
+        translateZ(0);
+
     transition:
         transform 0.18s ease,
+        border-color 0.18s ease,
         box-shadow 0.18s ease;
 }
 
-.manga-card:active {
-    transform: scale(0.97);
+
+.manga-card:hover {
+
+    transform:
+        translateY(-3px);
+
+    border-color:
+        rgba(178, 166, 222, 0.30);
+
+    box-shadow:
+        0 15px 32px
+        rgba(0, 0, 0, 0.25);
 }
 
 
-/* =========================
+.manga-card:active {
+
+    transform:
+        scale(0.985);
+}
+
+
+/* =========================================================
    COVER
-========================= */
+========================================================= */
 
 .cover-wrapper {
+
+    position: relative;
+
     width: 100%;
 
-    aspect-ratio: 1.55 / 1;
+    /*
+       Landscape seperti referensi
+    */
+
+    aspect-ratio:
+        16 / 10;
 
     overflow: hidden;
+
+    background:
+        #272c48;
 }
 
+
+/* =========================================================
+   COVER IMAGE
+========================================================= */
+
 .manga-cover {
+
     width: 100%;
+
     height: 100%;
 
     display: block;
 
     object-fit: cover;
 
+    object-position: center;
+
     transition:
-        transform 0.3s ease;
-}
-
-.manga-card:hover .manga-cover {
-    transform: scale(1.03);
+        transform 0.35s ease;
 }
 
 
-/* =========================
-   CARD BOTTOM
-========================= */
+.manga-card:hover
+.manga-cover {
 
-.manga-card-bottom {
-    min-height: 78px;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: space-between;
-
-    gap: 8px;
-
-    padding:
-        12px
-        13px
-        12px
-        16px;
-}
-
-.manga-card-bottom h2 {
-    margin: 0;
-
-    font-family:
-        Georgia,
-        "Times New Roman",
-        serif;
-
-    font-size: 19px;
-    line-height: 1.15;
-
-    color: #f4f0ff;
+    transform:
+        scale(1.025);
 }
 
 
-/* =========================
-   FAVORITE BUTTON
-========================= */
+/* =========================================================
+   COVER DARK OVERLAY
+========================================================= */
 
-.favorite-btn {
-    flex-shrink: 0;
+.cover-wrapper::after {
 
-    width: 46px;
-    height: 46px;
+    content: "";
 
-    border: none;
-    border-radius: 50%;
+    position: absolute;
 
-    background:
-        rgba(91, 92, 143, 0.6);
+    inset: 0;
 
-    display: flex;
-
-    align-items: center;
-    justify-content: center;
-
-    cursor: pointer;
-}
-
-.favorite-btn:active {
-    transform: scale(0.92);
-}
-
-.favorite-btn svg {
-    width: 25px;
-    height: 25px;
-
-    fill: none;
-
-    stroke: #ffffff;
-
-    stroke-width: 1.7;
-}
-
-
-/* =====================================================
-   CHAPTER PAGE
-===================================================== */
-
-.chapter-page,
-.chapters {
-    width: 100%;
-    max-width: 700px;
-
-    margin: 0 auto;
-
-    padding:
-        22px
-        18px
-        50px;
-}
-
-
-/* =========================
-   CHAPTER HEADER
-========================= */
-
-.chapter-header {
-    display: flex;
-
-    align-items: center;
-
-    gap: 15px;
-
-    margin-bottom: 25px;
-}
-
-.back-btn {
-    width: 46px;
-    height: 46px;
-
-    flex-shrink: 0;
-
-    border: none;
-
-    border-radius: 50%;
-
-    background:
-        rgba(65, 69, 108, 0.65);
-
-    display: flex;
-
-    align-items: center;
-    justify-content: center;
-
-    cursor: pointer;
-}
-
-.back-btn:active {
-    transform: scale(0.92);
-}
-
-.back-btn svg {
-    width: 27px;
-    height: 27px;
-
-    fill: none;
-
-    stroke: #ffffff;
-
-    stroke-width: 2;
-
-    stroke-linecap: round;
-    stroke-linejoin: round;
-}
-
-.small-label {
-    display: block;
-
-    margin-bottom: 3px;
-
-    color: #999ac4;
-
-    font-size: 10px;
-
-    letter-spacing: 2px;
-}
-
-.chapter-header h1 {
-    margin: 0;
-
-    font-family:
-        Georgia,
-        "Times New Roman",
-        serif;
-
-    font-size: 25px;
-
-    color: #f5f1ff;
-}
-
-
-/* =========================
-   CHAPTER COVER
-========================= */
-
-.chapter-cover-section h2 {
-    margin: 18px 0 5px;
-
-    font-family:
-        Georgia,
-        "Times New Roman",
-        serif;
-
-    font-size: 24px;
-
-    color: #f5f1ff;
-}
-
-.cover-description {
-    margin: 0;
-
-    color: #9999bd;
-
-    font-size: 13px;
-}
-
-.chapter-cover {
-    display: flex;
-
-    justify-content: center;
-
-    width: 100%;
-
-    margin:
-        5px 0
-        25px;
-}
-
-.chapter-cover img,
-.chapter-cover-section img {
-    width: 150px;
-    height: 215px;
-
-    display: block;
-
-    object-fit: cover;
-
-    border-radius: 16px;
-
-    box-shadow:
-        0 14px 35px
-        rgba(0, 0, 0, 0.38);
-
-    border:
-        1px solid
-        rgba(180, 170, 230, 0.18);
-}
-
-
-/* =========================
-   CHAPTER TITLE
-========================= */
-
-.chapters h2 {
-    margin:
-        0 0
-        14px;
-
-    font-family:
-        Georgia,
-        "Times New Roman",
-        serif;
-
-    font-size: 24px;
-
-    color: #f5f1ff;
-}
-
-
-/* =========================
-   CHAPTER LIST
-========================= */
-
-.chapter-list,
-.chapters-list {
-    display: flex;
-
-    flex-direction: column;
-
-    gap: 10px;
-}
-
-.chapter-item {
-    width: 100%;
-
-    min-height: 68px;
-
-    padding:
-        14px
-        18px;
-
-    border:
-        1px solid
-        rgba(135, 139, 190, 0.22);
-
-    border-radius: 16px;
+    pointer-events: none;
 
     background:
         linear-gradient(
-            145deg,
-            rgba(42, 46, 78, 0.96),
-            rgba(34, 38, 65, 0.98)
+            180deg,
+            rgba(10, 12, 25, 0.02) 45%,
+            rgba(10, 12, 25, 0.10) 100%
         );
+}
 
-    color: #ffffff;
+
+/* =========================================================
+   CARD BOTTOM
+========================================================= */
+
+.card-bottom {
+
+    width: 100%;
+
+    min-height: 82px;
 
     display: flex;
 
@@ -530,511 +775,752 @@ button {
 
     justify-content: space-between;
 
-    text-align: left;
+    gap: 12px;
+
+    padding:
+        13px
+        14px
+        13px
+        17px;
+}
+
+
+/* =========================================================
+   MANGA TITLE
+========================================================= */
+
+.manga-title {
+
+    flex: 1;
+
+    min-width: 0;
+
+    margin: 0;
+
+    color: #f5f3f8;
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size: 21px;
+
+    line-height: 1.08;
+
+    font-weight: 700;
+
+    letter-spacing: -0.2px;
+
+    overflow-wrap: anywhere;
+}
+
+
+/* =========================================================
+   FAVORITE BUTTON
+========================================================= */
+
+.favorite-button {
+
+    flex-shrink: 0;
+
+    width: 50px;
+
+    height: 50px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border: none;
+
+    border-radius: 50%;
+
+    background:
+        rgba(86, 92, 139, 0.72);
+
+    color: #f1eff8;
+
+    font-family: Arial, sans-serif;
+
+    font-size: 31px;
+
+    font-weight: 300;
+
+    line-height: 1;
 
     cursor: pointer;
 
     box-shadow:
-        0 8px 20px
-        rgba(0, 0, 0, 0.16);
+        inset 0 1px 0
+        rgba(255, 255, 255, 0.05);
+
+    transition:
+        transform 0.15s ease,
+        background 0.15s ease,
+        color 0.15s ease;
+}
+
+
+.favorite-button:hover {
+
+    background:
+        rgba(103, 110, 160, 0.82);
+}
+
+
+.favorite-button:active {
+
+    transform:
+        scale(0.90);
+}
+
+
+.favorite-button.active {
+
+    color: #d7b5ff;
+
+    background:
+        rgba(94, 82, 137, 0.85);
+}
+
+
+/* =========================================================
+   LOADING
+========================================================= */
+
+.loading {
+
+    grid-column:
+        1 / -1;
+
+    padding:
+        60px
+        10px;
+
+    color: #777d98;
+
+    font-size: 14px;
+
+    text-align: center;
+}
+
+
+/* =========================================================
+   NO MANGA
+========================================================= */
+
+.no-manga {
+
+    display: none;
+
+    grid-column:
+        1 / -1;
+
+    padding:
+        60px
+        10px;
+
+    color: #777d98;
+
+    font-size: 14px;
+
+    text-align: center;
+}
+
+
+.no-manga.show {
+
+    display: block;
+}
+
+
+/* =========================================================
+   SCROLLBAR
+========================================================= */
+
+.search-suggestions::-webkit-scrollbar {
+
+    width: 5px;
+}
+
+
+.search-suggestions::-webkit-scrollbar-track {
+
+    background: transparent;
+}
+
+
+.search-suggestions::-webkit-scrollbar-thumb {
+
+    background:
+        rgba(145, 151, 190, 0.28);
+
+    border-radius: 10px;
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 700px) {
+
+    .container {
+
+        padding:
+            30px
+            18px
+            50px;
+    }
+
+
+    .hero {
+
+        min-height: 225px;
+    }
+
+
+    .hero-decoration {
+
+        right: -25px;
+
+        transform:
+            scale(0.9);
+
+        transform-origin:
+            top right;
+    }
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 480px) {
+
+    .container {
+
+        padding:
+            25px
+            14px
+            45px;
+    }
+
+
+    /* -------------------------
+       HERO
+    ------------------------- */
+
+    .hero {
+
+        min-height: 205px;
+
+        margin-bottom: 3px;
+    }
+
+
+    .hero-title {
+
+        max-width: 350px;
+
+        font-size: 45px;
+
+        line-height: 0.99;
+
+        letter-spacing: -1.7px;
+    }
+
+
+    .hero-description {
+
+        max-width: 310px;
+
+        margin-top: 20px;
+
+        font-size: 15px;
+
+        line-height: 1.65;
+
+        letter-spacing: 0.7px;
+    }
+
+
+    /* -------------------------
+       DECORATION
+    ------------------------- */
+
+    .hero-decoration {
+
+        top: -25px;
+
+        right: -42px;
+
+        transform:
+            scale(0.70);
+
+        transform-origin:
+            top right;
+    }
+
+
+    /* -------------------------
+       SEARCH
+    ------------------------- */
+
+    .search-container {
+
+        margin-bottom: 22px;
+    }
+
+
+    .search-box {
+
+        height: 54px;
+
+        border-radius: 16px;
+
+        font-size: 15px;
+
+        padding-left: 51px;
+    }
+
+
+    .search-icon {
+
+        left: 17px;
+
+        font-size: 21px;
+    }
+
+
+    .search-suggestions {
+
+        top: 62px;
+
+        border-radius: 15px;
+    }
+
+
+    /* -------------------------
+       GRID
+    ------------------------- */
+
+    .manga-grid {
+
+        grid-template-columns:
+            repeat(
+                2,
+                minmax(0, 1fr)
+            );
+
+        gap: 13px;
+    }
+
+
+    /* -------------------------
+       CARD
+    ------------------------- */
+
+    .manga-card {
+
+        border-radius: 19px;
+    }
+
+
+    .cover-wrapper {
+
+        aspect-ratio:
+            16 / 10;
+    }
+
+
+    .card-bottom {
+
+        min-height: 72px;
+
+        padding:
+            10px
+            10px
+            10px
+            13px;
+
+        gap: 7px;
+    }
+
+
+    .manga-title {
+
+        font-size: 18px;
+
+        line-height: 1.05;
+    }
+
+
+    .favorite-button {
+
+        width: 44px;
+
+        height: 44px;
+
+        font-size: 28px;
+    }
+
+}
+
+
+/* =========================================================
+   VERY SMALL PHONE
+========================================================= */
+
+@media (max-width: 360px) {
+
+    .container {
+
+        padding-left: 11px;
+
+        padding-right: 11px;
+    }
+
+
+    .hero-title {
+
+        font-size: 39px;
+
+        letter-spacing: -1.4px;
+    }
+
+
+    .hero-description {
+
+        font-size: 14px;
+
+        max-width: 280px;
+    }
+
+
+    .hero-decoration {
+
+        right: -48px;
+
+        transform:
+            scale(0.60);
+    }
+
+
+    .manga-grid {
+
+        gap: 10px;
+    }
+
+
+    .manga-card {
+
+        border-radius: 17px;
+    }
+
+
+    .card-bottom {
+
+        min-height: 67px;
+
+        padding:
+            8px
+            8px
+            8px
+            10px;
+    }
+
+
+    .manga-title {
+
+        font-size: 16px;
+    }
+
+
+    .favorite-button {
+
+        width: 40px;
+
+        height: 40px;
+
+        font-size: 25px;
+    }
+
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+
+        scroll-behavior: auto !important;
+
+        transition: none !important;
+
+        animation: none !important;
+    }
+
+}
+
+/* =========================================================
+   READER
+========================================================= */
+
+body.reader-body {
+    margin: 0;
+    padding: 82px 0 0;
+    background: #000;
+    color: #fff;
+    overflow-x: hidden;
+}
+
+/* HEADER READER - SELALU TERLIHAT */
+.reader-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+
+    width: 100%;
+    height: 82px;
+
+    z-index: 99999;
+
+    display: flex;
+    align-items: center;
+
+    padding: 10px 16px;
+
+    background: rgba(15, 18, 40, 0.98);
+
+    box-shadow:
+        0 4px 18px
+        rgba(0, 0, 0, 0.35);
+
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+}
+
+
+/* BACK BUTTON */
+
+.reader-back {
+    flex-shrink: 0;
+
+    width: 50px;
+    height: 50px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-right: 13px;
+
+    border: none;
+    border-radius: 50%;
+
+    background: #3b4168;
+
+    color: #fff;
+
+    font-size: 36px;
+    line-height: 1;
+
+    cursor: pointer;
 
     transition:
         transform 0.15s ease,
         background 0.15s ease;
 }
 
-.chapter-item:active {
-    transform: scale(0.98);
-
-    background:
-        rgba(57, 61, 99, 0.98);
-}
-
-.chapter-name {
-    font-family:
-        Georgia,
-        "Times New Roman",
-        serif;
-
-    font-size: 17px;
-
-    color: #f5f1ff;
-}
-
-.chapter-arrow {
-    flex-shrink: 0;
-
-    color: #c5b1ff;
-
-    font-size: 28px;
-
-    line-height: 1;
-}
-
-
-/* =====================================================
-   READER
-===================================================== */
-
-.reader-body {
-    margin: 0;
-
-    padding: 0;
-
-    min-height: 100vh;
-
-    background: #000000;
-
-    color: #ffffff;
-}
-
-
-/* =========================
-   READER HEADER
-========================= */
-
-.reader-header {
-    position: sticky;
-
-    top: 0;
-
-    z-index: 1000;
-
-    width: 100%;
-
-    height: 58px;
-
-    padding: 0 12px;
-
-    display: flex;
-
-    align-items: center;
-
-    gap: 12px;
-
-    background:
-        rgba(16, 20, 36, 0.96);
-
-    backdrop-filter: blur(12px);
-
-    -webkit-backdrop-filter: blur(12px);
-
-    border-bottom:
-        1px solid
-        rgba(150, 150, 200, 0.15);
-}
-
-.reader-back {
-    width: 40px;
-    height: 40px;
-
-    padding: 0;
-
-    flex-shrink: 0;
-
-    border: none;
-
-    border-radius: 50%;
-
-    background:
-        rgba(65, 69, 108, 0.75);
-
-    color: #ffffff;
-
-    display: flex;
-
-    align-items: center;
-    justify-content: center;
-
-    cursor: pointer;
+.reader-back:hover {
+    background: #4b527e;
 }
 
 .reader-back:active {
-    transform: scale(0.92);
+    transform: scale(0.90);
 }
 
-.reader-back svg {
-    width: 24px;
-    height: 24px;
 
-    fill: none;
-
-    stroke: #ffffff;
-
-    stroke-width: 2;
-
-    stroke-linecap: round;
-
-    stroke-linejoin: round;
-}
+/* JUDUL */
 
 .reader-title-area {
     min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    justify-content: center;
 }
 
-.reader-title-area span {
-    display: block;
+.reader-manga-title {
+    color: #aaa9bd;
 
-    margin-bottom: 2px;
+    font-size: 12px;
+    line-height: 1.1;
 
-    color: #9293bd;
-
-    font-size: 9px;
-
-    letter-spacing: 1.5px;
+    letter-spacing: 1.2px;
 
     white-space: nowrap;
-
     overflow: hidden;
-
     text-overflow: ellipsis;
 }
 
-.reader-title-area h1 {
-    margin: 0;
+.reader-title {
+    margin-top: 2px;
+
+    color: #f5f3fa;
 
     font-family:
         Georgia,
         "Times New Roman",
         serif;
 
-    font-size: 18px;
+    font-size: 24px;
+    line-height: 1.05;
 
-    line-height: 1.1;
-
-    color: #f5f1ff;
+    font-weight: 700;
 
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 
-/* =========================
-   PDF
-========================= */
+/* PDF */
 
 #pdf-container {
     width: 100%;
+
     margin: 0;
     padding: 0;
+
     background: #000;
+
+    line-height: 0;
+    font-size: 0;
+
+    overflow: hidden;
 }
 
-.pdf-page {
-    width: 100%;
-    margin: 0 !important;
-    padding: 0 !important;
-    background: #000;
+#pdf-container .pdf-page {
     display: block;
+
+    width: 100%;
+
+    margin: 0;
+    padding: 0;
+
+    border: 0;
+
     line-height: 0;
     font-size: 0;
 }
 
-.pdf-page + .pdf-page {
-    margin-top: 0 !important;
-    padding-top: 0 !important;
+#pdf-container .pdf-page + .pdf-page {
+    margin-top: -1px;
 }
 
-.pdf-page canvas {
+#pdf-container canvas {
     display: block;
-    width: 100% !important;
-    height: auto !important;
-    margin: 0 !important;
-    padding: 0 !important;
+
+    width: 100%;
+    height: auto;
+
+    margin: 0;
+    padding: 0;
+
     border: 0;
+
 }
 
-/* =========================
-   LOADING
-========================= */
 
-.reader-loading {
-    min-height:
-        calc(100vh - 58px);
+/* LOADING */
+
+#loading {
+    position: fixed;
+
+    top: 82px;
+    left: 0;
+    right: 0;
+
+    bottom: 0;
+
+    z-index: 1000;
 
     display: flex;
-
-    flex-direction: column;
-
     align-items: center;
     justify-content: center;
 
-    background: #101424;
+    background: #000;
 
-    color: #aaa8ca;
-}
+    color: #aaa9bd;
 
-.reader-loading p {
-    margin-top: 16px;
-
-    font-size: 13px;
-
-    letter-spacing: 0.5px;
-}
-
-.loading-spinner {
-    width: 38px;
-    height: 38px;
-
-    border-radius: 50%;
-
-    border:
-        3px solid
-        rgba(180, 170, 230, 0.2);
-
-    border-top-color:
-        #c4a7ff;
-
-    animation:
-        reader-spin 0.8s linear infinite;
-}
-
-@keyframes reader-spin {
-    to {
-        transform: rotate(360deg);
-    }
+    font-size: 14px;
 }
 
 
-/* =========================
-   READER ERROR
-========================= */
+/* ERROR */
 
-.reader-error {
-    min-height:
-        calc(100vh - 58px);
+#error {
+    min-height: 300px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
     padding: 30px;
 
-    display: flex;
+    background: #000;
 
-    flex-direction: column;
-
-    align-items: center;
-    justify-content: center;
+    color: #aaa9bd;
 
     text-align: center;
-
-    background: #101424;
-}
-
-.error-icon {
-    width: 48px;
-    height: 48px;
-
-    border-radius: 50%;
-
-    display: flex;
-
-    align-items: center;
-    justify-content: center;
-
-    background:
-        rgba(200, 160, 255, 0.12);
-
-    color: #c5a8ff;
-
-    font-size: 24px;
-
-    margin-bottom: 15px;
-}
-
-.reader-error h2 {
-    margin: 0 0 8px;
-
-    font-family:
-        Georgia,
-        "Times New Roman",
-        serif;
-
-    font-size: 20px;
-}
-
-.reader-error p {
-    max-width: 300px;
-
-    margin: 0;
-
-    color: #9d9dbf;
-
-    font-size: 13px;
-
-    line-height: 1.5;
-}
-
-.retry-button {
-    margin-top: 20px;
-
-    padding:
-        10px 20px;
-
-    border: none;
-
-    border-radius: 20px;
-
-    background: #7165a5;
-
-    color: #ffffff;
-
-    font-size: 13px;
-
-    cursor: pointer;
-}
-
-.retry-button:active {
-    transform: scale(0.96);
 }
 
 
-/* =====================================================
-   MOBILE
-===================================================== */
+/* MOBILE */
 
-@media (max-width: 600px) {
+@media (max-width: 480px) {
 
-    .home-page {
-        padding:
-            24px
-            14px
-            40px;
+    body.reader-body {
+        padding-top: 82px;
     }
 
-    .home-header {
-        padding:
-            12px
-            4px
-            22px;
-    }
-
-    .home-header h1 {
-        font-size: 39px;
-    }
-
-    .home-header p {
-        font-size: 14px;
-
-        letter-spacing: 1px;
-    }
-
-    .moon-decoration {
-        width: 45px;
-        height: 45px;
-
-        right: 5px;
-    }
-
-    .moon-decoration::after {
-        width: 45px;
-        height: 45px;
-    }
-
-    .manga-grid {
-        gap: 12px;
-    }
-
-    .manga-card {
-        border-radius: 16px;
-    }
-
-    .manga-card-bottom {
-        min-height: 64px;
+    .reader-header {
+        height: 82px;
 
         padding:
             10px
-            10px
-            10px
-            12px;
-    }
-
-    .manga-card-bottom h2 {
-        font-size: 16px;
-    }
-
-    .favorite-btn {
-        width: 38px;
-        height: 38px;
-    }
-
-    .favorite-btn svg {
-        width: 21px;
-        height: 21px;
-    }
-
-
-    .chapter-page,
-    .chapters {
-        padding:
-            18px
-            14px
-            40px;
-    }
-
-    .chapter-header h1 {
-        font-size: 22px;
-    }
-
-    .chapter-cover img,
-    .chapter-cover-section img {
-        width: 140px;
-        height: 200px;
-    }
-
-    .chapter-item {
-        min-height: 62px;
-
-        padding:
-            13px
             16px;
     }
 
-    .chapter-name {
-        font-size: 16px;
-    }
-
-    .chapter-arrow {
-        font-size: 25px;
-    }
-
-
-    .reader-header {
-        height: 54px;
-    }
-
-    .reader-title-area h1 {
-        font-size: 17px;
-    }
-
-    .reader-title-area span {
-        font-size: 8px;
-    }
-
     .reader-back {
-        width: 38px;
-        height: 38px;
-    }
-}
+        width: 48px;
+        height: 48px;
 
+        margin-right: 12px;
 
-/* =====================================================
-   VERY SMALL PHONES
-===================================================== */
-
-@media (max-width: 380px) {
-
-    .manga-grid {
-        gap: 9px;
+        font-size: 34px;
     }
 
-    .manga-card-bottom h2 {
-        font-size: 14px;
+    .reader-manga-title {
+        font-size: 11px;
     }
 
-    .favorite-btn {
-        width: 34px;
-        height: 34px;
+    .reader-title {
+        font-size: 23px;
     }
 
-    .favorite-btn svg {
-        width: 19px;
-        height: 19px;
-    }
 }
