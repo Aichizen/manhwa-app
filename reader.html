@@ -2,6 +2,7 @@
 <html lang="id">
 
 <head>
+
     <meta charset="UTF-8">
 
     <meta
@@ -13,22 +14,23 @@
 
     <link rel="stylesheet" href="style.css">
 
-    <style>
-        /* =========================================================
-           READER - self contained so reader.html works even if
-           reader CSS has not yet been added to style.css
-        ========================================================= */
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
+
+    <style>
         html,
         body {
             margin: 0;
             padding: 0;
+            width: 100%;
+            max-width: 100%;
             background: #000;
+            color: #fff;
+            overflow-x: hidden;
         }
 
         body.reader-body {
             padding-top: 82px;
-            color: #fff;
             overflow-x: hidden;
         }
 
@@ -40,51 +42,30 @@
             width: 100%;
             height: 82px;
             z-index: 99999;
-
+            box-sizing: border-box;
             display: flex;
             align-items: center;
-
-            box-sizing: border-box;
             padding: 10px 16px;
-
-            background: rgba(15, 18, 40, 0.98);
-            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
-
+            background: rgba(15, 18, 40, .98);
+            box-shadow: 0 4px 18px rgba(0,0,0,.35);
             backdrop-filter: blur(14px);
             -webkit-backdrop-filter: blur(14px);
         }
 
         .reader-back {
-            flex-shrink: 0;
-
+            flex: 0 0 50px;
             width: 50px;
             height: 50px;
-
+            margin-right: 13px;
+            padding: 0;
+            border: 0;
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-
-            margin-right: 13px;
-            padding: 0;
-
-            border: none;
-            border-radius: 50%;
-
             background: #3b4168;
             color: #fff;
-
             cursor: pointer;
-            transition:
-                transform 0.15s ease,
-                background 0.15s ease;
-        }
-
-        .reader-back:hover {
-            background: #4b527e;
-        }
-
-        .reader-back:active {
-            transform: scale(0.90);
         }
 
         .reader-back svg {
@@ -99,33 +80,28 @@
 
         .reader-title-area {
             min-width: 0;
-
             display: flex;
             flex-direction: column;
             justify-content: center;
         }
 
-        .reader-manga-title {
+        #readerMangaTitle {
             color: #aaa9bd;
             font-size: 12px;
             line-height: 1.1;
             letter-spacing: 1.2px;
-
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
-        .reader-title {
+        #readerTitle {
             margin: 2px 0 0;
-
             color: #f5f3fa;
-
             font-family: Georgia, "Times New Roman", serif;
             font-size: 24px;
             line-height: 1.05;
             font-weight: 700;
-
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -133,165 +109,80 @@
 
         #pdf-container {
             width: 100%;
+            max-width: 100%;
             margin: 0;
             padding: 0;
-
             background: #000;
-
-            overflow: hidden;
-
             line-height: 0;
             font-size: 0;
+            overflow: hidden;
+            -webkit-user-select: none;
+            user-select: none;
         }
 
         #pdf-container .pdf-page {
             display: block;
-
             width: 100%;
+            max-width: 100%;
             margin: 0;
             padding: 0;
-
             border: 0;
-
             line-height: 0;
             font-size: 0;
-        }
-
-        #pdf-container .pdf-page + .pdf-page {
-            margin-top: -1px;
         }
 
         #pdf-container canvas {
             display: block;
-
-            width: 100%;
+            width: 100% !important;
+            max-width: 100%;
             height: auto;
-
             margin: 0;
             padding: 0;
-
             border: 0;
-
-            line-height: 0;
-            font-size: 0;
-
             -webkit-user-select: none;
             user-select: none;
-
             -webkit-user-drag: none;
-            user-drag: none;
-
-            -webkit-touch-callout: none;
         }
 
         .reader-loading {
             position: fixed;
-
             top: 82px;
             left: 0;
             right: 0;
             bottom: 0;
-
             z-index: 1000;
-
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-
             background: #000;
             color: #aaa9bd;
-
-            text-align: center;
         }
 
         .loading-spinner {
-            width: 34px;
-            height: 34px;
-
+            width: 28px;
+            height: 28px;
             margin-bottom: 14px;
-
-            border: 3px solid rgba(255, 255, 255, 0.15);
-            border-top-color: #aaa9bd;
+            border: 3px solid #444;
+            border-top-color: #fff;
             border-radius: 50%;
-
-            animation: readerSpin 0.8s linear infinite;
+            animation: reader-spin .8s linear infinite;
         }
 
-        @keyframes readerSpin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        .reader-loading p {
-            margin: 0;
-            font-size: 14px;
+        @keyframes reader-spin {
+            to { transform: rotate(360deg); }
         }
 
         .reader-error {
             min-height: 300px;
-
-            display: flex;
+            box-sizing: border-box;
+            padding: 30px 20px;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-
-            box-sizing: border-box;
-
-            padding: 40px 24px;
-
+            text-align: center;
             background: #000;
             color: #aaa9bd;
-
-            text-align: center;
-        }
-
-        .error-icon {
-            width: 42px;
-            height: 42px;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            margin-bottom: 14px;
-
-            border: 2px solid #aaa9bd;
-            border-radius: 50%;
-
-            font-size: 24px;
-            font-weight: 700;
-        }
-
-        .reader-error h2 {
-            margin: 0 0 8px;
-            color: #fff;
-            font-size: 18px;
-        }
-
-        .reader-error p {
-            max-width: 420px;
-            margin: 0 0 18px;
-            line-height: 1.5;
-            font-size: 14px;
-        }
-
-        .retry-button {
-            padding: 10px 18px;
-
-            border: none;
-            border-radius: 10px;
-
-            background: #3b4168;
-            color: #fff;
-
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .retry-button:active {
-            transform: scale(0.97);
         }
 
         @media (max-width: 480px) {
@@ -301,64 +192,59 @@
 
             .reader-header {
                 height: 82px;
-                padding: 10px 16px;
+                padding: 10px 14px;
             }
 
             .reader-back {
+                flex-basis: 48px;
                 width: 48px;
                 height: 48px;
                 margin-right: 12px;
             }
 
-            .reader-back svg {
-                width: 27px;
-                height: 27px;
+            #readerTitle {
+                font-size: 22px;
             }
 
-            .reader-manga-title {
+            #readerMangaTitle {
                 font-size: 11px;
-            }
-
-            .reader-title {
-                font-size: 23px;
             }
         }
     </style>
 
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 
 
 <body class="reader-body">
 
+
     <!-- HEADER READER -->
+
     <header class="reader-header">
 
         <button
-            id="readerBack"
             class="reader-back"
-            type="button"
+            onclick="history.back()"
             aria-label="Kembali"
         >
-            <svg viewBox="0 0 24 24" aria-hidden="true">
+
+            <svg viewBox="0 0 24 24">
+
                 <path d="M15 18l-6-6 6-6"></path>
+
             </svg>
+
         </button>
+
 
         <div class="reader-title-area">
 
-            <span
-                id="readerMangaTitle"
-                class="reader-manga-title"
-            >
+            <span id="readerMangaTitle">
                 STORY ABOUT US
             </span>
 
-            <h1
-                id="readerTitle"
-                class="reader-title"
-            >
-                Chapter
+            <h1 id="readerTitle">
+                Chapter 1
             </h1>
 
         </div>
@@ -366,24 +252,33 @@
     </header>
 
 
+
     <!-- LOADING -->
+
     <div
         id="loading"
         class="reader-loading"
     >
+
         <div class="loading-spinner"></div>
-        <p id="loadingText">Loading chapter...</p>
+
+        <p>Loading chapter...</p>
+
     </div>
 
 
+
     <!-- ERROR -->
+
     <div
         id="error"
         class="reader-error"
         style="display: none;"
     >
 
-        <div class="error-icon">!</div>
+        <div class="error-icon">
+            !
+        </div>
 
         <h2>Chapter tidak dapat dibuka</h2>
 
@@ -392,8 +287,7 @@
         </p>
 
         <button
-            id="retryButton"
-            type="button"
+            onclick="location.reload()"
             class="retry-button"
         >
             Coba Lagi
@@ -402,11 +296,15 @@
     </div>
 
 
+
     <!-- PDF -->
+
     <main id="pdf-container"></main>
 
 
+
     <!-- PDF.JS -->
+
     <script type="module">
 
         import * as pdfjsLib from
@@ -417,452 +315,116 @@
             "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.worker.min.mjs";
 
 
-        /* =========================================================
-           KONFIGURASI
-        ========================================================= */
 
-        const API_BASE =
-            "https://story-about-us-api.aichinose219.workers.dev";
-
-        const CDN_BASE =
-            "https://cdn.storyabout-us.com";
-
-
-        /* =========================================================
+        /* ==========================================
            TELEGRAM
-        ========================================================= */
+        ========================================== */
 
-        const tg =
-            window.Telegram?.WebApp;
+        const tg = window.Telegram.WebApp;
 
-        if (tg) {
-            tg.ready();
-            tg.expand();
-        }
+        tg.ready();
+        tg.expand();
 
 
-        /* =========================================================
-           PARAMETER URL
 
-           reader.html?title=dash&chapter=1
-           reader.html?title=dash
-        ========================================================= */
+        /* ==========================================
+           AMBIL PARAMETER URL
+        ========================================== */
 
         const params =
             new URLSearchParams(window.location.search);
 
+
         const title =
             params.get("title");
 
-        const requestedChapter =
+
+        const chapter =
             params.get("chapter");
 
 
-        /* =========================================================
-           ELEMENT
-        ========================================================= */
 
-        const readerMangaTitle =
-            document.getElementById("readerMangaTitle");
+        /* ==========================================
+           API
+        ========================================== */
 
-        const readerTitle =
-            document.getElementById("readerTitle");
-
-        const pdfContainer =
-            document.getElementById("pdf-container");
-
-        const loading =
-            document.getElementById("loading");
-
-        const loadingText =
-            document.getElementById("loadingText");
-
-        const errorBox =
-            document.getElementById("error");
-
-        const errorMessage =
-            document.getElementById("errorMessage");
-
-        const retryButton =
-            document.getElementById("retryButton");
-
-        const readerBack =
-            document.getElementById("readerBack");
-
-
-        /* =========================================================
-           STATE
-        ========================================================= */
+        const API_BASE =
+            "https://story-about-us-api.aichinose219.workers.dev";
 
         let chapters = [];
         let currentChapterIndex = -1;
-
         let isLoadingChapter = false;
-        let bottomTimer = null;
-        let scrollListenerAttached = false;
 
 
-        /* =========================================================
-           BACK BUTTON
+        /* ==========================================
+           CEK DATA
+        ========================================== */
 
-           Selalu kembali ke daftar chapter manga ini.
-        ========================================================= */
+        if (!title) {
 
-        function backToChapters() {
+            showError("Judul manga tidak ditemukan.");
 
-            if (!title) {
-                window.location.href = "index.html";
-                return;
-            }
+        } else if (!chapter) {
 
-            window.location.href =
-                "chapter.html?title=" +
-                encodeURIComponent(title);
-        }
+            showError("Nomor chapter tidak ditemukan.");
 
-        readerBack.addEventListener(
-            "click",
-            backToChapters
-        );
+        } else {
 
-
-        /* =========================================================
-           RETRY
-        ========================================================= */
-
-        retryButton.addEventListener(
-            "click",
-            () => {
-                startReader();
-            }
-        );
-
-
-        /* =========================================================
-           VALIDASI ID MANGA
-        ========================================================= */
-
-        function validMangaId(id) {
-
-            return /^[a-zA-Z0-9_-]+$/.test(id || "");
+            startReader();
 
         }
 
 
-        /* =========================================================
-           FORMAT JUDUL DARI ID
-
-           evil-deed -> Evil Deed
-        ========================================================= */
-
-        function formatTitle(id) {
-
-            return String(id || "")
-                .split("-")
-                .map(word => {
-                    if (!word) return "";
-                    return (
-                        word.charAt(0).toUpperCase() +
-                        word.slice(1)
-                    );
-                })
-                .join(" ");
-
-        }
-
-
-        /* =========================================================
-           FORMAT CHAPTER
-
-           Mendukung:
-           1
-           01
-           1.5
-           001
-        ========================================================= */
-
-        function getChapterNumber(item) {
-
-            if (item && Number.isFinite(Number(item.number))) {
-                return Number(item.number);
-            }
-
-            const value =
-                item?.chapter ??
-                item?.name ??
-                item?.filename ??
-                "";
-
-            const match =
-                String(value).match(
-                    /(\d+(?:\.\d+)?)/
-                );
-
-            return match
-                ? Number(match[1])
-                : 0;
-
-        }
-
-
-        /* =========================================================
-           GET CHAPTER LABEL
-        ========================================================= */
-
-        function getChapterLabel(item) {
-
-            if (item?.chapter !== undefined) {
-
-                return String(item.chapter)
-                    .replace(/\.pdf$/i, "");
-
-            }
-
-            const number =
-                getChapterNumber(item);
-
-            return String(number);
-        }
-
-
-        /* =========================================================
-           GET PDF URL
-
-           Prioritas:
-           1. url dari API
-           2. pdf
-           3. file
-           4. key -> CDN
-
-           Ini membuat reader tetap kompatibel jika API
-           mengembalikan field yang sedikit berbeda.
-        ========================================================= */
-
-        function getPdfUrl(item) {
-
-            if (item?.url) {
-                return item.url;
-            }
-
-            if (item?.pdf) {
-                return item.pdf;
-            }
-
-            if (item?.file) {
-                return item.file;
-            }
-
-            if (item?.key) {
-                return (
-                    CDN_BASE +
-                    "/" +
-                    String(item.key)
-                        .split("/")
-                        .map(encodeURIComponent)
-                        .join("/")
-                );
-            }
-
-            return null;
-        }
-
-
-        /* =========================================================
-           FETCH CHAPTER DARI API
-        ========================================================= */
-
-        async function fetchChapters() {
-
-            const response =
-                await fetch(
-                    API_BASE +
-                    "/api/manga/" +
-                    encodeURIComponent(title),
-                    {
-                        method: "GET",
-                        cache: "no-store"
-                    }
-                );
-
-            if (!response.ok) {
-
-                throw new Error(
-                    "Gagal mengambil daftar chapter. (" +
-                    response.status +
-                    ")"
-                );
-
-            }
-
-            const data =
-                await response.json();
-
-            if (!Array.isArray(data)) {
-
-                throw new Error(
-                    "Data chapter dari API tidak valid."
-                );
-
-            }
-
-            return data
-                .filter(item => getPdfUrl(item))
-                .sort(
-                    (a, b) =>
-                        getChapterNumber(a) -
-                        getChapterNumber(b)
-                );
-
-        }
-
-
-        /* =========================================================
-           TENTUKAN CHAPTER AWAL
-
-           Jika URL:
-           ?chapter=5
-
-           maka mulai chapter 5.
-
-           Jika tidak ada:
-           mulai chapter terkecil.
-        ========================================================= */
-
-        function findStartingChapterIndex() {
-
-            if (!chapters.length) {
-                return -1;
-            }
-
-            if (
-                requestedChapter !== null &&
-                requestedChapter !== ""
-            ) {
-
-                const requestedNumber =
-                    Number(requestedChapter);
-
-                if (Number.isFinite(requestedNumber)) {
-
-                    const exactIndex =
-                        chapters.findIndex(
-                            item =>
-                                getChapterNumber(item) ===
-                                requestedNumber
-                        );
-
-                    if (exactIndex !== -1) {
-                        return exactIndex;
-                    }
-                }
-
-                const requestedText =
-                    String(requestedChapter)
-                        .replace(/\.pdf$/i, "")
-                        .trim()
-                        .toLowerCase();
-
-                const textIndex =
-                    chapters.findIndex(
-                        item =>
-                            getChapterLabel(item)
-                                .toLowerCase() ===
-                            requestedText
-                    );
-
-                if (textIndex !== -1) {
-                    return textIndex;
-                }
-            }
-
-            return 0;
-        }
-
-
-        /* =========================================================
-           UPDATE HEADER
-        ========================================================= */
-
-        function updateHeader() {
-
-            const item =
-                chapters[currentChapterIndex];
-
-            if (!item) {
-                return;
-            }
-
-            const chapterLabel =
-                getChapterLabel(item);
-
-            const mangaName =
-                formatTitle(title);
-
-            readerMangaTitle.textContent =
-                mangaName;
-
-            readerTitle.textContent =
-                "Chapter " +
-                chapterLabel;
-
-            document.title =
-                mangaName +
-                " - Chapter " +
-                chapterLabel;
-        }
-
-
-        /* =========================================================
+        /* ==========================================
            MULAI READER
-        ========================================================= */
+        ========================================== */
 
         async function startReader() {
 
-            if (!validMangaId(title)) {
-
-                showError(
-                    "Manga tidak ditemukan."
-                );
-
-                return;
-            }
-
             try {
 
-                showLoading(
-                    "Loading chapter..."
-                );
-
-                hideError();
-
-                const mangaName =
-                    formatTitle(title);
-
-                readerMangaTitle.textContent =
-                    mangaName;
-
-                readerTitle.textContent =
-                    "Loading...";
+                const chapterNumber =
+                    parseFloat(chapter);
 
 
-                chapters =
-                    await fetchChapters();
-
-
-                if (!chapters.length) {
+                if (
+                    !Number.isFinite(chapterNumber) ||
+                    chapterNumber < 1
+                ) {
 
                     throw new Error(
-                        "Belum ada chapter yang tersedia untuk manga ini."
+                        "Nomor chapter tidak valid."
                     );
 
                 }
 
 
-                currentChapterIndex =
-                    findStartingChapterIndex();
+                /* ================================
+                   AMBIL DAFTAR CHAPTER DARI API
+                ================================= */
+
+                const response =
+                    await fetch(
+                        API_BASE +
+                        "/api/manga/" +
+                        encodeURIComponent(title)
+                    );
 
 
-                if (currentChapterIndex < 0) {
+                if (!response.ok) {
+
+                    throw new Error(
+                        "Daftar chapter tidak dapat dimuat."
+                    );
+
+                }
+
+
+                chapters =
+                    await response.json();
+
+
+                if (!Array.isArray(chapters) || !chapters.length) {
 
                     throw new Error(
                         "Chapter tidak ditemukan."
@@ -871,20 +433,54 @@
                 }
 
 
-                attachScrollListener();
+                chapters.sort(
+                    (a, b) =>
+                        Number(a.number || 0) -
+                        Number(b.number || 0)
+                );
+
+
+                currentChapterIndex =
+                    chapters.findIndex(
+                        item =>
+                            Number(item.number) ===
+                            chapterNumber
+                    );
+
+
+                if (currentChapterIndex === -1) {
+
+                    throw new Error(
+                        "Chapter " +
+                        chapterNumber +
+                        " tidak ditemukan."
+                    );
+
+                }
+
+
+                updateHeader(
+                    chapterNumber
+                );
+
 
                 await loadCurrentChapter();
 
+
+                window.addEventListener(
+                    "scroll",
+                    handleScroll,
+                    { passive: true }
+                );
+
+
             } catch (error) {
 
-                console.error(
-                    "Reader error:",
-                    error
-                );
+                console.error(error);
 
                 showError(
                     error.message ||
-                    "Chapter gagal dimuat."
+                    "PDF gagal dimuat."
                 );
 
             }
@@ -892,9 +488,40 @@
         }
 
 
-        /* =========================================================
-           LOAD CHAPTER AKTIF
-        ========================================================= */
+        /* ==========================================
+           HEADER
+        ========================================== */
+
+        function updateHeader(chapterNumber) {
+
+            document.title =
+                title.replace(/-/g, " ") +
+                " - Chapter " +
+                chapterNumber;
+
+
+            document.getElementById(
+                "readerMangaTitle"
+            ).textContent =
+                title
+                    .replace(/-/g, " ")
+                    .replace(/\b\w/g, letter =>
+                        letter.toUpperCase()
+                    );
+
+
+            document.getElementById(
+                "readerTitle"
+            ).textContent =
+                "Chapter " +
+                String(chapterNumber);
+
+        }
+
+
+        /* ==========================================
+           LOAD CURRENT CHAPTER
+        ========================================== */
 
         async function loadCurrentChapter() {
 
@@ -902,15 +529,38 @@
                 return;
             }
 
+            isLoadingChapter = true;
+
+
             const item =
                 chapters[currentChapterIndex];
 
+
             if (!item) {
-                return;
+
+                isLoadingChapter = false;
+
+                throw new Error(
+                    "Data chapter tidak ditemukan."
+                );
+
             }
 
-            const pdfUrl =
-                getPdfUrl(item);
+
+            let pdfUrl =
+                item.url ||
+                item.pdf ||
+                item.file;
+
+
+            if (!pdfUrl && item.key) {
+
+                pdfUrl =
+                    "https://cdn.storyabout-us.com/" +
+                    item.key;
+
+            }
+
 
             if (!pdfUrl) {
 
@@ -920,43 +570,27 @@
 
             }
 
-            isLoadingChapter = true;
+
+            console.log(
+                "PDF URL:",
+                pdfUrl
+            );
+
+
+            updateHeader(
+                Number(item.number)
+            );
+
+
+            window.scrollTo({
+                top: 0,
+                behavior: "auto"
+            });
+
 
             try {
 
-                updateHeader();
-
-                showLoading(
-                    "Loading Chapter " +
-                    getChapterLabel(item) +
-                    "..."
-                );
-
-                hideError();
-
-                pdfContainer.innerHTML = "";
-
-                window.scrollTo({
-                    top: 0,
-                    behavior: "auto"
-                });
-
                 await loadPDF(pdfUrl);
-
-                hideLoading();
-
-            } catch (error) {
-
-                console.error(
-                    "PDF error:",
-                    error
-                );
-
-                showError(
-                    "PDF tidak dapat dimuat. Periksa koneksi internet atau alamat PDF."
-                );
-
-                throw error;
 
             } finally {
 
@@ -967,41 +601,193 @@
         }
 
 
-        /* =========================================================
+        /* ==========================================
+           DETEKSI AKHIR CHAPTER
+        ========================================== */
+
+        let bottomTimer = null;
+
+        function handleScroll() {
+
+            if (isLoadingChapter) {
+                return;
+            }
+
+
+            if (bottomTimer) {
+                return;
+            }
+
+
+            const distanceFromBottom =
+                document.documentElement.scrollHeight -
+                (
+                    window.scrollY +
+                    window.innerHeight
+                );
+
+
+            if (distanceFromBottom <= 160) {
+
+                bottomTimer =
+                    setTimeout(
+                        async () => {
+
+                            bottomTimer = null;
+
+                            await handleChapterEnd();
+
+                        },
+                        250
+                    );
+
+            }
+
+        }
+
+
+        /* ==========================================
+           NEXT CHAPTER
+        ========================================== */
+
+        async function handleChapterEnd() {
+
+            if (isLoadingChapter) {
+                return;
+            }
+
+
+            const nextIndex =
+                currentChapterIndex + 1;
+
+
+            if (
+                nextIndex <
+                chapters.length
+            ) {
+
+                currentChapterIndex =
+                    nextIndex;
+
+
+                const nextChapter =
+                    chapters[
+                        currentChapterIndex
+                    ];
+
+
+                updateHeader(
+                    Number(nextChapter.number)
+                );
+
+
+                await loadCurrentChapter();
+
+
+            } else {
+
+                backToChapters();
+
+            }
+
+        }
+
+
+        /* ==========================================
+           KEMBALI KE DAFTAR CHAPTER
+        ========================================== */
+
+        function backToChapters() {
+
+            if (!title) {
+
+                window.location.href =
+                    "index.html";
+
+                return;
+
+            }
+
+
+            window.location.href =
+                "chapter.html?title=" +
+                encodeURIComponent(title);
+
+        }
+
+
+        window.goBack =
+            backToChapters;
+
+
+
+        /* ==========================================
            LOAD PDF.JS
-        ========================================================= */
+        ========================================== */
 
         async function loadPDF(pdfUrl) {
 
-            const loadingTask =
-                pdfjsLib.getDocument({
-                    url: pdfUrl,
-                    withCredentials: false
-                });
-
-            const pdf =
-                await loadingTask.promise;
-
-            console.log(
-                "Chapter:",
-                getChapterLabel(
-                    chapters[currentChapterIndex]
-                ),
-                "| Halaman:",
-                pdf.numPages
-            );
+            const container =
+                document.getElementById(
+                    "pdf-container"
+                );
 
 
-            for (
-                let pageNumber = 1;
-                pageNumber <= pdf.numPages;
-                pageNumber++
-            ) {
+            container.innerHTML = "";
 
-                await renderPage(
-                    pdf,
-                    pageNumber,
-                    pdfContainer
+
+            try {
+
+                const loadingTask =
+                    pdfjsLib.getDocument({
+                        url: pdfUrl,
+
+                        withCredentials: false
+                    });
+
+
+                const pdf =
+                    await loadingTask.promise;
+
+
+                console.log(
+                    "Jumlah halaman:",
+                    pdf.numPages
+                );
+
+
+                /* ==============================
+                   RENDER SEMUA HALAMAN
+                ============================== */
+
+                for (
+                    let pageNumber = 1;
+                    pageNumber <= pdf.numPages;
+                    pageNumber++
+                ) {
+
+                    await renderPage(
+                        pdf,
+                        pageNumber,
+                        container
+                    );
+
+                }
+
+
+                hideLoading();
+
+
+            } catch (error) {
+
+                console.error(
+                    "PDF.js error:",
+                    error
+                );
+
+
+                throw new Error(
+                    "PDF tidak dapat dimuat. Periksa koneksi internet atau alamat PDF."
                 );
 
             }
@@ -1009,11 +795,10 @@
         }
 
 
-        /* =========================================================
-           RENDER SATU HALAMAN
 
-           Render 2x agar lebih tajam di HP.
-        ========================================================= */
+        /* ==========================================
+           RENDER SATU HALAMAN
+        ========================================== */
 
         async function renderPage(
             pdf,
@@ -1027,6 +812,13 @@
                 );
 
 
+            /* ==============================
+               SKALA
+
+               Kita render lebih besar supaya
+               gambar tetap tajam di HP.
+            ============================== */
+
             const baseViewport =
                 page.getViewport({
                     scale: 1
@@ -1034,14 +826,17 @@
 
 
             const screenWidth =
-                Math.max(
-                    window.innerWidth,
-                    320
+                container.clientWidth;
+
+
+            const pixelRatio =
+                Math.min(
+                    window.devicePixelRatio || 1,
+                    2
                 );
 
-
             const scale =
-                (screenWidth * 2) /
+                (screenWidth * pixelRatio) /
                 baseViewport.width;
 
 
@@ -1051,43 +846,69 @@
                 });
 
 
+
+            /* ==============================
+               WRAPPER HALAMAN
+            ============================== */
+
             const pageWrapper =
-                document.createElement("div");
+                document.createElement(
+                    "div"
+                );
+
 
             pageWrapper.className =
                 "pdf-page";
 
 
+
+            /* ==============================
+               CANVAS
+            ============================== */
+
             const canvas =
-                document.createElement("canvas");
+                document.createElement(
+                    "canvas"
+                );
+
 
             const context =
-                canvas.getContext("2d", {
-                    alpha: false
-                });
+                canvas.getContext(
+                    "2d"
+                );
 
 
             canvas.width =
-                Math.ceil(viewport.width);
+                viewport.width;
+
 
             canvas.height =
-                Math.ceil(viewport.height);
+                viewport.height;
+
 
             canvas.style.width =
                 "100%";
 
+
             canvas.style.height =
                 "auto";
+
 
 
             pageWrapper.appendChild(
                 canvas
             );
 
+
             container.appendChild(
                 pageWrapper
             );
 
+
+
+            /* ==============================
+               RENDER
+            ============================== */
 
             await page.render({
 
@@ -1102,182 +923,37 @@
         }
 
 
-        /* =========================================================
-           AUTO NEXT CHAPTER
 
-           Jika user sampai bawah chapter:
-           - masih ada chapter -> buka berikutnya
-           - sudah chapter terakhir -> kembali ke chapter.html
-        ========================================================= */
-
-        function attachScrollListener() {
-
-            if (scrollListenerAttached) {
-                return;
-            }
-
-            window.addEventListener(
-                "scroll",
-                handleScroll,
-                {
-                    passive: true
-                }
-            );
-
-            scrollListenerAttached = true;
-
-        }
-
-
-        function handleScroll() {
-
-            if (isLoadingChapter) {
-                return;
-            }
-
-            if (
-                currentChapterIndex < 0 ||
-                !chapters.length
-            ) {
-                return;
-            }
-
-            clearTimeout(bottomTimer);
-
-            bottomTimer =
-                setTimeout(
-                    checkChapterBottom,
-                    120
-                );
-
-        }
-
-
-        function checkChapterBottom() {
-
-            if (isLoadingChapter) {
-                return;
-            }
-
-            const scrollPosition =
-                window.scrollY +
-                window.innerHeight;
-
-            const documentHeight =
-                document.documentElement.scrollHeight;
-
-            const distanceFromBottom =
-                documentHeight -
-                scrollPosition;
-
-
-            /*
-             * 160px dibuat sedikit lebih longgar agar
-             * perpindahan chapter terasa otomatis.
-             */
-            if (distanceFromBottom > 160) {
-                return;
-            }
-
-            handleChapterEnd();
-
-        }
-
-
-        async function handleChapterEnd() {
-
-            if (isLoadingChapter) {
-                return;
-            }
-
-            const nextIndex =
-                currentChapterIndex + 1;
-
-
-            if (
-                nextIndex <
-                chapters.length
-            ) {
-
-                currentChapterIndex =
-                    nextIndex;
-
-                await loadCurrentChapter();
-
-                return;
-            }
-
-
-            /*
-             * Sudah chapter terakhir.
-             */
-            backToChapters();
-
-        }
-
-
-        /* =========================================================
-           LOADING UI
-        ========================================================= */
-
-        function showLoading(message) {
-
-            loadingText.textContent =
-                message || "Loading chapter...";
-
-            loading.style.display =
-                "flex";
-
-        }
-
+        /* ==========================================
+           HIDE LOADING
+        ========================================== */
 
         function hideLoading() {
 
+            const loading =
+                document.getElementById(
+                    "loading"
+                );
+
+
             loading.style.display =
                 "none";
 
         }
 
 
-        /* =========================================================
-           ERROR UI
-        ========================================================= */
 
-        function showError(message) {
+        /* ==========================================
+           ERROR
+        ========================================== */
 
-            hideLoading();
-
-            errorMessage.textContent =
-                message ||
-                "PDF gagal dimuat.";
-
-            errorBox.style.display =
-                "flex";
-
-        }
-
-
-        function hideError() {
-
-            errorBox.style.display =
-                "none";
-
-        }
-
-
-        /* =========================================================
-           VIEWER-ONLY DETERRENTS
-
-           Ini hanya mencegah kontrol/UI umum.
-           PDF tetap harus dikirim ke browser agar bisa dibaca,
-           jadi ini bukan DRM absolut.
-        ========================================================= */
+        /* ==========================================
+           VIEWER-ONLY UI DETERRENTS
+        ========================================== */
 
         document.addEventListener(
             "contextmenu",
-            event => {
-                event.preventDefault();
-            }
+            event => event.preventDefault()
         );
 
 
@@ -1318,69 +994,61 @@
             event => {
 
                 const key =
-                    String(event.key || "")
-                        .toLowerCase();
+                    event.key.toLowerCase();
 
-
-                const modifier =
-                    event.ctrlKey ||
-                    event.metaKey;
-
-
-                /*
-                 * Ctrl/Cmd + S
-                 */
                 if (
-                    modifier &&
-                    key === "s"
-                ) {
-
-                    event.preventDefault();
-                    event.stopPropagation();
-
-                    return;
-                }
-
-
-                /*
-                 * Ctrl/Cmd + P
-                 */
-                if (
-                    modifier &&
-                    key === "p"
-                ) {
-
-                    event.preventDefault();
-                    event.stopPropagation();
-
-                    return;
-                }
-
-
-                /*
-                 * Print Screen
-                 */
-                if (
-                    event.key === "PrintScreen"
+                    (event.ctrlKey || event.metaKey) &&
+                    (key === "s" || key === "p")
                 ) {
 
                     event.preventDefault();
 
-                    return;
                 }
 
-            },
-            true
+            }
         );
 
 
-        /* =========================================================
-           MULAI
-        ========================================================= */
+        /* ==========================================
+           ERROR
+        ========================================== */
 
-        startReader();
+        function showError(message) {
+
+            const loading =
+                document.getElementById(
+                    "loading"
+                );
+
+
+            const error =
+                document.getElementById(
+                    "error"
+                );
+
+
+            const errorMessage =
+                document.getElementById(
+                    "errorMessage"
+                );
+
+
+            loading.style.display =
+                "none";
+
+
+            error.style.display =
+                "flex";
+
+
+            errorMessage.textContent =
+                message;
+
+        }
 
     </script>
 
+
 </body>
+
 </html>

@@ -1280,6 +1280,8 @@ body {
 body.reader-body {
     margin: 0;
     padding: 82px 0 0;
+    width: 100%;
+    max-width: 100%;
     background: #000;
     color: #fff;
     overflow-x: hidden;
@@ -1402,6 +1404,7 @@ body.reader-body {
 
 #pdf-container {
     width: 100%;
+    max-width: 100%;
 
     margin: 0;
     padding: 0;
@@ -1418,6 +1421,7 @@ body.reader-body {
     display: block;
 
     width: 100%;
+    max-width: 100%;
 
     margin: 0;
     padding: 0;
@@ -1435,7 +1439,8 @@ body.reader-body {
 #pdf-container canvas {
     display: block;
 
-    width: 100%;
+    width: 100% !important;
+    max-width: 100%;
     height: auto;
 
     margin: 0;
