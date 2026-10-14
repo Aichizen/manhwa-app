@@ -420,8 +420,10 @@
                 }
 
 
-                chapters =
-                    await response.json();
+                const mangaData = await response.json();
+                chapters = Array.isArray(mangaData)
+                    ? mangaData
+                    : (Array.isArray(mangaData.chapters) ? mangaData.chapters : []);
 
 
                 if (!Array.isArray(chapters) || !chapters.length) {
