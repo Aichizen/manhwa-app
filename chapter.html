@@ -147,14 +147,17 @@
 
 
         .site-name {
+            margin-bottom: 8px;
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: clamp(43px, 8vw, 68px);
+            line-height: 1;
+            letter-spacing: -2px;
+            color: #f3f1f8;
+            text-shadow: 0 3px 20px rgba(0,0,0,.25);
+        }
 
-            color: #a9a7c4;
-
-            font-size: 11px;
-
-            letter-spacing: 3px;
-
-            margin-bottom: 5px;
+        .site-name .accent {
+            color: #c49cff;
         }
 
 
@@ -1033,7 +1036,7 @@
 
     
         .comment-account-actions { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom:16px; color:#a3a4bd; font-size:13px; }
-        .comment-account-actions button { min-height:38px; padding:0 12px; border:0; border-radius:10px; background:#765c9d; color:#fff; cursor:pointer; }
+        .comment-account-actions a { color:#c9a2ff; font-weight:600; text-decoration:underline; cursor:pointer; }
     </style>
 
 </head>
@@ -1063,7 +1066,7 @@
             <div class="header-info">
 
                 <div class="site-name">
-                    STORY ABOUT US
+                    <span class="accent">Story</span> About Us
                 </div>
 
 
@@ -1200,7 +1203,7 @@
             </p>
 
 
-            <div class="comment-account-actions"><span id="commentAccountStatus">Mode guest: isi nama untuk berkomentar.</span><button id="commentTelegramLogin" type="button">Login dengan Telegram</button></div>
+            <div class="comment-account-actions"><span id="commentAccountStatus">Mode guest: isi nama untuk berkomentar.</span><span id="commentLoginPrompt">Belum login? <a id="commentTelegramLogin" href="#">Klik disini</a>.</span></div>
             <!-- COMMENT FORM -->
 
             <form
@@ -1599,11 +1602,12 @@
                 }
 
 
+                const apiTitle =
+                    String(manga.title || "").trim();
                 const title =
-                    manga.title ||
-                    formatTitle(
-                        manga.id
-                    );
+                    apiTitle && apiTitle.toLowerCase() !== String(manga.id || "").toLowerCase()
+                        ? apiTitle
+                        : formatTitle(manga.id);
 
 
                 headerTitle.textContent =
@@ -2649,15 +2653,18 @@
         const nameFieldGroup = document.getElementById("nameFieldGroup");
         const commentAccountStatus = document.getElementById("commentAccountStatus");
         const commentLoginButton = document.getElementById("commentTelegramLogin");
+        const commentLoginPrompt = document.getElementById("commentLoginPrompt");
         function paintCommentAccount() {
             const loggedIn = ReaderAccount.authenticated;
             nameFieldGroup.hidden = loggedIn;
             nameInput.required = !loggedIn;
             commentAccountStatus.textContent = loggedIn
-                ? `Komentar sebagai ${[ReaderAccount.user.first_name, ReaderAccount.user.last_name].filter(Boolean).join(" ") || ReaderAccount.user.username || "akun Telegram"}`
+                ? "Komentar sebagai " + ([ReaderAccount.user.first_name, ReaderAccount.user.last_name].filter(Boolean).join(" ") || ReaderAccount.user.username || "akun Telegram")
                 : "Mode guest: isi nama untuk berkomentar.";
+            commentLoginPrompt.hidden = loggedIn;
         }
-        commentLoginButton.addEventListener("click", async () => {
+        commentLoginButton.addEventListener("click", async (event) => {
+            event.preventDefault();
             try { await ReaderAccount.login(); paintCommentAccount(); await loadComments(); }
             catch (error) { showCommentMessage(error.message, "error"); }
         });

@@ -74,13 +74,11 @@
         ===================================================== */
 
         .hero {
-            min-height: 265px;
-
+            min-height: 0;
             display: flex;
             flex-direction: column;
-            justify-content: flex-end;
-
-            padding-bottom: 20px;
+            justify-content: flex-start;
+            padding: 8px 0 20px;
         }
 
 
@@ -89,7 +87,7 @@
             align-items: center;
             align-self: flex-start;
             gap: 8px;
-            margin-top: 18px;
+            margin-top: 0;
             padding: 10px 15px;
             border: 1px solid rgba(196,156,255,.38);
             border-radius: 999px;
@@ -103,9 +101,22 @@
             transition: background .2s ease, transform .2s ease;
         }
 
-        .admin-link:hover {
+        .admin-link:hover,
+        .login-link:hover {
             background: rgba(100,73,145,.48);
             transform: translateY(-1px);
+        }
+
+        .hero-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        .login-link {
+            font-family: inherit;
+            cursor: pointer;
         }
 
         .hero-title {
@@ -784,15 +795,10 @@
         }
 
     
-        .account-panel,.reading-history { margin: 0 0 22px; padding: 16px; border: 1px solid rgba(170,177,216,.17); border-radius: 18px; background: rgba(31,36,63,.82); }
-        .account-panel { display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; }
-        .account-panel-copy { display:flex; flex-direction:column; gap:5px; color:#f4f2fa; }
-        .account-panel-copy span { color:#999db8; font-size:13px; }
-        .account-actions { display:flex; gap:8px; flex-wrap:wrap; }
-        .account-actions button,.history-item { min-height:42px; padding:0 14px; border:0; border-radius:12px; background:linear-gradient(135deg,#a88bd0,#765c9d); color:white; font-weight:600; cursor:pointer; }
+        .reading-history { margin: 0 0 22px; padding: 16px; border: 1px solid rgba(170,177,216,.17); border-radius: 18px; background: rgba(31,36,63,.82); }
         .reading-history h2 { margin:0 0 12px; color:#f4f2fa; font-family:Georgia,serif; font-size:22px; }
         #readingHistoryList { display:grid; gap:8px; }
-        .history-item { width:100%; text-align:left; background:rgba(79,85,124,.72); }
+        .history-item { min-height:42px; padding:0 14px; border:0; border-radius:12px; color:white; font-weight:600; cursor:pointer; width:100%; text-align:left; background:rgba(79,85,124,.72); }
     </style>
 </head>
 
@@ -812,36 +818,20 @@
 
 
     <main class="container">
-        <section class="account-panel" aria-label="Account and reading history">
-            <div class="account-panel-copy"><strong id="accountGreeting">Mode guest</strong><span id="accountHint">Progres baca tidak disimpan dalam mode guest.</span></div>
-            <div class="account-actions"><button id="telegramLoginButton" type="button">Login dengan Telegram</button></div>
-        </section>
-        <section id="readingHistory" class="reading-history" hidden><h2>Lanjutkan membaca</h2><div id="readingHistoryList"></div></section>
-
-
-
-        <!-- =================================================
-             HERO
-        ================================================== -->
-
         <section class="hero">
-
-            
             <h1 class="hero-title">
                 <span class="accent">Story</span> About Us
             </h1>
 
+            <div class="hero-actions">
+                <a class="admin-link" href="admin.html">Admin</a>
+                <button id="telegramLoginButton" class="admin-link login-link" type="button">Login</button>
+            </div>
+        </section>
 
-            <p class="hero-description">
-                A few stories, memories, and moments
-                <br>
-                that led us here.
-            </p>
-
-            <a class="admin-link" href="admin.html">
-                Admin · Upload Manhwa
-            </a>
-
+        <section id="readingHistory" class="reading-history" hidden>
+            <h2>Lanjutkan membaca</h2>
+            <div id="readingHistoryList"></div>
         </section>
 
 
@@ -1799,24 +1789,13 @@
         ===================================================== */
 
 
-        const accountGreeting = document.getElementById("accountGreeting");
-        const accountHint = document.getElementById("accountHint");
         const loginButton = document.getElementById("telegramLoginButton");
         const readingHistory = document.getElementById("readingHistory");
         const readingHistoryList = document.getElementById("readingHistoryList");
 
         function paintAccount() {
-            if (ReaderAccount.authenticated) {
-                const user = ReaderAccount.user;
-                accountGreeting.textContent = `Login: ${[user.first_name, user.last_name].filter(Boolean).join(" ") || user.username || "Telegram"}`;
-                accountHint.textContent = "Progres baca tersimpan di akun Telegram Anda.";
-                readingHistory.hidden = false;
-                loadReadingHistory();
-            } else {
-                accountGreeting.textContent = "Mode guest";
-                accountHint.textContent = "Progres baca tidak disimpan dalam mode guest.";
-                readingHistory.hidden = true;
-            }
+            readingHistory.hidden = !ReaderAccount.authenticated;
+            if (ReaderAccount.authenticated) loadReadingHistory();
         }
 
         async function loadReadingHistory() {
@@ -1845,7 +1824,7 @@
         loginButton.addEventListener("click", async () => {
             loginButton.disabled = true;
             try { await ReaderAccount.login(); paintAccount(); }
-            catch (error) { accountHint.textContent = error.message; }
+            catch (error) { loginButton.title = error.message; }
             finally { loginButton.disabled = false; }
         });
         ReaderAccount.init().then(paintAccount);
