@@ -792,7 +792,8 @@
         }
 
     
-        .account-tabs { display:flex; gap:8px; margin:0 0 16px; padding:6px; border:1px solid rgba(170,177,216,.17); border-radius:16px; background:rgba(31,36,63,.82); }
+        .account-tabs { display:flex; width:100%; box-sizing:border-box; gap:8px; margin:0; padding:6px; border:1px solid rgba(170,177,216,.17); border-radius:16px; background:rgba(31,36,63,.82); }
+        .account-tabs[hidden] { display:none; }
         .account-tab { flex:1; min-height:40px; padding:8px 10px; border:0; border-radius:11px; color:#d7d4e5; background:transparent; font:inherit; cursor:pointer; }
         .account-tab.active { color:#fff; background:linear-gradient(135deg,#b783d1,#8866ad); }
         .last-read-label { margin:8px 0 18px; color:#d5c4e2; font-size:13px; text-align:center; }
@@ -827,14 +828,13 @@
             <div class="hero-actions">
                 <a class="admin-link" href="admin.html">Admin</a>
                 <button id="telegramLoginButton" class="admin-link login-link" type="button">Login</button>
+                <nav id="accountTabs" class="account-tabs" aria-label="Navigasi koleksi" hidden>
+                    <button class="account-tab active" type="button" data-view="home">Home</button>
+                    <button class="account-tab" type="button" data-view="favorites">Favorit</button>
+                    <button class="account-tab" type="button" data-view="last-read">Last Read</button>
+                </nav>
             </div>
         </section>
-
-        <nav id="accountTabs" class="account-tabs" aria-label="Navigasi koleksi" hidden>
-            <button class="account-tab active" type="button" data-view="home">Home</button>
-            <button class="account-tab" type="button" data-view="favorites">Favorit</button>
-            <button class="account-tab" type="button" data-view="last-read">Last Read</button>
-        </nav>
 
 
         <!-- =================================================
