@@ -792,10 +792,10 @@
         }
 
     
-        .reading-history { margin: 0 0 22px; padding: 16px; border: 1px solid rgba(170,177,216,.17); border-radius: 18px; background: rgba(31,36,63,.82); }
-        .reading-history h2 { margin:0 0 12px; color:#f4f2fa; font-family:Georgia,serif; font-size:22px; }
-        #readingHistoryList { display:grid; gap:8px; }
-        .history-item { min-height:42px; padding:0 14px; border:0; border-radius:12px; color:white; font-weight:600; cursor:pointer; width:100%; text-align:left; background:rgba(79,85,124,.72); }
+        .account-tabs { display:flex; gap:8px; margin:0 0 16px; padding:6px; border:1px solid rgba(170,177,216,.17); border-radius:16px; background:rgba(31,36,63,.82); }
+        .account-tab { flex:1; min-height:40px; padding:8px 10px; border:0; border-radius:11px; color:#d7d4e5; background:transparent; font:inherit; cursor:pointer; }
+        .account-tab.active { color:#fff; background:linear-gradient(135deg,#b783d1,#8866ad); }
+        .last-read-label { margin:8px 0 18px; color:#d5c4e2; font-size:13px; text-align:center; }
     </style>
 </head>
 
@@ -830,10 +830,11 @@
             </div>
         </section>
 
-        <section id="readingHistory" class="reading-history" hidden>
-            <h2>Lanjutkan membaca</h2>
-            <div id="readingHistoryList"></div>
-        </section>
+        <nav id="accountTabs" class="account-tabs" aria-label="Navigasi koleksi" hidden>
+            <button class="account-tab active" type="button" data-view="home">Home</button>
+            <button class="account-tab" type="button" data-view="favorites">Favorit</button>
+            <button class="account-tab" type="button" data-view="last-read">Last Read</button>
+        </nav>
 
 
         <!-- =================================================
@@ -1317,15 +1318,28 @@
            RENDER MANGA
         ===================================================== */
 
+        let activeView = "home";
+        let readingEntries = [];
+
         function renderManga() {
 
             mangaContainer.innerHTML =
                 "";
 
 
-            if (
-                mangaData.length === 0
-            ) {
+            let visibleManga = mangaData;
+            if (activeView === "favorites") {
+                visibleManga = mangaData.filter(manga => favorites.includes(manga.id));
+            } else if (activeView === "last-read") {
+                const progressById = new Map(readingEntries.map(entry => [entry.manga_id, entry]));
+                visibleManga = readingEntries
+                    .map(entry => mangaData.find(manga => manga.id === entry.manga_id))
+                    .filter(Boolean);
+                visibleManga = [...new Map(visibleManga.map(manga => [manga.id, manga])).values()];
+                visibleManga.sort((a, b) => new Date(progressById.get(b.id)?.updated_at || 0) - new Date(progressById.get(a.id)?.updated_at || 0));
+            }
+
+            if (visibleManga.length === 0) {
 
                 emptyMessage.classList.add(
                     "show"
@@ -1340,8 +1354,28 @@
             );
 
 
-            const groups =
-                groupManga();
+            if (activeView !== "home") {
+                const grid = document.createElement("div");
+                grid.className = "manga-grid";
+                visibleManga.forEach(manga => {
+                    const card = createMangaCard(manga);
+                    if (activeView === "last-read") {
+                        const entry = readingEntries.find(item => item.manga_id === manga.id);
+                        card.onclick = () => {
+                            location.href = `reader.html?title=${encodeURIComponent(manga.id)}&chapter=${encodeURIComponent(entry?.chapter_number || 1)}&page=${encodeURIComponent(entry?.page_number || 1)}`;
+                        };
+                        const label = document.createElement("p");
+                        label.className = "last-read-label";
+                        label.textContent = `Chapter ${entry?.chapter_number ?? "-"} · Halaman ${entry?.page_number ?? "-"}`;
+                        card.appendChild(label);
+                    }
+                    grid.appendChild(card);
+                });
+                mangaContainer.appendChild(grid);
+                return;
+            }
+
+            const groups = groupManga();
 
 
             /*
@@ -1791,36 +1825,36 @@
 
 
         const loginButton = document.getElementById("telegramLoginButton");
-        const readingHistory = document.getElementById("readingHistory");
-        const readingHistoryList = document.getElementById("readingHistoryList");
+        const accountTabs = document.getElementById("accountTabs");
+        const accountTabButtons = [...accountTabs.querySelectorAll("[data-view]")];
 
         function paintAccount() {
-            readingHistory.hidden = !ReaderAccount.authenticated;
+            accountTabs.hidden = !ReaderAccount.authenticated;
+            loginButton.hidden = ReaderAccount.authenticated;
             if (ReaderAccount.authenticated) loadReadingHistory();
         }
+
+        accountTabButtons.forEach(button => button.addEventListener("click", () => {
+            activeView = button.dataset.view;
+            accountTabButtons.forEach(tab => tab.classList.toggle("active", tab === button));
+            renderManga();
+        }));
 
         async function loadReadingHistory() {
             try {
                 const response = await ReaderAccount.apiFetch("https://story-about-us-api.aichinose219.workers.dev/api/history");
                 if (!response.ok) throw new Error("Riwayat belum tersedia.");
-                const entries = await response.json();
-                readingHistoryList.replaceChildren();
-                for (const entry of entries) {
-                    const manga = mangaData.find(item => item.id === entry.manga_id);
-                    const button = document.createElement("button");
-                    button.type = "button";
-                    button.className = "history-item";
-                    button.textContent = `${manga?.title || formatTitle(entry.manga_id)} · Chapter ${entry.chapter_number} · Halaman ${entry.page_number}`;
-                    button.addEventListener("click", () => {
-                        location.href = `reader.html?title=${encodeURIComponent(entry.manga_id)}&chapter=${encodeURIComponent(entry.chapter_number)}&page=${encodeURIComponent(entry.page_number)}`;
-                    });
-                    readingHistoryList.appendChild(button);
-                }
-                if (!entries.length) readingHistoryList.textContent = "Belum ada progres membaca.";
+                readingEntries = await response.json();
+                if (activeView === "last-read") renderManga();
             } catch (error) {
-                readingHistoryList.textContent = error.message;
+                console.error("Gagal memuat riwayat baca:", error);
             }
         }
+
+        accountTabs.addEventListener("click", event => {
+            const button = event.target.closest("[data-view]");
+            if (button && activeView === "last-read") loadReadingHistory();
+        });
 
         loginButton.addEventListener("click", async () => {
             loginButton.disabled = true;
