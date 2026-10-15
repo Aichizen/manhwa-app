@@ -842,6 +842,72 @@
                 font-size: 13px;
             }
         }
+    
+        /* Grid HP: tiga cover seragam, judul ringkas */
+        @media (max-width: 480px) {
+            .manga-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 9px;
+            }
+
+            .cover-wrapper {
+                aspect-ratio: 4 / 5;
+            }
+
+            .manga-cover {
+                object-fit: cover;
+                transition: none;
+            }
+
+            .manga-card:hover .manga-cover {
+                transform: none;
+            }
+
+            .card-bottom {
+                position: relative;
+                min-height: 48px;
+                display: block;
+                padding: 7px 5px;
+            }
+
+            .manga-title {
+                display: -webkit-box;
+                -webkit-box-orient: vertical;
+                -webkit-line-clamp: 3;
+                overflow: hidden;
+                font-family: Arial, Helvetica, sans-serif;
+                font-size: 12px;
+                line-height: 1.25;
+                font-weight: 600;
+                letter-spacing: 0;
+                overflow-wrap: anywhere;
+            }
+
+            .favorite-button {
+                position: absolute;
+                top: 6px;
+                right: 6px;
+                width: 27px;
+                height: 27px;
+                font-size: 18px;
+                background: rgba(25, 28, 48, .82);
+            }
+        }
+
+        @media (max-width: 360px) {
+            .manga-grid {
+                gap: 7px;
+            }
+
+            .manga-title {
+                font-size: 11px;
+            }
+
+            .card-bottom {
+                min-height: 44px;
+                padding: 6px 4px;
+            }
+        }
     </style>
 </head>
 
@@ -1915,4 +1981,5 @@
 
 </body>
 </html>
+
 

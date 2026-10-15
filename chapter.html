@@ -184,11 +184,15 @@
 
         .cover {
 
-            width: 172px;
+            width: auto;
 
-            aspect-ratio: 3 / 4;
+            height: auto;
 
-            object-fit: cover;
+            max-width: 100%;
+
+            max-height: min(60vh, 480px);
+
+            object-fit: contain;
 
             display: block;
 
@@ -766,6 +770,12 @@
                 rgba(29, 34, 60, .75);
 
             backdrop-filter: blur(10px);
+            scroll-margin-top: 90px;
+        }
+
+        .comment-card.notification-target {
+            outline: 2px solid rgba(212, 177, 255, .9);
+            box-shadow: 0 0 22px rgba(180, 126, 230, .38);
         }
 
 
@@ -854,15 +864,6 @@
             cursor: pointer;
         }
 
-        .comment-reply-quote {
-            margin: 0 0 10px;
-            padding: 8px 11px;
-            border-left: 3px solid #9d7bc4;
-            border-radius: 5px;
-            background: rgba(118, 92, 157, .12);
-            color: #aaa2bc;
-            font-size: 12px;
-        }
 
         .comment-reply-button {
             margin-top: 10px;
@@ -985,7 +986,15 @@
 
             .cover {
 
-                width: 172px;
+                width: auto;
+
+                height: auto;
+
+                max-width: 100%;
+
+                max-height: min(60vh, 480px);
+
+                object-fit: contain;
 
                 border-radius: 18px;
             }
@@ -1228,10 +1237,10 @@
 
                 <!-- RATING -->
 
-                <div class="rating-box">
+                <div id="ratingBox" class="rating-box">
 
                     <span class="input-label">
-                        Rating
+                        Rating (optional)
                     </span>
 
 
@@ -1489,6 +1498,7 @@
         const replyContext = document.getElementById("replyContext");
         const replyContextText = document.getElementById("replyContextText");
         const cancelReplyButton = document.getElementById("cancelReply");
+        const ratingBox = document.getElementById("ratingBox");
         let replyTargetId = null;
 
         cancelReplyButton.addEventListener("click", clearReplyTarget);
@@ -1497,6 +1507,7 @@
             replyTargetId = null;
             replyContext.hidden = true;
             replyContextText.textContent = "";
+            ratingBox.hidden = false;
         }
 
         const stars =
@@ -1943,17 +1954,16 @@
                         );
 
 
-                    button.innerHTML =
+                    const chapterLabel = document.createElement("span");
+                    chapterLabel.className = "chapter-number";
+                    chapterLabel.textContent = chapter && typeof chapter === "object" && chapter.label
+                        ? label
+                        : `CHAPTER ${label}`;
 
-                        `
-                        <span class="chapter-number">
-                            CHAPTER ${label}
-                        </span>
-
-                        <span class="chapter-arrow">
-                            ›
-                        </span>
-                        `;
+                    const chapterArrow = document.createElement("span");
+                    chapterArrow.className = "chapter-arrow";
+                    chapterArrow.textContent = "›";
+                    button.append(chapterLabel, chapterArrow);
 
 
                     /*
@@ -2221,6 +2231,7 @@
                 renderComments(
                     comments
                 );
+                scrollToLinkedComment();
 
 
             } catch (err) {
@@ -2295,6 +2306,7 @@
             function appendComment(comment, depth = 0) {
                 const card = document.createElement("article");
                 card.className = "comment-card";
+                card.id = "comment-" + String(comment.id);
                 card.style.marginLeft = (depth * 18) + "px";
 
                 const header = document.createElement("div");
@@ -2314,14 +2326,6 @@
                 }
                 card.appendChild(header);
 
-                if (comment.reply_to_id) {
-                    const quote = document.createElement("div");
-                    quote.className = "comment-reply-quote";
-                    quote.textContent = "Membalas " +
-                        (comment.reply_to_username || "komentar") + ": " +
-                        String(comment.reply_to_text || "").slice(0, 180);
-                    card.appendChild(quote);
-                }
 
                 const text = document.createElement("div");
                 text.className = "comment-text";
@@ -2344,6 +2348,9 @@
                     replyContextText.textContent = "Membalas komentar " +
                         (comment.username || comment.name || "pengguna");
                     replyContext.hidden = false;
+                    ratingBox.hidden = true;
+                    selectedRating = 0;
+                    highlightStars(0);
                     commentInput.focus();
                 });
                 card.appendChild(replyButton);
@@ -2353,6 +2360,17 @@
             }
 
             roots.forEach((comment) => appendComment(comment));
+        }
+
+        function scrollToLinkedComment() {
+            const targetId = window.location.hash.slice(1);
+            if (!/^comment-\d+$/.test(targetId)) return;
+            requestAnimationFrame(() => {
+                const target = document.getElementById(targetId);
+                if (!target) return;
+                target.scrollIntoView({ behavior: "smooth", block: "center" });
+                target.classList.add("notification-target");
+            });
         }
 
 
@@ -2383,23 +2401,6 @@
 
                     showCommentMessage(
                         "Please enter your name.",
-                        "error"
-                    );
-
-                    return;
-                }
-
-
-                /*
-                 * Validasi rating
-                 */
-
-                if (
-                    selectedRating < 1
-                ) {
-
-                    showCommentMessage(
-                        "Please select a rating.",
                         "error"
                     );
 
@@ -2462,7 +2463,7 @@
                                         username: ReaderAccount.authenticated ? "" : name,
 
                                         rating:
-                                            selectedRating,
+                                            selectedRating || 0,
 
                                         reply_to_id:
                                             replyTargetId,
@@ -2582,3 +2583,5 @@
 </body>
 
 </html>
+
+
