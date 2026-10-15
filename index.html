@@ -107,6 +107,11 @@
             transform: translateY(-1px);
         }
 
+        .admin-link[hidden],
+        .login-link[hidden] {
+            display: none !important;
+        }
+
         .hero-actions {
             display: flex;
             align-items: center;
@@ -1830,6 +1835,7 @@
 
         function paintAccount() {
             accountTabs.hidden = !ReaderAccount.authenticated;
+            document.querySelector('.hero-actions > .admin-link[href="admin.html"]').hidden = ReaderAccount.authenticated;
             loginButton.hidden = ReaderAccount.authenticated;
             if (ReaderAccount.authenticated) loadReadingHistory();
         }
