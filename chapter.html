@@ -2580,6 +2580,7 @@
                     ) {
 
                         throw new Error(
+                            data.message ||
                             data.error ||
                             "Failed to post comment"
                         );
