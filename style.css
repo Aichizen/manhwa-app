@@ -1529,3 +1529,42 @@ body.reader-body {
     }
 
 }
+/* Penyesuaian kartu manga: sampul potret dan judul lebih ringkas */
+.cover-wrapper {
+    aspect-ratio: 2 / 3;
+}
+
+.manga-cover {
+    object-fit: contain;
+    transition: none;
+}
+
+.manga-card:hover .manga-cover {
+    transform: none;
+}
+
+.manga-title {
+    font-size: 16px;
+    line-height: 1.25;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    overflow: hidden;
+}
+
+@media (max-width: 480px) {
+    .cover-wrapper {
+        aspect-ratio: 2 / 3;
+    }
+
+    .manga-title {
+        font-size: 14px;
+        line-height: 1.25;
+    }
+}
+
+@media (max-width: 360px) {
+    .manga-title {
+        font-size: 13px;
+    }
+}

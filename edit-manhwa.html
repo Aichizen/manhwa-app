@@ -79,6 +79,14 @@
       statusEl.textContent = message;
     }
 
+    function formatBroadcastStatus(broadcast) {
+      if (!broadcast) return "Status broadcast tidak tersedia.";
+      if (!broadcast.configured) return `Broadcast tidak terkirim: ${broadcast.error || "konfigurasi bot belum tersedia."}`;
+      if (broadcast.total === 0) return "Broadcast belum dikirim: belum ada pengguna yang pernah menekan /start.";
+      if (broadcast.failed > 0) return `Broadcast sebagian gagal: ${broadcast.sent}/${broadcast.total} terkirim, ${broadcast.failed} gagal.${broadcast.error ? ` ${broadcast.error}` : ""}`;
+      return `Broadcast berhasil: ${broadcast.sent}/${broadcast.total} terkirim.`;
+    }
+
     async function loadMangaList() {
       try {
         const response = await fetch(`${API_BASE}/api/manga`, { cache:"no-store" });
@@ -206,8 +214,8 @@
         });
         const result = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(result.error || `Gagal mengganti PDF (${response.status}).`);
-        rowStatus.className = "row-status success";
-        rowStatus.textContent = `PDF Chapter ${number} berhasil diganti.`;
+        rowStatus.className = result.broadcast?.ok ? "row-status success" : "row-status error";
+        rowStatus.textContent = `PDF Chapter ${number} berhasil diganti. ${formatBroadcastStatus(result.broadcast)}`;
         fileInput.value = "";
       } catch (error) {
         rowStatus.className = "row-status error";

@@ -50,8 +50,12 @@
         </select>
 
         <label for="chapterNumber">Chapter</label>
-        <input id="chapterNumber" name="chapter" type="text" inputmode="decimal" placeholder="Pilih manhwa terlebih dahulu" required>
-        <p class="hint">Nomor otomatis diisi chapter terakhir + 1. Anda dapat mengubahnya secara manual.</p>
+        <input id="chapterNumber" name="chapter" type="text" inputmode="decimal" placeholder="Pilih manhwa terlebih dahulu" readonly required>
+        <p class="hint">Nomor ini adalah urutan file di storage dan selalu berlanjut dari chapter terakhir.</p>
+
+        <label for="chapterLabel">Keterangan chapter (opsional)</label>
+        <input id="chapterLabel" name="chapterLabel" type="text" maxlength="60" placeholder="Contoh: Side Story">
+        <p id="chapterLabelHint" class="hint">Kosongkan untuk memakai nomor chapter biasa.</p>
 
         <label for="chapterPdfs">File PDF</label>
         <input id="chapterPdfs" name="pdfs" type="file" accept="application/pdf,.pdf" multiple required>
@@ -75,6 +79,8 @@
     const form = document.getElementById("addChapterForm");
     const mangaSelect = document.getElementById("mangaSelect");
     const chapterNumber = document.getElementById("chapterNumber");
+    const chapterLabelInput = document.getElementById("chapterLabel");
+    const chapterLabelHint = document.getElementById("chapterLabelHint");
     const fileInput = document.getElementById("chapterPdfs");
     const previewSection = document.getElementById("previewSection");
     const fileList = document.getElementById("fileList");
@@ -85,6 +91,7 @@
     const submitButton = document.getElementById("submitButton");
     let selectionRequest = 0;
     let sortedFiles = [];
+    let currentChapters = [];
 
     function sortFiles(files) {
       return [...files].sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric:true, sensitivity:"base" }));
@@ -108,13 +115,42 @@
       previewSection.hidden = sortedFiles.length === 0;
     }
 
+    function formatMangaTitle(manga) {
+      const id = String(manga.id || "");
+      const title = String(manga.title || "").trim();
+      if (title && title.toLowerCase() !== id.toLowerCase()) return title;
+      return id.split("-").map(word => word ? word[0].toUpperCase() + word.slice(1) : "").join(" ");
+    }
+
+    function updateChapterLabelHint() {
+      const prefix = chapterLabelInput.value.trim().replace(/\s+/g, " ");
+      if (!prefix) {
+        chapterLabelHint.textContent = "Kosongkan untuk memakai nomor chapter biasa.";
+        return;
+      }
+      const matching = currentChapters.map(chapter => {
+        if (String(chapter.label_prefix || "").trim().toLowerCase() === prefix.toLowerCase()) {
+          return Number(chapter.label_sequence) || 0;
+        }
+        const label = String(chapter.label || "").trim();
+        const marker = `${prefix} `;
+        return label.toLowerCase().startsWith(marker.toLowerCase()) ? Number(label.slice(marker.length)) || 0 : 0;
+      });
+      const first = Math.max(0, ...matching) + 1;
+      const count = Math.max(1, sortedFiles.length);
+      const last = first + count - 1;
+      chapterLabelHint.textContent = count > 1
+        ? `Label tampilan: ${prefix} ${first} – ${prefix} ${last}.`
+        : `Label tampilan berikutnya: ${prefix} ${first}.`;
+    }
+
     async function loadMangaList() {
       try {
         const response = await fetch(`${API_BASE}/api/manga`, { cache:"no-store" });
         if (!response.ok) throw new Error("Daftar manhwa tidak dapat dimuat.");
         const mangaList = await response.json();
         mangaSelect.replaceChildren(new Option("Pilih manhwa", ""));
-        mangaList.forEach(manga => mangaSelect.add(new Option(manga.title || manga.id, manga.id)));
+        mangaList.forEach(manga => mangaSelect.add(new Option(formatMangaTitle(manga), manga.id)));
       } catch (error) {
         mangaSelect.replaceChildren(new Option("Daftar manhwa tidak tersedia", ""));
         statusEl.className = "error";
@@ -125,6 +161,8 @@
     async function setNextChapter(mangaId) {
       const requestNumber = ++selectionRequest;
       chapterNumber.value = "";
+      currentChapters = [];
+      updateChapterLabelHint();
       if (!mangaId) {
         chapterNumber.placeholder = "Pilih manhwa terlebih dahulu";
         return;
@@ -138,9 +176,11 @@
         const detail = await response.json();
         if (requestNumber !== selectionRequest) return;
         const chapters = Array.isArray(detail) ? detail : (Array.isArray(detail.chapters) ? detail.chapters : []);
+        currentChapters = chapters;
         const numbers = chapters.map(item => Number(item.number ?? item.chapter)).filter(number => Number.isFinite(number) && number >= 0);
         chapterNumber.value = String(numbers.length ? Math.max(...numbers) + 1 : 1);
         chapterNumber.placeholder = "";
+        updateChapterLabelHint();
         statusEl.textContent = "";
       } catch (error) {
         if (requestNumber !== selectionRequest) return;
@@ -151,14 +191,30 @@
     }
 
     mangaSelect.addEventListener("change", () => setNextChapter(mangaSelect.value));
+    chapterLabelInput.addEventListener("input", updateChapterLabelHint);
     fileInput.addEventListener("change", () => {
       sortedFiles = sortFiles(fileInput.files);
       renderFileList();
+      updateChapterLabelHint();
       progressSection.hidden = true;
       statusEl.className = "";
       statusEl.textContent = "";
     });
     loadMangaList();
+
+    function summarizeBroadcasts(results) {
+      if (!results.length) return "Tidak ada hasil broadcast.";
+      const total = results.reduce((sum, item) => sum + (Number(item?.total) || 0), 0);
+      const sent = results.reduce((sum, item) => sum + (Number(item?.sent) || 0), 0);
+      const failed = results.reduce((sum, item) => sum + (Number(item?.failed) || 0), 0);
+      if (results.some(item => !item?.configured || item?.error)) {
+        const reason = results.find(item => item?.error)?.error || "Konfigurasi bot belum tersedia.";
+        return `Broadcast bermasalah: ${reason}`;
+      }
+      if (total === 0) return "Broadcast belum dikirim: belum ada pengguna yang pernah menekan /start.";
+      if (failed > 0) return `Broadcast sebagian gagal: ${sent}/${total} terkirim, ${failed} gagal.`;
+      return `Broadcast berhasil: ${sent}/${total} terkirim.`;
+    }
 
     form.addEventListener("submit", async event => {
       event.preventDefault();
@@ -178,6 +234,7 @@
       const mangaId = mangaSelect.value;
       const statuses = sortedFiles.map(() => ({ label:"Menunggu", kind:"" }));
       let failed = [];
+      const broadcastResults = [];
       submitButton.disabled = true;
       submitButton.textContent = "MENGUNGGAH...";
       progressSection.hidden = false;
@@ -195,6 +252,7 @@
           formData.append("pdfs", file, file.name);
           // Dikirim untuk kompatibilitas field chapter; Worker menentukan nomor dari metadata chapter.
           formData.append("chapter", chapterNumber.value.trim());
+          formData.append("chapterLabel", chapterLabelInput.value.trim());
           const response = await fetch(`${API_BASE}/api/admin/chapter`, {
             method:"POST",
             headers:{ Authorization:`Bearer ${token}` },
@@ -202,7 +260,8 @@
           });
           const result = await response.json().catch(() => ({}));
           if (!response.ok) throw new Error(result.error || `Permintaan gagal (${response.status}).`);
-          statuses[index] = { label:"Berhasil", kind:"done" };
+          statuses[index] = { label:result.broadcast ? `Berhasil — ${result.broadcast.sent}/${result.broadcast.total} notifikasi terkirim` : "Berhasil", kind:"done" };
+          broadcastResults.push(result.broadcast);
         } catch (error) {
           statuses[index] = { label:`Gagal: ${error.message || "Upload gagal"}`, kind:"failed" };
           failed.push(file.name);
@@ -219,14 +278,14 @@
         previewSection.hidden = true;
         fileInput.value = "";
         sortedFiles = [];
-        statusEl.className = "success";
-        statusEl.textContent = `Upload berhasil. ${statuses.length} chapter berhasil diunggah.`;
+        statusEl.className = broadcastResults.every(item => item?.ok) ? "success" : "error";
+        statusEl.textContent = `Upload berhasil. ${statuses.length} chapter berhasil diunggah. ${summarizeBroadcasts(broadcastResults)}`;
         await setNextChapter(mangaId);
-        statusEl.className = "success";
-        statusEl.textContent = `Upload berhasil. ${statuses.length} chapter berhasil diunggah.`;
+        statusEl.className = broadcastResults.every(item => item?.ok) ? "success" : "error";
+        statusEl.textContent = `Upload berhasil. ${statuses.length} chapter berhasil diunggah. ${summarizeBroadcasts(broadcastResults)}`;
       } else {
         statusEl.className = "error";
-        statusEl.textContent = `Sebagian upload gagal. Periksa daftar file berstatus gagal: ${failed.join(", ")}. File yang berhasil tidak perlu diunggah ulang.`;
+        statusEl.textContent = `Sebagian upload gagal. Periksa daftar file berstatus gagal: ${failed.join(", ")}. File yang berhasil tidak perlu diunggah ulang. ${summarizeBroadcasts(broadcastResults)}`;
       }
     });
   </script>
