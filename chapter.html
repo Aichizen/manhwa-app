@@ -1203,7 +1203,7 @@
             </p>
 
 
-            <div class="comment-account-actions"><span id="commentAccountStatus">Mode guest: isi nama untuk berkomentar.</span><span id="commentLoginPrompt">Belum login? <a id="commentTelegramLogin" href="#">Klik disini</a>.</span></div>
+            <div class="comment-account-actions"><span id="commentAccountStatus"></span><span id="commentLoginPrompt">Belum login? <a id="commentTelegramLogin" href="#">Klik disini</a>.</span></div>
             <!-- COMMENT FORM -->
 
             <form
@@ -2274,181 +2274,92 @@
         }
 
 
-        function renderComments(
-            comments
-        ) {
+        function renderComments(comments) {
+            commentList.replaceChildren();
 
-            commentList.innerHTML =
-                "";
-
-
-            if (
-                comments.length === 0
-            ) {
-
-                commentList.innerHTML =
-                    `
-                    <div class="no-comments">
-                        No comments yet.
-                        Be the first to share your thoughts.
-                    </div>
-                    `;
-
+            if (!comments.length) {
+                const empty = document.createElement("div");
+                empty.className = "no-comments";
+                empty.textContent = "No comments yet. Be the first to share your thoughts.";
+                commentList.appendChild(empty);
                 return;
             }
 
+            const nodes = new Map();
+            comments.forEach((comment) => {
+                nodes.set(String(comment.id), { ...comment, children: [] });
+            });
 
-            comments.forEach(
-                comment => {
+            const roots = [];
+            nodes.forEach((comment) => {
+                const parent = comment.reply_to_id
+                    ? nodes.get(String(comment.reply_to_id))
+                    : null;
+                if (parent && parent !== comment) parent.children.push(comment);
+                else roots.push(comment);
+            });
 
-                    const card =
-                        document.createElement(
-                            "article"
-                        );
+            function appendComment(comment, depth = 0) {
+                const card = document.createElement("article");
+                card.className = "comment-card";
+                card.style.marginLeft = (depth * 18) + "px";
 
+                const header = document.createElement("div");
+                header.className = "comment-header";
 
-                    card.className =
-                        "comment-card";
+                const name = document.createElement("span");
+                name.className = "comment-name";
+                name.textContent = comment.username || comment.name || "Anonymous";
+                header.appendChild(name);
 
-
-                    /* HEADER */
-
-                    const header =
-                        document.createElement(
-                            "div"
-                        );
-
-
-                    header.className =
-                        "comment-header";
-
-
-                    /* NAME */
-
-                    const name =
-                        document.createElement(
-                            "span"
-                        );
-
-
-                    name.className =
-                        "comment-name";
-
-
-                    name.textContent =
-                        comment.username || comment.name || "Anonymous";
-
-
-                    /* RATING */
-
-                    const rating =
-                        document.createElement(
-                            "span"
-                        );
-
-
-                    rating.className =
-                        "comment-rating";
-
-
-                    const ratingNumber =
-                        Number(
-                            comment.rating
-                        );
-
-
-                    rating.textContent =
-
-                        "★".repeat(
-                            ratingNumber
-                        ) +
-
-                        "☆".repeat(
-                            5 -
-                            ratingNumber
-                        );
-
-
-                    header.appendChild(
-                        name
-                    );
-
-
-                    if (!comment.reply_to_id) {
-                        header.appendChild(rating);
-                    }
-
-
-                    /* TEXT */
-
-                    const text =
-                        document.createElement(
-                            "div"
-                        );
-
-
-                    text.className =
-                        "comment-text";
-
-
-                    text.textContent =
-                        comment.text ||
-                        comment.comment ||
-                        "";
-
-
-                    /* DATE */
-
-                    const date =
-                        document.createElement(
-                            "div"
-                        );
-
-
-                    date.className =
-                        "comment-date";
-
-
-                    date.textContent =
-                        formatDate(
-                            comment.created_at
-                        );
-
-
-                    card.appendChild(header);
-
-                    if (comment.reply_to_id) {
-                        const quote = document.createElement("div");
-                        quote.className = "comment-reply-quote";
-                        quote.textContent = "Membalas " +
-                            (comment.reply_to_username || "komentar") + ": " +
-                            String(comment.reply_to_text || "").slice(0, 180);
-                        card.appendChild(quote);
-                    }
-
-                    card.appendChild(text);
-
-
-                    if (comment.created_at) card.appendChild(date);
-
-                    if (ReaderAccount.authenticated && Number(comment.replyable) === 1) {
-                        const replyButton = document.createElement("button");
-                        replyButton.type = "button";
-                        replyButton.className = "comment-reply-button";
-                        replyButton.textContent = "Balas";
-                        replyButton.addEventListener("click", () => {
-                            replyTargetId = Number(comment.id);
-                            replyContextText.textContent = "Membalas komentar " +
-                                (comment.username || comment.name || "pengguna");
-                            replyContext.hidden = false;
-                            commentInput.focus();
-                        });
-                        card.appendChild(replyButton);
-                    }
-
-                    commentList.appendChild(card);
+                const ratingNumber = Math.max(0, Math.min(5, Number(comment.rating) || 0));
+                if (ratingNumber > 0) {
+                    const rating = document.createElement("span");
+                    rating.className = "comment-rating";
+                    rating.textContent = "★".repeat(ratingNumber) + "☆".repeat(5 - ratingNumber);
+                    header.appendChild(rating);
                 }
-            );
+                card.appendChild(header);
+
+                if (comment.reply_to_id) {
+                    const quote = document.createElement("div");
+                    quote.className = "comment-reply-quote";
+                    quote.textContent = "Membalas " +
+                        (comment.reply_to_username || "komentar") + ": " +
+                        String(comment.reply_to_text || "").slice(0, 180);
+                    card.appendChild(quote);
+                }
+
+                const text = document.createElement("div");
+                text.className = "comment-text";
+                text.textContent = comment.text || comment.comment || "";
+                card.appendChild(text);
+
+                if (comment.created_at) {
+                    const date = document.createElement("div");
+                    date.className = "comment-date";
+                    date.textContent = formatDate(comment.created_at);
+                    card.appendChild(date);
+                }
+
+                const replyButton = document.createElement("button");
+                replyButton.type = "button";
+                replyButton.className = "comment-reply-button";
+                replyButton.textContent = "Balas";
+                replyButton.addEventListener("click", () => {
+                    replyTargetId = Number(comment.id);
+                    replyContextText.textContent = "Membalas komentar " +
+                        (comment.username || comment.name || "pengguna");
+                    replyContext.hidden = false;
+                    commentInput.focus();
+                });
+                card.appendChild(replyButton);
+                commentList.appendChild(card);
+
+                comment.children.forEach((child) => appendComment(child, depth + 1));
+            }
+
+            roots.forEach((comment) => appendComment(comment));
         }
 
 
@@ -2491,7 +2402,7 @@
                  */
 
                 if (
-                    !replyTargetId && selectedRating < 1
+                    selectedRating < 1
                 ) {
 
                     showCommentMessage(
@@ -2661,7 +2572,7 @@
             nameInput.required = !loggedIn;
             commentAccountStatus.textContent = loggedIn
                 ? "Komentar sebagai " + ([ReaderAccount.user.first_name, ReaderAccount.user.last_name].filter(Boolean).join(" ") || ReaderAccount.user.username || "akun Telegram")
-                : "Mode guest: isi nama untuk berkomentar.";
+                : "";
             commentLoginPrompt.hidden = loggedIn;
         }
         commentLoginButton.addEventListener("click", async (event) => {
