@@ -13,6 +13,7 @@
     <title>Story About Us</title>
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="account.js"></script>
 
     <style>
 
@@ -690,28 +691,37 @@
 
             width: 100%;
 
-            height: 48px;
+            height: 82px;
 
             margin-top: 15px;
 
             border: none;
 
-            border-radius: 13px;
+            border-radius: 22px;
 
             background:
                 linear-gradient(
                     135deg,
-                    #8972b5,
-                    #65538f
+                    #a88bd0,
+                    #765c9d
                 );
 
             color: white;
 
-            font-size: 15px;
+            font-family:
+                Georgia,
+                "Times New Roman",
+                serif;
 
-            font-weight: 600;
+            font-size: 21px;
+
+            font-weight: 700;
 
             cursor: pointer;
+
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, .12),
+                0 8px 20px rgba(0, 0, 0, .12);
         }
 
 
@@ -816,14 +826,52 @@
 
 
         .comment-date {
-
             margin-top: 9px;
-
             color: #62677f;
-
             font-size: 11px;
         }
 
+        .reply-context[hidden] {
+            display: none;
+        }
+
+        .reply-context {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 12px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            background: rgba(118, 92, 157, .2);
+            color: #ddd1f2;
+            font-size: 13px;
+        }
+
+        .reply-context button,
+        .comment-reply-button {
+            border: 0;
+            border-radius: 8px;
+            padding: 7px 11px;
+            background: #765c9d;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .comment-reply-quote {
+            margin: 0 0 10px;
+            padding: 8px 11px;
+            border-left: 3px solid #9d7bc4;
+            border-radius: 5px;
+            background: rgba(118, 92, 157, .12);
+            color: #aaa2bc;
+            font-size: 12px;
+        }
+
+        .comment-reply-button {
+            margin-top: 10px;
+            font-size: 12px;
+        }
 
         .no-comments {
 
@@ -846,15 +894,22 @@
 
             display: none;
 
-            margin-top: 12px;
+            margin-top: 20px;
 
-            padding: 10px 12px;
+            padding: 18px 16px;
 
-            border-radius: 10px;
+            border-radius: 20px;
 
-            font-size: 13px;
+            font-family:
+                Georgia,
+                "Times New Roman",
+                serif;
+
+            font-size: 16px;
 
             line-height: 1.4;
+
+            text-align: center;
         }
 
 
@@ -878,7 +933,7 @@
             color: #efb8c0;
 
             background:
-                rgba(150, 58, 72, .18);
+                rgba(90, 39, 67, .48);
         }
 
 
@@ -976,6 +1031,10 @@
             }
         }
 
+    
+        .comment-account-actions { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom:16px; color:#a3a4bd; font-size:13px; }
+        .comment-account-actions button { min-height:38px; padding:0 12px; border:0; border-radius:10px; background:#765c9d; color:#fff; cursor:pointer; }
+        .comment-account-actions #commentGuestMode { background:#454b70; }
     </style>
 
 </head>
@@ -1142,6 +1201,7 @@
             </p>
 
 
+            <div class="comment-account-actions"><span id="commentAccountStatus">Guest: isi nama untuk berkomentar.</span><button id="commentTelegramLogin" type="button">Login dengan Telegram</button><button id="commentGuestMode" type="button">Mode guest</button></div>
             <!-- COMMENT FORM -->
 
             <form
@@ -1149,6 +1209,7 @@
                 class="comment-form"
             >
 
+                <div id="nameFieldGroup">
                 <label
                     class="input-label"
                     for="nameInput"
@@ -1167,6 +1228,8 @@
                     required
                 >
 
+
+                </div>
 
                 <!-- RATING -->
 
@@ -1235,6 +1298,11 @@
 
                 </div>
 
+
+                <div id="replyContext" class="reply-context" hidden>
+                    <span id="replyContextText"></span>
+                    <button id="cancelReply" type="button">Batal</button>
+                </div>
 
                 <!-- COMMENT -->
 
@@ -1423,6 +1491,18 @@
                 "commentMessage"
             );
 
+        const replyContext = document.getElementById("replyContext");
+        const replyContextText = document.getElementById("replyContextText");
+        const cancelReplyButton = document.getElementById("cancelReply");
+        let replyTargetId = null;
+
+        cancelReplyButton.addEventListener("click", clearReplyTarget);
+
+        function clearReplyTarget() {
+            replyTargetId = null;
+            replyContext.hidden = true;
+            replyContextText.textContent = "";
+        }
 
         const stars =
             document.querySelectorAll(
@@ -2133,10 +2213,9 @@
                     await response.json();
 
 
-                const comments =
-                    Array.isArray(
-                        data.comments
-                    )
+                const comments = Array.isArray(data)
+                    ? data
+                    : Array.isArray(data.comments)
                         ? data.comments
                         : [];
 
@@ -2254,7 +2333,7 @@
 
 
                     name.textContent =
-                        comment.name;
+                        comment.username || comment.name || "Anonymous";
 
 
                     /* RATING */
@@ -2292,9 +2371,9 @@
                     );
 
 
-                    header.appendChild(
-                        rating
-                    );
+                    if (!comment.reply_to_id) {
+                        header.appendChild(rating);
+                    }
 
 
                     /* TEXT */
@@ -2310,6 +2389,7 @@
 
 
                     text.textContent =
+                        comment.text ||
                         comment.comment ||
                         "";
 
@@ -2332,29 +2412,38 @@
                         );
 
 
-                    card.appendChild(
-                        header
-                    );
+                    card.appendChild(header);
 
-
-                    card.appendChild(
-                        text
-                    );
-
-
-                    if (
-                        comment.created_at
-                    ) {
-
-                        card.appendChild(
-                            date
-                        );
+                    if (comment.reply_to_id) {
+                        const quote = document.createElement("div");
+                        quote.className = "comment-reply-quote";
+                        quote.textContent = "Membalas " +
+                            (comment.reply_to_username || "komentar") + ": " +
+                            String(comment.reply_to_text || "").slice(0, 180);
+                        card.appendChild(quote);
                     }
 
+                    card.appendChild(text);
 
-                    commentList.appendChild(
-                        card
-                    );
+
+                    if (comment.created_at) card.appendChild(date);
+
+                    if (ReaderAccount.authenticated && Number(comment.replyable) === 1) {
+                        const replyButton = document.createElement("button");
+                        replyButton.type = "button";
+                        replyButton.className = "comment-reply-button";
+                        replyButton.textContent = "Balas";
+                        replyButton.addEventListener("click", () => {
+                            replyTargetId = Number(comment.id);
+                            replyContextText.textContent = "Membalas komentar " +
+                                (comment.username || comment.name || "pengguna");
+                            replyContext.hidden = false;
+                            commentInput.focus();
+                        });
+                        card.appendChild(replyButton);
+                    }
+
+                    commentList.appendChild(card);
                 }
             );
         }
@@ -2383,7 +2472,7 @@
                  * Validasi nama
                  */
 
-                if (!name) {
+                if (!ReaderAccount.authenticated && !name) {
 
                     showCommentMessage(
                         "Please enter your name.",
@@ -2399,7 +2488,7 @@
                  */
 
                 if (
-                    selectedRating < 1
+                    !replyTargetId && selectedRating < 1
                 ) {
 
                     showCommentMessage(
@@ -2441,7 +2530,7 @@
                 try {
 
                     const response =
-                        await fetch(
+                        await ReaderAccount.apiFetch(
 
                             API_BASE +
                             "/api/comments",
@@ -2463,13 +2552,15 @@
                                         manga_id:
                                             mangaId,
 
-                                        name:
-                                            name,
+                                        username: ReaderAccount.authenticated ? "" : name,
 
                                         rating:
                                             selectedRating,
 
-                                        comment:
+                                        reply_to_id:
+                                            replyTargetId,
+
+                                        text:
                                             comment
                                     })
                             }
@@ -2497,7 +2588,7 @@
                      */
 
                     commentForm.reset();
-
+                    clearReplyTarget();
 
                     selectedRating =
                         0;
@@ -2555,6 +2646,29 @@
         loadMangaInfo();
 
         loadChapters();
+
+        const nameFieldGroup = document.getElementById("nameFieldGroup");
+        const commentAccountStatus = document.getElementById("commentAccountStatus");
+        const commentLoginButton = document.getElementById("commentTelegramLogin");
+        const commentGuestButton = document.getElementById("commentGuestMode");
+        function paintCommentAccount() {
+            const loggedIn = ReaderAccount.authenticated;
+            nameFieldGroup.hidden = loggedIn;
+            nameInput.required = !loggedIn;
+            commentAccountStatus.textContent = loggedIn
+                ? `Komentar sebagai ${[ReaderAccount.user.first_name, ReaderAccount.user.last_name].filter(Boolean).join(" ") || ReaderAccount.user.username || "akun Telegram"}`
+                : "Guest: isi nama untuk berkomentar.";
+        }
+        commentLoginButton.addEventListener("click", async () => {
+            try { await ReaderAccount.login(); paintCommentAccount(); await loadComments(); }
+            catch (error) { showCommentMessage(error.message, "error"); }
+        });
+        commentGuestButton.addEventListener("click", () => {
+            ReaderAccount.guest();
+            paintCommentAccount();
+            loadComments();
+        });
+        ReaderAccount.init().then(() => { paintCommentAccount(); loadComments(); });
 
         loadComments();
 

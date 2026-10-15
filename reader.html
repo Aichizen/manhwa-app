@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="style.css">
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="account.js"></script>
 
 
     <style>
@@ -354,6 +355,8 @@
         let chapters = [];
         let currentChapterIndex = -1;
         let isLoadingChapter = false;
+        let resumePage = Math.max(1, Number(params.get("page") || 1));
+        let progressSaveTimer = null;
 
 
         /* ==========================================
@@ -382,6 +385,7 @@
         async function startReader() {
 
             try {
+                await ReaderAccount.init();
 
                 const chapterNumber =
                     parseFloat(chapter);
@@ -593,6 +597,12 @@
             try {
 
                 await loadPDF(pdfUrl);
+                if (resumePage > 1) {
+                    const pageNode = [...document.querySelectorAll(".pdf-page")].find(node => Number(node.dataset.page) === resumePage);
+                    if (pageNode) pageNode.scrollIntoView({ behavior: "auto", block: "start" });
+                }
+                resumePage = 1;
+                saveVisibleProgress();
 
             } finally {
 
@@ -614,6 +624,8 @@
             if (isLoadingChapter) {
                 return;
             }
+
+            scheduleProgressSave();
 
 
             if (bottomTimer) {
@@ -651,6 +663,30 @@
         /* ==========================================
            NEXT CHAPTER
         ========================================== */
+
+        function scheduleProgressSave() {
+            if (!ReaderAccount.authenticated) return;
+            clearTimeout(progressSaveTimer);
+            progressSaveTimer = setTimeout(saveVisibleProgress, 900);
+        }
+
+        async function saveVisibleProgress() {
+            if (!ReaderAccount.authenticated || currentChapterIndex < 0) return;
+            const marker = window.scrollY + window.innerHeight * 0.35;
+            const pages = [...document.querySelectorAll(".pdf-page[data-page]")];
+            let pageNumber = 1;
+            for (const node of pages) {
+                if (node.getBoundingClientRect().top + window.scrollY <= marker) pageNumber = Number(node.dataset.page) || pageNumber;
+                else break;
+            }
+            const current = chapters[currentChapterIndex];
+            try {
+                await ReaderAccount.apiFetch("https://story-about-us-api.aichinose219.workers.dev/api/history", {
+                    method: "POST", headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ manga_id: title, chapter_number: Number(current.number), page_number: pageNumber })
+                });
+            } catch (error) { console.warn("Reading progress was not saved:", error); }
+        }
 
         async function handleChapterEnd() {
 
@@ -861,6 +897,7 @@
 
             pageWrapper.className =
                 "pdf-page";
+            pageWrapper.dataset.page = String(pageNumber);
 
 
 

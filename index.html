@@ -12,6 +12,7 @@
     <title>Story About Us</title>
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="account.js"></script>
 
     <style>
 
@@ -782,6 +783,17 @@
             }
         }
 
+    
+        .account-panel,.reading-history { margin: 0 0 22px; padding: 16px; border: 1px solid rgba(170,177,216,.17); border-radius: 18px; background: rgba(31,36,63,.82); }
+        .account-panel { display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; }
+        .account-panel-copy { display:flex; flex-direction:column; gap:5px; color:#f4f2fa; }
+        .account-panel-copy span { color:#999db8; font-size:13px; }
+        .account-actions { display:flex; gap:8px; flex-wrap:wrap; }
+        .account-actions button,.history-item { min-height:42px; padding:0 14px; border:0; border-radius:12px; background:linear-gradient(135deg,#a88bd0,#765c9d); color:white; font-weight:600; cursor:pointer; }
+        .account-actions #guestModeButton { background:rgba(79,85,124,.85); }
+        .reading-history h2 { margin:0 0 12px; color:#f4f2fa; font-family:Georgia,serif; font-size:22px; }
+        #readingHistoryList { display:grid; gap:8px; }
+        .history-item { width:100%; text-align:left; background:rgba(79,85,124,.72); }
     </style>
 </head>
 
@@ -801,6 +813,12 @@
 
 
     <main class="container">
+        <section class="account-panel" aria-label="Account and reading history">
+            <div class="account-panel-copy"><strong id="accountGreeting">Mode guest</strong><span id="accountHint">Progres baca tidak disimpan dalam mode guest.</span></div>
+            <div class="account-actions"><button id="telegramLoginButton" type="button">Login dengan Telegram</button><button id="guestModeButton" type="button">Lanjut sebagai guest</button></div>
+        </section>
+        <section id="readingHistory" class="reading-history" hidden><h2>Lanjutkan membaca</h2><div id="readingHistoryList"></div></section>
+
 
 
         <!-- =================================================
@@ -1777,6 +1795,59 @@
            START
         ===================================================== */
 
+
+        const accountGreeting = document.getElementById("accountGreeting");
+        const accountHint = document.getElementById("accountHint");
+        const loginButton = document.getElementById("telegramLoginButton");
+        const guestButton = document.getElementById("guestModeButton");
+        const readingHistory = document.getElementById("readingHistory");
+        const readingHistoryList = document.getElementById("readingHistoryList");
+
+        function paintAccount() {
+            if (ReaderAccount.authenticated) {
+                const user = ReaderAccount.user;
+                accountGreeting.textContent = `Login: ${[user.first_name, user.last_name].filter(Boolean).join(" ") || user.username || "Telegram"}`;
+                accountHint.textContent = "Progres baca tersimpan di akun Telegram Anda.";
+                readingHistory.hidden = false;
+                loadReadingHistory();
+            } else {
+                accountGreeting.textContent = "Mode guest";
+                accountHint.textContent = "Progres baca tidak disimpan dalam mode guest.";
+                readingHistory.hidden = true;
+            }
+        }
+
+        async function loadReadingHistory() {
+            try {
+                const response = await ReaderAccount.apiFetch("https://story-about-us-api.aichinose219.workers.dev/api/history");
+                if (!response.ok) throw new Error("Riwayat belum tersedia.");
+                const entries = await response.json();
+                readingHistoryList.replaceChildren();
+                for (const entry of entries) {
+                    const manga = mangaData.find(item => item.id === entry.manga_id);
+                    const button = document.createElement("button");
+                    button.type = "button";
+                    button.className = "history-item";
+                    button.textContent = `${manga?.title || formatTitle(entry.manga_id)} · Chapter ${entry.chapter_number} · Halaman ${entry.page_number}`;
+                    button.addEventListener("click", () => {
+                        location.href = `reader.html?title=${encodeURIComponent(entry.manga_id)}&chapter=${encodeURIComponent(entry.chapter_number)}&page=${encodeURIComponent(entry.page_number)}`;
+                    });
+                    readingHistoryList.appendChild(button);
+                }
+                if (!entries.length) readingHistoryList.textContent = "Belum ada progres membaca.";
+            } catch (error) {
+                readingHistoryList.textContent = error.message;
+            }
+        }
+
+        loginButton.addEventListener("click", async () => {
+            loginButton.disabled = true;
+            try { await ReaderAccount.login(); paintAccount(); }
+            catch (error) { accountHint.textContent = error.message; }
+            finally { loginButton.disabled = false; }
+        });
+        guestButton.addEventListener("click", () => { ReaderAccount.guest(); paintAccount(); });
+        ReaderAccount.init().then(paintAccount);
         loadManga();
 
     </script>
