@@ -802,6 +802,46 @@
         .account-tab { flex:1; min-height:40px; padding:8px 10px; border:0; border-radius:11px; color:#d7d4e5; background:transparent; font:inherit; cursor:pointer; }
         .account-tab.active { color:#fff; background:linear-gradient(135deg,#b783d1,#8866ad); }
         .last-read-label { margin:8px 0 18px; color:#d5c4e2; font-size:13px; text-align:center; }
+    
+        /* Penyesuaian grid manga */
+        .cover-wrapper {
+            aspect-ratio: 2 / 3;
+        }
+
+        .manga-cover {
+            object-fit: contain;
+            transition: none;
+        }
+
+        .manga-card:hover .manga-cover {
+            transform: none;
+        }
+
+        .manga-title {
+            font-size: 16px;
+            line-height: 1.25;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 3;
+            overflow: hidden;
+        }
+
+        @media (max-width: 480px) {
+            .cover-wrapper {
+                aspect-ratio: 2 / 3;
+            }
+
+            .manga-title {
+                font-size: 14px;
+                line-height: 1.25;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .manga-title {
+                font-size: 13px;
+            }
+        }
     </style>
 </head>
 
@@ -1875,3 +1915,4 @@
 
 </body>
 </html>
+
