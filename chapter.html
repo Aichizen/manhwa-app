@@ -1034,7 +1034,6 @@
     
         .comment-account-actions { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom:16px; color:#a3a4bd; font-size:13px; }
         .comment-account-actions button { min-height:38px; padding:0 12px; border:0; border-radius:10px; background:#765c9d; color:#fff; cursor:pointer; }
-        .comment-account-actions #commentGuestMode { background:#454b70; }
     </style>
 
 </head>
@@ -1201,7 +1200,7 @@
             </p>
 
 
-            <div class="comment-account-actions"><span id="commentAccountStatus">Guest: isi nama untuk berkomentar.</span><button id="commentTelegramLogin" type="button">Login dengan Telegram</button><button id="commentGuestMode" type="button">Mode guest</button></div>
+            <div class="comment-account-actions"><span id="commentAccountStatus">Mode guest: isi nama untuk berkomentar.</span><button id="commentTelegramLogin" type="button">Login dengan Telegram</button></div>
             <!-- COMMENT FORM -->
 
             <form
@@ -2650,23 +2649,17 @@
         const nameFieldGroup = document.getElementById("nameFieldGroup");
         const commentAccountStatus = document.getElementById("commentAccountStatus");
         const commentLoginButton = document.getElementById("commentTelegramLogin");
-        const commentGuestButton = document.getElementById("commentGuestMode");
         function paintCommentAccount() {
             const loggedIn = ReaderAccount.authenticated;
             nameFieldGroup.hidden = loggedIn;
             nameInput.required = !loggedIn;
             commentAccountStatus.textContent = loggedIn
                 ? `Komentar sebagai ${[ReaderAccount.user.first_name, ReaderAccount.user.last_name].filter(Boolean).join(" ") || ReaderAccount.user.username || "akun Telegram"}`
-                : "Guest: isi nama untuk berkomentar.";
+                : "Mode guest: isi nama untuk berkomentar.";
         }
         commentLoginButton.addEventListener("click", async () => {
             try { await ReaderAccount.login(); paintCommentAccount(); await loadComments(); }
             catch (error) { showCommentMessage(error.message, "error"); }
-        });
-        commentGuestButton.addEventListener("click", () => {
-            ReaderAccount.guest();
-            paintCommentAccount();
-            loadComments();
         });
         ReaderAccount.init().then(() => { paintCommentAccount(); loadComments(); });
 

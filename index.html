@@ -790,7 +790,6 @@
         .account-panel-copy span { color:#999db8; font-size:13px; }
         .account-actions { display:flex; gap:8px; flex-wrap:wrap; }
         .account-actions button,.history-item { min-height:42px; padding:0 14px; border:0; border-radius:12px; background:linear-gradient(135deg,#a88bd0,#765c9d); color:white; font-weight:600; cursor:pointer; }
-        .account-actions #guestModeButton { background:rgba(79,85,124,.85); }
         .reading-history h2 { margin:0 0 12px; color:#f4f2fa; font-family:Georgia,serif; font-size:22px; }
         #readingHistoryList { display:grid; gap:8px; }
         .history-item { width:100%; text-align:left; background:rgba(79,85,124,.72); }
@@ -815,7 +814,7 @@
     <main class="container">
         <section class="account-panel" aria-label="Account and reading history">
             <div class="account-panel-copy"><strong id="accountGreeting">Mode guest</strong><span id="accountHint">Progres baca tidak disimpan dalam mode guest.</span></div>
-            <div class="account-actions"><button id="telegramLoginButton" type="button">Login dengan Telegram</button><button id="guestModeButton" type="button">Lanjut sebagai guest</button></div>
+            <div class="account-actions"><button id="telegramLoginButton" type="button">Login dengan Telegram</button></div>
         </section>
         <section id="readingHistory" class="reading-history" hidden><h2>Lanjutkan membaca</h2><div id="readingHistoryList"></div></section>
 
@@ -1121,9 +1120,13 @@
 
 
                 mangaData =
-                    Array.isArray(data)
-                        ? data
-                        : [];
+                    (Array.isArray(data) ? data : []).map((manga) => {
+                        const id = String(manga.id || "");
+                        const title = String(manga.title || "").trim();
+                        return title && title.toLowerCase() !== id.toLowerCase()
+                            ? manga
+                            : { ...manga, title: formatTitle(id) };
+                    });
 
 
                 /*
@@ -1799,7 +1802,6 @@
         const accountGreeting = document.getElementById("accountGreeting");
         const accountHint = document.getElementById("accountHint");
         const loginButton = document.getElementById("telegramLoginButton");
-        const guestButton = document.getElementById("guestModeButton");
         const readingHistory = document.getElementById("readingHistory");
         const readingHistoryList = document.getElementById("readingHistoryList");
 
@@ -1846,7 +1848,6 @@
             catch (error) { accountHint.textContent = error.message; }
             finally { loginButton.disabled = false; }
         });
-        guestButton.addEventListener("click", () => { ReaderAccount.guest(); paintAccount(); });
         ReaderAccount.init().then(paintAccount);
         loadManga();
 
