@@ -22,8 +22,6 @@
     button:disabled { opacity:.65; cursor:wait; }
     #status { min-height:24px; margin:16px 0 0; color:var(--muted); white-space:pre-wrap; }
     #status.error { color:#ff9c9c; } #status.success { color:#95e0ad; }
-    .chapter-block { margin-top:22px; padding:16px; border:1px solid var(--line); border-radius:12px; background:rgba(255,255,255,.045); }
-    .chapter-block h2 { margin:0; font-size:17px; }
   </style>
 </head>
 <body>
@@ -31,30 +29,23 @@
     <a class="back" href="admin.html">← Back to Admin</a>
     <section class="panel">
       <h1>Add Manhwa</h1>
-      <p class="intro">ID dibuat otomatis dari title. Cover dan Chapter 1 wajib diunggah.</p>
+      <p class="intro">ID dibuat otomatis dari title. Isi judul, cover, dan deskripsi manhwa.</p>
       <form id="addMangaForm">
         <label for="adminToken">Admin token</label>
         <input id="adminToken" name="adminToken" type="password" autocomplete="off" required>
         <p class="hint">Gunakan secret <code>ADMIN_TOKEN</code> yang disetel di Cloudflare Worker.</p>
 
-        <label for="title">Title</label>
+        <label for="title">Judul</label>
         <input id="title" name="title" maxlength="120" required>
 
-        <label for="summary">Summary <span class="hint">(optional)</span></label>
+        <label for="summary">Deskripsi <span class="hint">(opsional)</span></label>
         <textarea id="summary" name="summary" maxlength="5000" placeholder="Tulis ringkasan cerita jika tersedia..."></textarea>
 
         <label for="cover">Cover</label>
         <input id="cover" name="cover" type="file" accept="image/jpeg,image/png,image/webp" required>
         <p class="hint">JPG, PNG, atau WebP; maksimal 8 MB.</p>
 
-        <div class="chapter-block">
-          <h2>Chapter 1</h2>
-          <label for="chapter1Pdf">PDF file</label>
-          <input id="chapter1Pdf" name="chapter1Pdf" type="file" accept="application/pdf,.pdf" required>
-          <p class="hint">File ini akan disimpan sebagai <code>001.pdf</code>; maksimal 50 MB.</p>
-        </div>
-
-        <button id="submitButton" type="submit">ADD MANHWA</button>
+        <button id="submitButton" type="submit">TAMBAH MANHWA</button>
         <p id="status" role="status" aria-live="polite"></p>
       </form>
     </section>
@@ -76,7 +67,7 @@
     form.addEventListener("submit", async event => {
       event.preventDefault();
       statusEl.className = "";
-      statusEl.textContent = "Menyimpan manhwa dan Chapter 1...";
+      statusEl.textContent = "Menyimpan manhwa...";
       submitButton.disabled = true;
       try {
         const formData = new FormData(form);
@@ -90,7 +81,7 @@
         const result = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(result.error || `Permintaan gagal (${response.status}).`);
         statusEl.className = result.broadcast?.ok ? "success" : "error";
-        statusEl.textContent = `${result.title || "Manhwa"} dan Chapter 1 berhasil ditambahkan. ${formatBroadcastStatus(result.broadcast)}`;
+        statusEl.textContent = `${result.title || "Manhwa"} berhasil ditambahkan. ${formatBroadcastStatus(result.broadcast)}`;
         form.reset();
       } catch (error) {
         statusEl.className = "error";

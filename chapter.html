@@ -1986,7 +1986,7 @@
                     button.onclick =
                         () => {
 
-                            if (!chapterNumber) {
+                            if (!Number.isFinite(chapterNumber) || chapterNumber < 0) {
                                 return;
                             }
 

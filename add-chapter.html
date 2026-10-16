@@ -190,7 +190,7 @@
               : number;
           })
           .filter(number => Number.isFinite(number) && number >= 0);
-        chapterNumber.value = String(numbers.length ? Math.max(...numbers) + 1 : 1);
+        chapterNumber.value = String(numbers.length ? Math.max(...numbers) + 1 : 0);
         chapterNumber.placeholder = "";
         updateChapterLabelHint();
         statusEl.textContent = "";
