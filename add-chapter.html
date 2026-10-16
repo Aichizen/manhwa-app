@@ -205,20 +205,6 @@
     });
     loadMangaList();
 
-    function summarizeBroadcasts(results) {
-      if (!results.length) return "Tidak ada hasil broadcast.";
-      const total = results.reduce((sum, item) => sum + (Number(item?.total) || 0), 0);
-      const sent = results.reduce((sum, item) => sum + (Number(item?.sent) || 0), 0);
-      const failed = results.reduce((sum, item) => sum + (Number(item?.failed) || 0), 0);
-      if (results.some(item => !item?.configured || item?.error)) {
-        const reason = results.find(item => item?.error)?.error || "Konfigurasi bot belum tersedia.";
-        return `Broadcast bermasalah: ${reason}`;
-      }
-      if (total === 0) return "Broadcast belum dikirim: belum ada pengguna yang pernah menekan /start.";
-      if (failed > 0) return `Broadcast sebagian gagal: ${sent}/${total} terkirim, ${failed} gagal.`;
-      return `Broadcast berhasil: ${sent}/${total} terkirim.`;
-    }
-
     form.addEventListener("submit", async event => {
       event.preventDefault();
       if (!sortedFiles.length) {
@@ -237,7 +223,6 @@
       const mangaId = mangaSelect.value;
       const statuses = sortedFiles.map(() => ({ label:"Menunggu", kind:"" }));
       let failed = [];
-      const broadcastResults = [];
       submitButton.disabled = true;
       submitButton.textContent = "MENGUNGGAH...";
       progressSection.hidden = false;
@@ -263,8 +248,7 @@
           });
           const result = await response.json().catch(() => ({}));
           if (!response.ok) throw new Error(result.error || `Permintaan gagal (${response.status}).`);
-          statuses[index] = { label:result.broadcast ? `Berhasil — ${result.broadcast.sent}/${result.broadcast.total} notifikasi terkirim` : "Berhasil", kind:"done" };
-          broadcastResults.push(result.broadcast);
+          statuses[index] = { label:"Berhasil", kind:"done" };
         } catch (error) {
           statuses[index] = { label:`Gagal: ${error.message || "Upload gagal"}`, kind:"failed" };
           failed.push(file.name);
@@ -281,14 +265,14 @@
         previewSection.hidden = true;
         fileInput.value = "";
         sortedFiles = [];
-        statusEl.className = broadcastResults.every(item => item?.ok) ? "success" : "error";
-        statusEl.textContent = `Upload berhasil. ${statuses.length} chapter berhasil diunggah. ${summarizeBroadcasts(broadcastResults)}`;
+        statusEl.className = "success";
+        statusEl.textContent = "Upload berhasil.";
         await setNextChapter(mangaId);
-        statusEl.className = broadcastResults.every(item => item?.ok) ? "success" : "error";
-        statusEl.textContent = `Upload berhasil. ${statuses.length} chapter berhasil diunggah. ${summarizeBroadcasts(broadcastResults)}`;
+        statusEl.className = "success";
+        statusEl.textContent = "Upload berhasil.";
       } else {
         statusEl.className = "error";
-        statusEl.textContent = `Sebagian upload gagal. Periksa daftar file berstatus gagal: ${failed.join(", ")}. File yang berhasil tidak perlu diunggah ulang. ${summarizeBroadcasts(broadcastResults)}`;
+        statusEl.textContent = `Sebagian upload gagal. Periksa daftar file berstatus gagal: ${failed.join(", ")}. File yang berhasil tidak perlu diunggah ulang.`;
       }
     });
   </script>
