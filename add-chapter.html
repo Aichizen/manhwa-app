@@ -92,6 +92,7 @@
     let selectionRequest = 0;
     let sortedFiles = [];
     let currentChapters = [];
+    let chapterNumberManuallyChanged = false;
 
     function sortFiles(files) {
       return [...files].sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric:true, sensitivity:"base" }));
@@ -160,6 +161,7 @@
 
     async function setNextChapter(mangaId) {
       const requestNumber = ++selectionRequest;
+      chapterNumberManuallyChanged = false;
       chapterNumber.value = "";
       currentChapters = [];
       updateChapterLabelHint();
@@ -201,6 +203,7 @@
     }
 
     mangaSelect.addEventListener("change", () => setNextChapter(mangaSelect.value));
+    chapterNumber.addEventListener("input", () => { chapterNumberManuallyChanged = true; });
     chapterLabelInput.addEventListener("input", updateChapterLabelHint);
     fileInput.addEventListener("change", () => {
       sortedFiles = sortFiles(fileInput.files);
@@ -247,6 +250,7 @@
           formData.append("pdfs", file, file.name);
           // Nomor reguler default terisi otomatis dan dapat diedit admin.
           formData.append("chapter", chapterNumber.value.trim());
+          formData.append("chapterAuto", chapterNumberManuallyChanged ? "false" : "true");
           formData.append("chapterLabel", chapterLabelInput.value.trim());
           const response = await fetch(`${API_BASE}/api/admin/chapter`, {
             method:"POST",
