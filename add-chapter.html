@@ -249,7 +249,8 @@
           formData.append("mangaId", mangaId);
           formData.append("pdfs", file, file.name);
           // Nomor reguler default terisi otomatis dan dapat diedit admin.
-          formData.append("chapter", chapterNumber.value.trim());
+          const startingChapter = Number(chapterNumber.value);
+          formData.append("chapter", String(startingChapter + index));
           formData.append("chapterAuto", chapterNumberManuallyChanged ? "false" : "true");
           formData.append("chapterLabel", chapterLabelInput.value.trim());
           const response = await fetch(`${API_BASE}/api/admin/chapter`, {
