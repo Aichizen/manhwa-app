@@ -19,6 +19,7 @@
     input[type=file] { padding:9px; }
     textarea { width:100%; min-height:130px; padding:12px 14px; border:1px solid var(--line); border-radius:10px; background:rgba(10,11,22,.76); color:var(--text); font:inherit; resize:vertical; }
     .hint { margin:5px 0 0; color:var(--muted); font-size:13px; }
+    .cover-preview { display:block; max-width:180px; max-height:240px; margin-top:10px; border-radius:10px; object-fit:contain; }
     button { padding:10px 14px; border:0; border-radius:9px; background:var(--accent); color:#20182b; font:700 14px system-ui,sans-serif; cursor:pointer; }
     button:disabled { opacity:.6; cursor:wait; }
     .token-button { width:100%; margin-top:18px; }
@@ -59,6 +60,10 @@
       <section id="descriptionSection" hidden>
         <label for="descriptionInput">Deskripsi manhwa</label>
         <textarea id="descriptionInput" maxlength="5000" placeholder="Tulis deskripsi manhwa..."></textarea>
+        <label for="coverInput">Ganti cover (opsional)</label>
+        <input id="coverInput" type="file" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp">
+        <p class="hint">Kosongkan jika cover tidak ingin diubah. Format JPG, PNG, atau WebP, maksimal 10 MB.</p>
+        <img id="coverPreview" class="cover-preview" alt="Cover manhwa saat ini" hidden>
         <button id="saveDescriptionButton" type="button" style="width:100%;margin-top:10px">SIMPAN</button>
       </section>
     </section>
@@ -72,6 +77,8 @@
     const chapterList = document.getElementById("chapterList");
     const descriptionSection = document.getElementById("descriptionSection");
     const descriptionInput = document.getElementById("descriptionInput");
+    const coverInput = document.getElementById("coverInput");
+    const coverPreview = document.getElementById("coverPreview");
     const saveDescriptionButton = document.getElementById("saveDescriptionButton");
 
     function setStatus(message, type = "") {
@@ -171,6 +178,9 @@
         const detail = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(detail.error || `Gagal memuat (${response.status}).`);
         descriptionInput.value = detail.summary || "";
+        coverPreview.src = detail.cover || "";
+        coverPreview.hidden = !detail.cover;
+        coverInput.value = "";
         descriptionSection.hidden = false;
         renderChapters(Array.isArray(detail.chapters) ? detail.chapters : []);
         setStatus(`${detail.chapters?.length || 0} chapter dimuat.`);
@@ -263,18 +273,26 @@
       const mangaId = mangaSelect.value;
       if (!mangaId) return setStatus("Pilih manhwa terlebih dahulu.", "error");
       if (!tokenInput.value.trim()) return setStatus("Masukkan admin token.", "error");
+      const coverFile = coverInput.files[0];
+      if (coverFile && (!/\.(jpe?g|png|webp)$/i.test(coverFile.name) || coverFile.size > 10 * 1024 * 1024)) {
+        return setStatus("Cover harus berupa JPG, PNG, atau WebP dengan ukuran maksimal 10 MB.", "error");
+      }
       saveDescriptionButton.disabled = true;
       setStatus("Menyimpan deskripsi...");
       try {
         const body = new FormData();
         body.append("mangaId", mangaId);
         body.append("summary", descriptionInput.value.trim());
+        if (coverFile) body.append("cover", coverFile, coverFile.name);
         const response = await fetch(`${API_BASE}/api/admin/manga/update`, {
           method:"POST", headers:{ Authorization:`Bearer ${tokenInput.value.trim()}` }, body
         });
         const result = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(result.error || `Gagal menyimpan (${response.status}).`);
-        setStatus("Deskripsi manhwa berhasil diperbarui.", "success");
+        if (result.cover) coverPreview.src = `${result.cover}${result.cover.includes("?") ? "&" : "?"}updated=${Date.now()}`;
+        coverPreview.hidden = !result.cover;
+        coverInput.value = "";
+        setStatus("Perubahan manhwa berhasil disimpan.", "success");
       } catch (error) {
         setStatus(error.message || "Tidak dapat menyimpan deskripsi.", "error");
       } finally {
