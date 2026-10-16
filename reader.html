@@ -499,11 +499,13 @@
         ========================================== */
 
         function updateHeader(chapterNumber) {
+            const chapterItem = chapters.find(item => Number(item.number) === Number(chapterNumber));
+            const displayChapter = chapterItem?.label || String(chapterNumber).split(".")[0];
 
             document.title =
                 title.replace(/-/g, " ") +
                 " - Chapter " +
-                chapterNumber;
+                displayChapter;
 
 
             document.getElementById(
@@ -520,7 +522,7 @@
                 "readerTitle"
             ).textContent =
                 "Chapter " +
-                String(chapterNumber);
+                displayChapter;
 
         }
 
