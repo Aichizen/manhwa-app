@@ -56,14 +56,6 @@
     const statusEl = document.getElementById("status");
     const submitButton = document.getElementById("submitButton");
 
-    function formatBroadcastStatus(broadcast) {
-      if (!broadcast) return "Status broadcast tidak tersedia.";
-      if (!broadcast.configured) return `Broadcast tidak terkirim: ${broadcast.error || "konfigurasi bot belum tersedia."}`;
-      if (broadcast.total === 0) return "Broadcast belum dikirim: belum ada pengguna yang pernah menekan /start.";
-      if (broadcast.failed > 0) return `Broadcast sebagian gagal: ${broadcast.sent}/${broadcast.total} terkirim, ${broadcast.failed} gagal.${broadcast.error ? ` ${broadcast.error}` : ""}`;
-      return `Broadcast berhasil: ${broadcast.sent}/${broadcast.total} terkirim.`;
-    }
-
     form.addEventListener("submit", async event => {
       event.preventDefault();
       statusEl.className = "";
@@ -80,8 +72,8 @@
         });
         const result = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(result.error || `Permintaan gagal (${response.status}).`);
-        statusEl.className = result.broadcast?.ok ? "success" : "error";
-        statusEl.textContent = `${result.title || "Manhwa"} berhasil ditambahkan. ${formatBroadcastStatus(result.broadcast)}`;
+        statusEl.className = "success";
+        statusEl.textContent = `${result.title || "Manhwa"} berhasil ditambahkan.`;
         form.reset();
       } catch (error) {
         statusEl.className = "error";
