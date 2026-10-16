@@ -1804,9 +1804,21 @@
             }
 
             const text = String(label);
-            return /^\d+(?:\.\d+)?$/.test(text)
-                ? text.replace(/^0+(?=\d)/, "")
-                : text;
+            if (/^\d+(?:\.\d+)?$/.test(text)) {
+                const normalized = text.replace(/^0+(?=\d)/, "");
+                // Older uploads after a special chapter inherited its .1 storage
+                // suffix (32.1, 33.1, ...). Keep the PDF key intact, but show the
+                // regular chapter number readers expect.
+                if (
+                    normalized.endsWith(".1") &&
+                    Array.isArray(chapters) &&
+                    chapters.some(item => item && typeof item === "object" && /^special\b/i.test(String(item.label || item.label_prefix || "")))
+                ) {
+                    return normalized.slice(0, -2);
+                }
+                return normalized;
+            }
+            return text;
         }
 
         /* =====================================================

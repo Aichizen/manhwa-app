@@ -179,7 +179,14 @@
         currentChapters = chapters;
         const numbers = chapters
           .filter(item => !String(item.label || "").trim())
-          .map(item => Number(item.number ?? item.chapter))
+          .map(item => {
+            const number = Number(item.number ?? item.chapter);
+            // Normalize legacy regular chapters stored as 32.1, 33.1, ...
+            // after a special upload back to their intended whole number.
+            return !String(item.label || "").trim() && Number.isFinite(number) && /\.1$/.test(String(number))
+              ? Math.floor(number)
+              : number;
+          })
           .filter(number => Number.isFinite(number) && number >= 0);
         chapterNumber.value = String(numbers.length ? Math.max(...numbers) + 1 : 1);
         chapterNumber.placeholder = "";
