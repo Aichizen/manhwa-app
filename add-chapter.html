@@ -50,8 +50,8 @@
         </select>
 
         <label for="chapterNumber">Chapter</label>
-        <input id="chapterNumber" name="chapter" type="text" inputmode="decimal" placeholder="Pilih manhwa terlebih dahulu" readonly required>
-        <p class="hint">Nomor ini adalah urutan file di storage dan selalu berlanjut dari chapter terakhir.</p>
+        <input id="chapterNumber" name="chapter" type="number" min="0" step="any" inputmode="decimal" placeholder="Pilih manhwa terlebih dahulu" required>
+        <p class="hint">Terisi otomatis dari chapter terakhir + 1. Anda bisa mengubahnya sebelum upload.</p>
 
         <label for="chapterLabel">Keterangan chapter (opsional)</label>
         <input id="chapterLabel" name="chapterLabel" type="text" maxlength="60" placeholder="Contoh: Side Story">
@@ -177,7 +177,10 @@
         if (requestNumber !== selectionRequest) return;
         const chapters = Array.isArray(detail) ? detail : (Array.isArray(detail.chapters) ? detail.chapters : []);
         currentChapters = chapters;
-        const numbers = chapters.map(item => Number(item.number ?? item.chapter)).filter(number => Number.isFinite(number) && number >= 0);
+        const numbers = chapters
+          .filter(item => !String(item.label || "").trim())
+          .map(item => Number(item.number ?? item.chapter))
+          .filter(number => Number.isFinite(number) && number >= 0);
         chapterNumber.value = String(numbers.length ? Math.max(...numbers) + 1 : 1);
         chapterNumber.placeholder = "";
         updateChapterLabelHint();
@@ -250,7 +253,7 @@
           const formData = new FormData();
           formData.append("mangaId", mangaId);
           formData.append("pdfs", file, file.name);
-          // Dikirim untuk kompatibilitas field chapter; Worker menentukan nomor dari metadata chapter.
+          // Nomor reguler default terisi otomatis dan dapat diedit admin.
           formData.append("chapter", chapterNumber.value.trim());
           formData.append("chapterLabel", chapterLabelInput.value.trim());
           const response = await fetch(`${API_BASE}/api/admin/chapter`, {
