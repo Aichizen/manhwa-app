@@ -58,9 +58,9 @@
           <option value="">Memuat daftar manhwa...</option>
         </select>
 
-        <label for="chapterNumber">Chapter</label>
+        <label for="chapterNumber">Chapter reguler berikutnya</label>
         <input id="chapterNumber" name="chapter" type="number" min="0" step="any" inputmode="decimal" placeholder="Pilih manhwa terlebih dahulu" required>
-        <p class="hint">Terisi otomatis dari chapter terakhir + 1. Anda bisa mengubahnya sebelum upload.</p>
+        <p class="hint">Terisi otomatis dari chapter reguler terakhir + 1. Jika keterangan diisi, nomor ini tidak digunakan.</p>
 
         <label for="chapterLabel">Keterangan chapter (opsional)</label>
         <input id="chapterLabel" name="chapterLabel" type="text" maxlength="60" placeholder="Contoh: Side Story">
@@ -190,8 +190,8 @@
       const count = Math.max(1, sortedFiles.length);
       const last = first + count - 1;
       chapterLabelHint.textContent = count > 1
-        ? `Label tampilan: ${prefix} ${first} – ${prefix} ${last}.`
-        : `Label tampilan berikutnya: ${prefix} ${first}.`;
+        ? `Urutan ${prefix} ini berdiri sendiri: ${prefix} ${first} – ${prefix} ${last}. Urutan keterangan lain tidak memengaruhinya.`
+        : `Urutan ${prefix} ini berdiri sendiri. Berikutnya: ${prefix} ${first}. Urutan keterangan lain tidak memengaruhinya.`;
     }
 
     async function loadMangaList() {

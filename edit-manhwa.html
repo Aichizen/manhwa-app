@@ -122,7 +122,7 @@
         top.className = "chapter-top";
         const title = document.createElement("strong");
         title.className = "chapter-title";
-        title.textContent = `Chapter ${String(chapter.chapter ?? number).replace(/^0+(?=\d)/, "")}`;
+        title.textContent = chapter.label || `Chapter ${String(chapter.chapter ?? number).replace(/^0+(?=\d)/, "")}`;
         const link = document.createElement("a");
         link.className = "chapter-link";
         link.href = chapter.url || (chapter.key ? `https://cdn.storyabout-us.com/${chapter.key}` : "#");
