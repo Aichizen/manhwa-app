@@ -30,6 +30,14 @@
     .file-state.uploading { color:var(--accent); }
     .file-state.done { color:#95e0ad; }
     .file-state.failed { color:#ff9c9c; }
+    .upload-results { margin-top:24px; padding-top:18px; border-top:1px solid var(--line); }
+    .upload-results h2 { margin:0 0 10px; font-size:18px; }
+    .result-list { list-style:none; padding:0; margin:0; display:grid; gap:8px; }
+    .result-item { padding:10px 12px; border:1px solid var(--line); border-radius:10px; background:rgba(10,11,22,.46); overflow-wrap:anywhere; }
+    .result-item.success { color:#95e0ad; }
+    .result-item.error { color:#ff9c9c; }
+    .result-name { display:block; color:var(--text); font-weight:650; }
+    .result-reason { display:block; margin-top:3px; }
     .progress-track { height:7px; margin-top:16px; overflow:hidden; border-radius:10px; background:rgba(255,255,255,.12); }
     .progress-bar { width:0; height:100%; background:var(--accent); transition:width .2s ease; }
     [hidden] { display:none !important; }
@@ -75,6 +83,10 @@
         <button id="cancelButton" type="button" hidden>CANCEL</button>
         <p id="status" role="status" aria-live="polite"></p>
       </form>
+      <section id="uploadResults" class="upload-results" aria-live="polite" hidden>
+        <h2>Hasil upload PDF</h2>
+        <ul id="resultList" class="result-list"></ul>
+      </section>
     </section>
   </main>
   <script>
@@ -94,6 +106,8 @@
     const submitButton = document.getElementById("submitButton");
     const retryButton = document.getElementById("retryButton");
     const cancelButton = document.getElementById("cancelButton");
+    const uploadResults = document.getElementById("uploadResults");
+    const resultList = document.getElementById("resultList");
     let selectionRequest = 0;
     let sortedFiles = [];
     let currentChapters = [];
@@ -122,6 +136,33 @@
         fileList.append(row);
       });
       previewSection.hidden = sortedFiles.length === 0;
+    }
+
+    function renderUploadResults() {
+      resultList.replaceChildren();
+      if (!fileStatuses.some(entry => entry.kind || entry.reason)) {
+        uploadResults.hidden = true;
+        return;
+      }
+      sortedFiles.forEach((file, index) => {
+        const entry = fileStatuses[index] || { label:"Belum diunggah", kind:"", reason:"" };
+        const item = document.createElement("li");
+        item.className = `result-item ${entry.kind === "done" ? "success" : entry.kind === "failed" ? "error" : ""}`;
+        const name = document.createElement("span");
+        name.className = "result-name";
+        name.textContent = file.name;
+        const result = document.createElement("span");
+        result.textContent = entry.kind === "done" ? "Berhasil di-upload" : entry.label || "Menunggu upload";
+        item.append(name, result);
+        if (entry.reason) {
+          const reason = document.createElement("span");
+          reason.className = "result-reason";
+          reason.textContent = `Keterangan: ${entry.reason}`;
+          item.append(reason);
+        }
+        resultList.append(item);
+      });
+      uploadResults.hidden = resultList.childElementCount === 0;
     }
 
     function formatMangaTitle(manga) {
@@ -217,6 +258,8 @@
       if (uploading) return;
       sortedFiles = sortFiles(fileInput.files);
       fileStatuses = sortedFiles.map(() => ({ label:"Menunggu", kind:"" }));
+      uploadResults.hidden = true;
+      resultList.replaceChildren();
       renderFileList();
       retryButton.hidden = true;
       updateChapterLabelHint();
@@ -263,12 +306,16 @@
         } catch (error) {
           if (error.name === "AbortError") {
             canceled = true;
-            fileStatuses[index] = { label:"Dibatalkan", kind:"failed" };
+            fileStatuses[index] = { label:"Dibatalkan", kind:"failed", reason:"Upload dibatalkan sebelum ada konfirmasi dari server. Coba ulang jika file belum tercatat." };
             break;
           }
-          fileStatuses[index] = { label:"Gagal", kind:"failed" };
+          const reason = error.message === "Failed to fetch"
+            ? "Tidak dapat terhubung ke server. Periksa koneksi internet lalu coba lagi."
+            : error.message || "Terjadi kesalahan yang tidak diketahui.";
+          fileStatuses[index] = { label:"Gagal di-upload", kind:"failed", reason };
         }
         renderFileList(fileStatuses);
+        renderUploadResults();
         const completed = fileStatuses.filter(item => item.kind === "done").length;
         const percent = Math.round((completed / sortedFiles.length) * 100);
         progressBar.style.width = `${percent}%`;
@@ -281,6 +328,12 @@
       submitButton.disabled = false;
       submitButton.textContent = "UPLOAD CHAPTER";
       const retryable = fileStatuses.some(item => item.kind === "failed");
+      if (canceled) {
+        fileStatuses.forEach(entry => {
+          if (!entry.kind) entry.reason = "Belum diunggah karena proses dibatalkan.";
+        });
+      }
+      renderUploadResults();
       retryButton.hidden = !retryable;
       if (canceled) {
         statusEl.className = "error";
@@ -310,8 +363,16 @@
       }
       const invalid = sortedFiles.find(file => !file.name.toLowerCase().endsWith(".pdf") || file.size > 50 * 1024 * 1024);
       if (invalid) {
+        const reason = !invalid.name.toLowerCase().endsWith(".pdf")
+          ? "Format file bukan PDF."
+          : "Ukuran file melebihi batas maksimal 50 MB.";
+        fileStatuses = sortedFiles.map(file => file === invalid
+          ? { label:"Gagal di-upload", kind:"failed", reason }
+          : { label:"Belum diunggah", kind:"", reason:"Tidak diproses karena ada file yang tidak memenuhi syarat." });
         statusEl.className = "error";
-        statusEl.textContent = `${invalid.name}: pastikan file berupa PDF dengan ukuran maksimal 50 MB.`;
+        statusEl.textContent = `${invalid.name}: ${reason}`;
+        renderFileList(fileStatuses);
+        renderUploadResults();
         return;
       }
 
