@@ -20,6 +20,7 @@
     .hint { margin:5px 0 0; color:var(--muted); font-size:13px; }
     button { width:100%; margin-top:24px; padding:13px 18px; border:0; border-radius:10px; background:var(--accent); color:#20182b; font:700 16px system-ui,sans-serif; cursor:pointer; }
     button:disabled { opacity:.65; cursor:wait; }
+    #cancelButton { background:rgba(255,255,255,.14); color:var(--text); }
     #status { min-height:24px; margin:16px 0 0; color:var(--muted); white-space:pre-wrap; }
     #status.error { color:#ff9c9c; } #status.success { color:#95e0ad; }
     .file-list { list-style:none; padding:0; margin:12px 0 0; display:grid; gap:8px; }
@@ -70,6 +71,8 @@
           </div>
         </div>
         <button id="submitButton" type="submit">UPLOAD CHAPTER</button>
+        <button id="retryButton" type="button" hidden>RE-UPLOAD FILE YANG GAGAL</button>
+        <button id="cancelButton" type="button" hidden>CANCEL</button>
         <p id="status" role="status" aria-live="polite"></p>
       </form>
     </section>
@@ -89,10 +92,15 @@
     const progressBar = document.getElementById("progressBar");
     const statusEl = document.getElementById("status");
     const submitButton = document.getElementById("submitButton");
+    const retryButton = document.getElementById("retryButton");
+    const cancelButton = document.getElementById("cancelButton");
     let selectionRequest = 0;
     let sortedFiles = [];
     let currentChapters = [];
     let chapterNumberManuallyChanged = false;
+    let uploadController = null;
+    let uploading = false;
+    let fileStatuses = [];
 
     function sortFiles(files) {
       return [...files].sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric:true, sensitivity:"base" }));
@@ -206,14 +214,92 @@
     chapterNumber.addEventListener("input", () => { chapterNumberManuallyChanged = true; });
     chapterLabelInput.addEventListener("input", updateChapterLabelHint);
     fileInput.addEventListener("change", () => {
+      if (uploading) return;
       sortedFiles = sortFiles(fileInput.files);
+      fileStatuses = sortedFiles.map(() => ({ label:"Menunggu", kind:"" }));
       renderFileList();
+      retryButton.hidden = true;
       updateChapterLabelHint();
       progressSection.hidden = true;
       statusEl.className = "";
       statusEl.textContent = "";
     });
     loadMangaList();
+
+    async function uploadFiles(indices) {
+      if (uploading || !sortedFiles.length) return;
+      uploading = true;
+      uploadController = new AbortController();
+      [fileInput, mangaSelect, chapterNumber, chapterLabelInput, document.getElementById("adminToken")].forEach(input => { input.disabled = true; });
+      submitButton.disabled = true;
+      submitButton.textContent = "MENGUNGGAH...";
+      cancelButton.hidden = false;
+      retryButton.hidden = true;
+      progressSection.hidden = false;
+      statusEl.className = "";
+      let canceled = false;
+      for (const index of indices) {
+        const file = sortedFiles[index];
+        fileStatuses[index] = { label:"Sedang diunggah...", kind:"uploading" };
+        renderFileList(fileStatuses);
+        statusEl.textContent = `Mengunggah ${index + 1} dari ${sortedFiles.length}: ${file.name}`;
+        try {
+          const formData = new FormData();
+          formData.append("mangaId", mangaSelect.value);
+          formData.append("pdfs", file, file.name);
+          const startingChapter = Number(chapterNumber.value);
+          formData.append("chapter", String(startingChapter + index));
+          formData.append("chapterAuto", chapterNumberManuallyChanged ? "false" : "true");
+          formData.append("chapterLabel", chapterLabelInput.value.trim());
+          const response = await fetch(`${API_BASE}/api/admin/chapter`, {
+            method:"POST",
+            headers:{ Authorization:`Bearer ${document.getElementById("adminToken").value}` },
+            body:formData,
+            signal:uploadController.signal
+          });
+          const result = await response.json().catch(() => ({}));
+          if (!response.ok) throw new Error(result.error || `Permintaan gagal (${response.status}).`);
+          fileStatuses[index] = { label:"Berhasil", kind:"done" };
+        } catch (error) {
+          if (error.name === "AbortError") {
+            canceled = true;
+            fileStatuses[index] = { label:"Dibatalkan", kind:"failed" };
+            break;
+          }
+          fileStatuses[index] = { label:"Gagal", kind:"failed" };
+        }
+        renderFileList(fileStatuses);
+        const completed = fileStatuses.filter(item => item.kind === "done").length;
+        const percent = Math.round((completed / sortedFiles.length) * 100);
+        progressBar.style.width = `${percent}%`;
+        progressTrack.setAttribute("aria-valuenow", String(percent));
+      }
+      uploading = false;
+      uploadController = null;
+      [fileInput, mangaSelect, chapterNumber, chapterLabelInput, document.getElementById("adminToken")].forEach(input => { input.disabled = false; });
+      cancelButton.hidden = true;
+      submitButton.disabled = false;
+      submitButton.textContent = "UPLOAD CHAPTER";
+      const retryable = fileStatuses.some(item => item.kind === "failed");
+      retryButton.hidden = !retryable;
+      if (canceled) {
+        statusEl.className = "error";
+        statusEl.textContent = "Upload dibatalkan. File yang belum berhasil bisa diunggah ulang.";
+      } else if (retryable) {
+        statusEl.className = "error";
+        statusEl.textContent = "Sebagian upload gagal. Tekan Upload ulang untuk mencoba file yang gagal.";
+      } else if (fileStatuses.length && fileStatuses.every(item => item.kind === "done")) {
+        previewSection.hidden = true;
+        fileInput.value = "";
+        sortedFiles = [];
+        fileStatuses = [];
+        statusEl.className = "success";
+        statusEl.textContent = "Upload berhasil.";
+        await setNextChapter(mangaSelect.value);
+        statusEl.className = "success";
+        statusEl.textContent = "Upload berhasil.";
+      }
+    }
 
     form.addEventListener("submit", async event => {
       event.preventDefault();
@@ -229,74 +315,12 @@
         return;
       }
 
-      const token = document.getElementById("adminToken").value;
-      const mangaId = mangaSelect.value;
-      const statuses = sortedFiles.map(() => ({ label:"Menunggu", kind:"" }));
-      let failed = [];
-      submitButton.disabled = true;
-      submitButton.textContent = "MENGUNGGAH...";
-      progressSection.hidden = false;
-      statusEl.className = "";
-      renderFileList(statuses);
-
-      for (let index = 0; index < sortedFiles.length; index++) {
-        const file = sortedFiles[index];
-        statuses[index] = { label:"Sedang diunggah...", kind:"uploading" };
-        renderFileList(statuses);
-        statusEl.textContent = `Mengunggah ${index + 1} dari ${sortedFiles.length}: ${file.name}`;
-        try {
-          const formData = new FormData();
-          formData.append("mangaId", mangaId);
-          formData.append("pdfs", file, file.name);
-          // Nomor reguler default terisi otomatis dan dapat diedit admin.
-          const startingChapter = Number(chapterNumber.value);
-          formData.append("chapter", String(startingChapter + index));
-          formData.append("chapterAuto", chapterNumberManuallyChanged ? "false" : "true");
-          formData.append("chapterLabel", chapterLabelInput.value.trim());
-          const response = await fetch(`${API_BASE}/api/admin/chapter`, {
-            method:"POST",
-            headers:{ Authorization:`Bearer ${token}` },
-            body:formData
-          });
-          const result = await response.json().catch(() => ({}));
-          if (!response.ok) throw new Error(result.error || `Permintaan gagal (${response.status}).`);
-          statuses[index] = { label:"Berhasil", kind:"done" };
-        } catch (error) {
-          statuses[index] = { label:"Gagal", kind:"failed" };
-          failed.push(file.name);
-        }
-        renderFileList(statuses);
-        const percent = Math.round(((index + 1) / sortedFiles.length) * 100);
-        progressBar.style.width = `${percent}%`;
-        progressTrack.setAttribute("aria-valuenow", String(percent));
-        if (failed.length) {
-          for (let pending = index + 1; pending < sortedFiles.length; pending++) {
-            statuses[pending] = { label:"Gagal", kind:"failed" };
-          }
-          renderFileList(statuses);
-          break;
-        }
-      }
-
-      submitButton.disabled = false;
-      submitButton.textContent = "UPLOAD CHAPTER";
-      if (failed.length === 0) {
-        previewSection.hidden = true;
-        fileInput.value = "";
-        sortedFiles = [];
-        statusEl.className = "success";
-        statusEl.textContent = "Upload berhasil.";
-        await setNextChapter(mangaId);
-        statusEl.className = "success";
-        statusEl.textContent = "Upload berhasil.";
-      } else {
-        statusEl.className = "error";
-        statusEl.textContent = "Gagal.";
-        await setNextChapter(mangaId);
-        statusEl.className = "error";
-        statusEl.textContent = "Gagal.";
-      }
+      if (!fileStatuses.length) fileStatuses = sortedFiles.map(() => ({ label:"Menunggu", kind:"" }));
+      await uploadFiles(sortedFiles.map((_, index) => index));
     });
+
+    retryButton.addEventListener("click", () => uploadFiles(fileStatuses.map((item, index) => item.kind === "failed" ? index : -1).filter(index => index >= 0)));
+    cancelButton.addEventListener("click", () => uploadController?.abort());
   </script>
 </body>
 </html>
