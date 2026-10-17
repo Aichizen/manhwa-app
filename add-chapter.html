@@ -262,7 +262,7 @@
           if (!response.ok) throw new Error(result.error || `Permintaan gagal (${response.status}).`);
           statuses[index] = { label:"Berhasil", kind:"done" };
         } catch (error) {
-          statuses[index] = { label:`Gagal: ${error.message || "Upload gagal"}`, kind:"failed" };
+          statuses[index] = { label:"Gagal", kind:"failed" };
           failed.push(file.name);
         }
         renderFileList(statuses);
@@ -271,7 +271,7 @@
         progressTrack.setAttribute("aria-valuenow", String(percent));
         if (failed.length) {
           for (let pending = index + 1; pending < sortedFiles.length; pending++) {
-            statuses[pending] = { label:"Dibatalkan — upload dihentikan setelah kegagalan", kind:"" };
+            statuses[pending] = { label:"Gagal", kind:"failed" };
           }
           renderFileList(statuses);
           break;
@@ -291,10 +291,10 @@
         statusEl.textContent = "Upload berhasil.";
       } else {
         statusEl.className = "error";
-        statusEl.textContent = `Upload dihentikan setelah file gagal: ${failed.join(", ")}. File berikutnya dibatalkan; file yang sudah berhasil tetap tersimpan.`;
+        statusEl.textContent = "Gagal.";
         await setNextChapter(mangaId);
         statusEl.className = "error";
-        statusEl.textContent = `Upload dihentikan setelah file gagal: ${failed.join(", ")}. File berikutnya dibatalkan; file yang sudah berhasil tetap tersimpan.`;
+        statusEl.textContent = "Gagal.";
       }
     });
   </script>
