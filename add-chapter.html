@@ -281,46 +281,42 @@
       progressSection.hidden = false;
       statusEl.className = "";
       let canceled = false;
-      for (const index of indices) {
-        const file = sortedFiles[index];
-        fileStatuses[index] = { label:"Sedang diunggah...", kind:"uploading" };
-        renderFileList(fileStatuses);
-        statusEl.textContent = `Mengunggah ${index + 1} dari ${sortedFiles.length}: ${file.name}`;
-        try {
-          const formData = new FormData();
-          formData.append("mangaId", mangaSelect.value);
-          formData.append("pdfs", file, file.name);
-          const startingChapter = Number(chapterNumber.value);
-          formData.append("chapter", String(startingChapter + index));
-          formData.append("chapterAuto", chapterNumberManuallyChanged ? "false" : "true");
-          formData.append("chapterLabel", chapterLabelInput.value.trim());
-          const response = await fetch(`${API_BASE}/api/admin/chapter`, {
-            method:"POST",
-            headers:{ Authorization:`Bearer ${document.getElementById("adminToken").value}` },
-            body:formData,
-            signal:uploadController.signal
-          });
-          const result = await response.json().catch(() => ({}));
-          if (!response.ok) throw new Error(result.error || `Permintaan gagal (${response.status}).`);
-          fileStatuses[index] = { label:"Berhasil", kind:"done" };
-        } catch (error) {
-          if (error.name === "AbortError") {
-            canceled = true;
-            fileStatuses[index] = { label:"Dibatalkan", kind:"failed", reason:"Upload dibatalkan sebelum ada konfirmasi dari server. Coba ulang jika file belum tercatat." };
-            break;
-          }
-          const reason = error.message === "Failed to fetch"
+      const batchIndices = [...indices];
+      batchIndices.forEach(index => { fileStatuses[index] = { label:"Sedang diunggah...", kind:"uploading" }; });
+      renderFileList(fileStatuses);
+      statusEl.textContent = `Mengunggah ${batchIndices.length} PDF dalam satu batch...`;
+      try {
+        const formData = new FormData();
+        formData.append("mangaId", mangaSelect.value);
+        const startingChapter = Number(chapterNumber.value);
+        formData.append("chapter", String(startingChapter + (batchIndices[0] || 0)));
+        formData.append("chapterAuto", chapterNumberManuallyChanged ? "false" : "true");
+        formData.append("chapterLabel", chapterLabelInput.value.trim());
+        batchIndices.forEach(index => formData.append("pdfs", sortedFiles[index], sortedFiles[index].name));
+        const response = await fetch(`${API_BASE}/api/admin/chapter`, {
+          method:"POST",
+          headers:{ Authorization:`Bearer ${document.getElementById("adminToken").value}` },
+          body:formData,
+          signal:uploadController.signal
+        });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(result.error || `Permintaan gagal (${response.status}).`);
+        batchIndices.forEach(index => { fileStatuses[index] = { label:"Berhasil", kind:"done" }; });
+      } catch (error) {
+        canceled = error.name === "AbortError";
+        const reason = canceled
+          ? "Upload dibatalkan sebelum ada konfirmasi dari server. Coba ulang jika file belum tercatat."
+          : error.message === "Failed to fetch"
             ? "Tidak dapat terhubung ke server. Periksa koneksi internet lalu coba lagi."
             : error.message || "Terjadi kesalahan yang tidak diketahui.";
-          fileStatuses[index] = { label:"Gagal di-upload", kind:"failed", reason };
-        }
-        renderFileList(fileStatuses);
-        renderUploadResults();
-        const completed = fileStatuses.filter(item => item.kind === "done").length;
-        const percent = Math.round((completed / sortedFiles.length) * 100);
-        progressBar.style.width = `${percent}%`;
-        progressTrack.setAttribute("aria-valuenow", String(percent));
+        batchIndices.forEach(index => { fileStatuses[index] = { label:canceled ? "Dibatalkan" : "Gagal di-upload", kind:"failed", reason }; });
       }
+      renderFileList(fileStatuses);
+      renderUploadResults();
+      const completed = fileStatuses.filter(item => item.kind === "done").length;
+      const percent = Math.round((completed / sortedFiles.length) * 100);
+      progressBar.style.width = `${percent}%`;
+      progressTrack.setAttribute("aria-valuenow", String(percent));
       uploading = false;
       uploadController = null;
       [fileInput, mangaSelect, chapterNumber, chapterLabelInput, document.getElementById("adminToken")].forEach(input => { input.disabled = false; });
