@@ -804,6 +804,12 @@
             overflow-wrap: anywhere;
         }
 
+        .comment-chapter {
+            color: #aeb1c9;
+            font-size: 12px;
+            margin-right: auto;
+        }
+
 
         .comment-rating {
 
@@ -1522,6 +1528,8 @@
 
         let chapters = [];
 
+        let loadedComments = [];
+
         let ascending = true;
 
         let selectedRating = 0;
@@ -1727,6 +1735,7 @@
 
 
                 renderChapters();
+                if (loadedComments.length) renderComments(loadedComments);
 
 
             } catch (err) {
@@ -2229,6 +2238,8 @@
                         ? data.comments
                         : [];
 
+                loadedComments = comments;
+
 
                 updateRatingSummary(comments);
 
@@ -2320,6 +2331,15 @@
                 name.className = "comment-name";
                 name.textContent = comment.username || comment.name || "Anonymous";
                 header.appendChild(name);
+
+                if (comment.chapter_number !== null && comment.chapter_number !== undefined && Number.isFinite(Number(comment.chapter_number))) {
+                    const chapter = chapters.find(item => Number(item.number ?? item.chapter) === Number(comment.chapter_number));
+                    const chapterText = chapter?.label || `Chapter ${String(comment.chapter_number).split(".")[0]}`;
+                    const chapterTag = document.createElement("span");
+                    chapterTag.className = "comment-chapter";
+                    chapterTag.textContent = `dari ${chapterText}`;
+                    header.appendChild(chapterTag);
+                }
 
                 const ratingNumber = Math.max(0, Math.min(5, Number(comment.rating) || 0));
                 if (ratingNumber > 0) {
@@ -2581,6 +2601,9 @@
         ReaderAccount.init().then(() => { paintCommentAccount(); loadComments(); });
 
         loadComments();
+        window.addEventListener("pageshow", event => {
+            if (event.persisted) loadComments();
+        });
 
     </script>
 

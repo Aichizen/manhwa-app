@@ -81,6 +81,7 @@
 
         .reader-title-area {
             min-width: 0;
+            flex: 1 1 auto;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -107,6 +108,63 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
+
+        .reader-comment-toggle {
+            flex: 0 0 auto;
+            margin-left: 10px;
+            padding: 9px 12px;
+            border: 1px solid rgba(212,177,255,.45);
+            border-radius: 12px;
+            background: #292d50;
+            color: #eadbff;
+            font: 600 13px system-ui, sans-serif;
+            cursor: pointer;
+        }
+
+        .reader-comment-panel {
+            position: fixed;
+            top: 82px;
+            left: 0;
+            right: 0;
+            z-index: 99998;
+            max-height: min(68vh, 520px);
+            overflow: auto;
+            padding: 16px;
+            background: rgba(18, 21, 43, .98);
+            border-bottom: 1px solid rgba(212,177,255,.35);
+            box-shadow: 0 12px 28px rgba(0,0,0,.5);
+            color: #f4f2fa;
+        }
+
+        .reader-comment-panel[hidden] { display: none; }
+        .reader-comment-heading { margin: 0 0 10px; font: 600 18px Georgia, serif; }
+        .reader-comment-account { margin: 0 0 10px; color: #bcb9cc; font-size: 13px; }
+        .reader-comment-account a { color: #d4b1ff; }
+        .reader-comment-field { display: block; margin: 12px 0 6px; font-size: 13px; color: #d2cfe0; }
+        .reader-comment-input {
+            display: block;
+            width: 100%;
+            padding: 11px 12px;
+            border: 1px solid rgba(255,255,255,.2);
+            border-radius: 10px;
+            background: #0d1022;
+            color: #fff;
+            font: 15px/1.5 system-ui, sans-serif;
+        }
+        textarea.reader-comment-input { min-height: 110px; resize: vertical; }
+        .reader-comment-submit {
+            margin-top: 12px;
+            padding: 11px 16px;
+            border: 0;
+            border-radius: 10px;
+            background: #d4b1ff;
+            color: #20182b;
+            font: 700 14px system-ui, sans-serif;
+        }
+        .reader-comment-submit:disabled { opacity: .6; }
+        .reader-comment-message { min-height: 20px; margin: 10px 0 0; color: #bcb9cc; font-size: 13px; }
+        .reader-comment-message.error { color: #ff9c9c; }
+        .reader-comment-message.success { color: #95e0ad; }
 
         #pdf-container {
             width: 100%;
@@ -250,7 +308,20 @@
 
         </div>
 
+        <button id="readerCommentToggle" class="reader-comment-toggle" type="button" aria-expanded="false" aria-controls="readerCommentPanel" hidden>Tap to comment</button>
+
     </header>
+
+    <section id="readerCommentPanel" class="reader-comment-panel" aria-label="Komentar chapter" hidden>
+        <h2 class="reader-comment-heading">Komentar chapter ini</h2>
+        <p id="readerCommentAccount" class="reader-comment-account"><span id="readerCommentAccountText"></span></p>
+        <form id="readerCommentForm">
+            <label class="reader-comment-field" for="readerCommentText">Komentar</label>
+            <textarea id="readerCommentText" class="reader-comment-input" maxlength="1000" placeholder="Tulis komentar tentang chapter ini..." required></textarea>
+            <button id="readerCommentSubmit" class="reader-comment-submit" type="submit">Kirim komentar</button>
+            <p id="readerCommentMessage" class="reader-comment-message" role="status" aria-live="polite"></p>
+        </form>
+    </section>
 
 
 
@@ -357,6 +428,101 @@
         let isLoadingChapter = false;
         let resumePage = Math.max(1, Number(params.get("page") || 1));
         let progressSaveTimer = null;
+        const commentToggle = document.getElementById("readerCommentToggle");
+        const commentPanel = document.getElementById("readerCommentPanel");
+        const commentForm = document.getElementById("readerCommentForm");
+        const commentText = document.getElementById("readerCommentText");
+        const commentSubmit = document.getElementById("readerCommentSubmit");
+        const commentMessage = document.getElementById("readerCommentMessage");
+        const commentAccountText = document.getElementById("readerCommentAccountText");
+        commentToggle.addEventListener("click", async () => {
+            if (!ReaderAccount.authenticated) {
+                if (!ReaderAccount.hasTelegramData) return;
+                commentToggle.disabled = true;
+                commentMessage.className = "reader-comment-message";
+                commentMessage.textContent = "Menghubungkan login Telegram...";
+                commentPanel.hidden = false;
+                commentToggle.setAttribute("aria-expanded", "true");
+                try {
+                    await ReaderAccount.login();
+                    paintReaderCommentAccount();
+                    commentMessage.className = "reader-comment-message";
+                    commentMessage.textContent = "";
+                    commentText.focus();
+                } catch (error) {
+                    commentMessage.className = "reader-comment-message error";
+                    commentMessage.textContent = error.message || "Login Telegram gagal.";
+                } finally {
+                    commentToggle.disabled = false;
+                }
+                return;
+            }
+            const opening = commentPanel.hidden;
+            commentPanel.hidden = !opening;
+            commentToggle.setAttribute("aria-expanded", String(opening));
+            if (opening) commentText.focus();
+        });
+
+        function paintReaderCommentAccount() {
+            const loggedIn = ReaderAccount.authenticated;
+            const displayName = [ReaderAccount.user?.first_name, ReaderAccount.user?.last_name].filter(Boolean).join(" ") || ReaderAccount.user?.username || "akun Telegram";
+            commentToggle.hidden = !loggedIn && !ReaderAccount.hasTelegramData;
+            commentToggle.textContent = loggedIn ? "Tap to comment" : "Login untuk komentar";
+            commentAccountText.textContent = loggedIn ? `Komentar sebagai ${displayName}.` : "Login Telegram diperlukan untuk mengirim komentar dari reader.";
+            if (!loggedIn) {
+                commentPanel.hidden = true;
+                commentToggle.setAttribute("aria-expanded", "false");
+            }
+        }
+
+        commentForm.addEventListener("submit", async event => {
+            event.preventDefault();
+            const text = commentText.value.trim();
+            if (!ReaderAccount.authenticated) {
+                commentMessage.className = "reader-comment-message error";
+                commentMessage.textContent = "Login Telegram diperlukan untuk mengirim komentar dari reader.";
+                return;
+            }
+            if (!text) {
+                commentMessage.className = "reader-comment-message error";
+                commentMessage.textContent = "Tulis komentar terlebih dahulu.";
+                return;
+            }
+            const currentChapter = chapters[currentChapterIndex];
+            if (!currentChapter) {
+                commentMessage.className = "reader-comment-message error";
+                commentMessage.textContent = "Data chapter belum siap.";
+                return;
+            }
+            commentSubmit.disabled = true;
+            commentSubmit.textContent = "Mengirim...";
+            commentMessage.className = "reader-comment-message";
+            commentMessage.textContent = "";
+            try {
+                const response = await ReaderAccount.apiFetch(`${API_BASE}/api/comments`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        manga_id: title,
+                        username: "",
+                        rating: 0,
+                        text,
+                        chapter_number: Number(currentChapter.number),
+                    }),
+                });
+                const result = await response.json().catch(() => ({}));
+                if (!response.ok || !result.success) throw new Error(result.error || "Komentar gagal dikirim.");
+                commentText.value = "";
+                commentMessage.className = "reader-comment-message success";
+                commentMessage.textContent = "Komentar terkirim dan akan muncul di daftar komentar judul.";
+            } catch (error) {
+                commentMessage.className = "reader-comment-message error";
+                commentMessage.textContent = error.message || "Komentar gagal dikirim.";
+            } finally {
+                commentSubmit.disabled = false;
+                commentSubmit.textContent = "Kirim komentar";
+            }
+        });
 
 
         /* ==========================================
@@ -386,6 +552,7 @@
 
             try {
                 await ReaderAccount.init();
+                paintReaderCommentAccount();
 
                 const chapterNumber =
                     parseFloat(chapter);
