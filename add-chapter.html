@@ -269,6 +269,13 @@
         const percent = Math.round(((index + 1) / sortedFiles.length) * 100);
         progressBar.style.width = `${percent}%`;
         progressTrack.setAttribute("aria-valuenow", String(percent));
+        if (failed.length) {
+          for (let pending = index + 1; pending < sortedFiles.length; pending++) {
+            statuses[pending] = { label:"Dibatalkan — upload dihentikan setelah kegagalan", kind:"" };
+          }
+          renderFileList(statuses);
+          break;
+        }
       }
 
       submitButton.disabled = false;
@@ -284,7 +291,10 @@
         statusEl.textContent = "Upload berhasil.";
       } else {
         statusEl.className = "error";
-        statusEl.textContent = `Sebagian upload gagal. Periksa daftar file berstatus gagal: ${failed.join(", ")}. File yang berhasil tidak perlu diunggah ulang.`;
+        statusEl.textContent = `Upload dihentikan setelah file gagal: ${failed.join(", ")}. File berikutnya dibatalkan; file yang sudah berhasil tetap tersimpan.`;
+        await setNextChapter(mangaId);
+        statusEl.className = "error";
+        statusEl.textContent = `Upload dihentikan setelah file gagal: ${failed.join(", ")}. File berikutnya dibatalkan; file yang sudah berhasil tetap tersimpan.`;
       }
     });
   </script>
