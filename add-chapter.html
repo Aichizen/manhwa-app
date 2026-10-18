@@ -284,34 +284,88 @@
       progressSection.hidden = false;
       statusEl.className = "";
       let canceled = false;
+      let broadcastNotice = "";
       const batchIndices = [...indices];
       batchIndices.forEach(index => { fileStatuses[index] = { label:"Sedang diunggah...", kind:"uploading" }; });
       renderFileList(fileStatuses);
-      statusEl.textContent = `Mengunggah ${batchIndices.length} PDF dalam satu batch...`;
+      statusEl.textContent = `Menyiapkan upload langsung ke penyimpanan untuk ${batchIndices.length} PDF...`;
       try {
-        const formData = new FormData();
-        formData.append("mangaId", mangaSelect.value);
+        const batchFiles = batchIndices.map(index => sortedFiles[index]);
+        for (const file of batchFiles) {
+          if (await file.slice(0, 5).text() !== "%PDF-") throw new Error(`"${file.name}" bukan PDF yang valid.`);
+        }
+
         const startingChapter = Number(chapterNumber.value);
-        formData.append("chapter", String(startingChapter + (batchIndices[0] || 0)));
-        formData.append("chapterAuto", chapterNumberManuallyChanged ? "false" : "true");
-        formData.append("chapterLabel", chapterLabelInput.value.trim());
-        formData.append("broadcast", document.getElementById("broadcastEnabled").checked ? "true" : "false");
-        batchIndices.forEach(index => formData.append("pdfs", sortedFiles[index], sortedFiles[index].name));
-        const response = await fetch(`${API_BASE}/api/admin/chapter`, {
+        const uploadHeaders = {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${document.getElementById("adminToken").value}`,
+        };
+        const planResponse = await fetch(`${API_BASE}/api/admin/chapter/upload-urls`, {
           method:"POST",
-          headers:{ Authorization:`Bearer ${document.getElementById("adminToken").value}` },
-          body:formData,
+          headers:uploadHeaders,
+          body:JSON.stringify({
+            mangaId:mangaSelect.value,
+            chapter:String(startingChapter + (batchIndices[0] || 0)),
+            chapterAuto:!chapterNumberManuallyChanged,
+            chapterLabel:chapterLabelInput.value.trim(),
+            broadcast:document.getElementById("broadcastEnabled").checked,
+            files:batchFiles.map(file => ({ name:file.name, size:file.size })),
+          }),
           signal:uploadController.signal
         });
-        const result = await response.json().catch(() => ({}));
-        if (!response.ok) throw new Error(result.error || `Permintaan gagal (${response.status}).`);
+        const plan = await planResponse.json().catch(() => ({}));
+        if (!planResponse.ok) throw new Error(plan.error || `Gagal menyiapkan upload (${planResponse.status}).`);
+
+        statusEl.textContent = `Mengunggah ${batchIndices.length} PDF langsung ke R2...`;
+        let nextUpload = 0;
+        let uploadFailure = null;
+        const uploadWorker = async () => {
+          while (nextUpload < plan.uploads.length && !uploadFailure) {
+            const uploadIndex = nextUpload++;
+            const upload = plan.uploads[uploadIndex];
+            const file = batchFiles[uploadIndex];
+            try {
+              const directResponse = await fetch(upload.uploadUrl, {
+                method:"PUT",
+                headers:{ "Content-Type":"application/pdf" },
+                body:file,
+                signal:uploadController.signal,
+              });
+              if (!directResponse.ok) throw new Error(`R2 gagal menerima ${file.name} (${directResponse.status}).`);
+              fileStatuses[batchIndices[uploadIndex]] = { label:"Terkirim ke R2, menyimpan data...", kind:"uploading" };
+              renderFileList(fileStatuses);
+            } catch (error) {
+              if (!uploadFailure) uploadFailure = error;
+              uploadController.abort();
+            }
+          }
+        };
+        await Promise.all(Array.from({ length:Math.min(3, plan.uploads.length) }, () => uploadWorker()));
+        if (uploadFailure) throw uploadFailure;
+
+        const finalizeResponse = await fetch(`${API_BASE}/api/admin/chapter/finalize-upload`, {
+          method:"POST",
+          headers:uploadHeaders,
+          body:JSON.stringify({
+            mangaId:mangaSelect.value,
+            broadcast:plan.broadcast,
+            uploads:plan.uploads.map(({ name, number, filename, key, label, label_prefix, label_sequence }) => ({
+              name, number, filename, key, label, label_prefix, label_sequence,
+            })),
+          }),
+          signal:uploadController.signal,
+        });
+        const result = await finalizeResponse.json().catch(() => ({}));
+        if (!finalizeResponse.ok) throw new Error(result.error || `Gagal menyimpan data chapter (${finalizeResponse.status}).`);
+        if (result.broadcast?.queued) broadcastNotice = " Notifikasi sedang dikirim bertahap.";
+        else if (result.broadcast?.error) broadcastNotice = " Notifikasi gagal masuk antrean.";
         batchIndices.forEach(index => { fileStatuses[index] = { label:"Berhasil", kind:"done" }; });
       } catch (error) {
         canceled = error.name === "AbortError";
         const reason = canceled
           ? "Upload dibatalkan sebelum ada konfirmasi dari server. Coba ulang jika file belum tercatat."
           : error.message === "Failed to fetch"
-            ? "Tidak dapat terhubung ke server. Periksa koneksi internet lalu coba lagi."
+            ? "Upload langsung ke R2 gagal. Periksa CORS bucket dan koneksi internet lalu coba lagi."
             : error.message || "Terjadi kesalahan yang tidak diketahui.";
         batchIndices.forEach(index => { fileStatuses[index] = { label:canceled ? "Dibatalkan" : "Gagal di-upload", kind:"failed", reason }; });
       }
@@ -347,10 +401,10 @@
         sortedFiles = [];
         fileStatuses = [];
         statusEl.className = "success";
-        statusEl.textContent = "Upload berhasil.";
+        statusEl.textContent = `Upload berhasil.${broadcastNotice}`;
         await setNextChapter(mangaSelect.value);
         statusEl.className = "success";
-        statusEl.textContent = "Upload berhasil.";
+        statusEl.textContent = `Upload berhasil.${broadcastNotice}`;
       }
     }
 
