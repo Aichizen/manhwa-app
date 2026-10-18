@@ -330,9 +330,25 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
             overflow: hidden;
             border-radius: 14px;
         }
+
+        .ad-action-button {
+            min-height: 42px;
+            padding: 0 16px;
+            border: 1px solid rgba(184, 173, 225, .25);
+            border-radius: 12px;
+            background: rgba(55, 61, 96, .78);
+            color: #ddd7ee;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .ad-action-button:disabled { opacity: .6; cursor: wait; }
+        .ad-status { flex-basis: 100%; min-height: 18px; color: #a3a4bd; font-size: 12px; text-align: center; }
 
 
         /* =====================================================
@@ -999,8 +1015,12 @@
 
 
         <!-- =================================================
-             AD
+             OPTIONAL REWARDED AD
         ================================================== -->
+        <div class="ad-slot" aria-label="Optional rewarded advertisement">
+            <button id="watchHomeAd" class="ad-action-button" type="button">Watch an ad to support the site</button>
+            <span id="homeAdStatus" class="ad-status" role="status" aria-live="polite"></span>
+        </div>
 
         <!-- =================================================
              MANGA LIST
@@ -1983,6 +2003,38 @@
         accountTabs.addEventListener("click", event => {
             const button = event.target.closest("[data-view]");
             if (button && activeView === "last-read") loadReadingHistory();
+        });
+
+        const watchHomeAdButton = document.getElementById("watchHomeAd");
+        const homeAdStatus = document.getElementById("homeAdStatus");
+        if (typeof window.show_12033217 === "function") {
+            window.show_12033217({
+                type: "inApp",
+                inAppSettings: {
+                    frequency: 2,
+                    capping: 0.1,
+                    interval: 30,
+                    timeout: 5,
+                    everyPage: false,
+                },
+            }).catch(() => {});
+        }
+
+        watchHomeAdButton.addEventListener("click", async () => {
+            if (typeof window.show_12033217 !== "function") {
+                homeAdStatus.textContent = "The ad is not ready yet. Please try again shortly.";
+                return;
+            }
+            watchHomeAdButton.disabled = true;
+            homeAdStatus.textContent = "Loading ad...";
+            try {
+                await window.show_12033217();
+                homeAdStatus.textContent = "Ad closed. Thanks for supporting the site.";
+            } catch (error) {
+                homeAdStatus.textContent = "No ad is available right now. Please try again later.";
+            } finally {
+                watchHomeAdButton.disabled = false;
+            }
         });
 
         loginButton.addEventListener("click", async () => {

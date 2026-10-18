@@ -985,9 +985,25 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
             overflow: hidden;
             border-radius: 14px;
         }
+
+        .ad-action-button {
+            min-height: 42px;
+            padding: 0 16px;
+            border: 1px solid rgba(184, 173, 225, .25);
+            border-radius: 12px;
+            background: rgba(55, 61, 96, .78);
+            color: #ddd7ee;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .ad-action-button:disabled { opacity: .6; cursor: wait; }
+        .ad-status { flex-basis: 100%; min-height: 18px; color: #858aa5; font-size: 12px; text-align: center; }
 
 
         /* =====================================================
@@ -1165,8 +1181,13 @@
 
 
         <!-- =================================================
-             AD
+             OPTIONAL REWARDED ADS
         ================================================== -->
+        <div class="ad-slot" aria-label="Optional rewarded advertisements">
+            <button id="watchChapterInterstitial" class="ad-action-button" type="button">Watch an ad to support the site</button>
+            <button id="watchChapterPopup" class="ad-action-button" type="button">Open a sponsor page</button>
+            <span id="chapterAdStatus" class="ad-status" role="status" aria-live="polite"></span>
+        </div>
 
         <!-- =================================================
              CHAPTERS
@@ -2642,6 +2663,44 @@
             try { await ReaderAccount.login(); paintCommentAccount(); await loadComments(); }
             catch (error) { showCommentMessage(error.message, "error"); }
         });
+
+        const chapterAdStatus = document.getElementById("chapterAdStatus");
+        const chapterInterstitialButton = document.getElementById("watchChapterInterstitial");
+        chapterInterstitialButton.addEventListener("click", async () => {
+            if (typeof window.show_12033217 !== "function") {
+                chapterAdStatus.textContent = "The ad is not ready yet. Please try again shortly.";
+                return;
+            }
+            chapterInterstitialButton.disabled = true;
+            chapterAdStatus.textContent = "Loading ad...";
+            try {
+                await window.show_12033217();
+                chapterAdStatus.textContent = "Ad closed. Thanks for supporting the site.";
+            } catch (error) {
+                chapterAdStatus.textContent = "No ad is available right now. Please try again later.";
+            } finally {
+                chapterInterstitialButton.disabled = false;
+            }
+        });
+
+        const chapterPopupButton = document.getElementById("watchChapterPopup");
+        chapterPopupButton.addEventListener("click", async () => {
+            if (typeof window.show_12033217 !== "function") {
+                chapterAdStatus.textContent = "The ad is not ready yet. Please try again shortly.";
+                return;
+            }
+            chapterPopupButton.disabled = true;
+            chapterAdStatus.textContent = "Opening sponsor page...";
+            try {
+                await window.show_12033217({ type: "pop" });
+                chapterAdStatus.textContent = "Sponsor page opened. Thanks for your support.";
+            } catch (error) {
+                chapterAdStatus.textContent = "The sponsor page could not be opened. Please try again later.";
+            } finally {
+                chapterPopupButton.disabled = false;
+            }
+        });
+
         ReaderAccount.init().then(() => { paintCommentAccount(); loadComments(); });
 
         loadComments();
