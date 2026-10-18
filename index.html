@@ -510,6 +510,22 @@
         }
 
 
+        .manga-card.status-end {
+            border-color: rgba(193,151,105,.42);
+            background: linear-gradient(145deg, rgba(64,58,53,.96), rgba(52,48,68,.96));
+        }
+
+        .manga-card.status-end-season {
+            border-color: rgba(143,130,177,.46);
+            background: linear-gradient(145deg, rgba(57,54,70,.96), rgba(48,48,68,.96));
+        }
+
+        .manga-card.status-hiatus {
+            border-color: rgba(112,151,157,.44);
+            background: linear-gradient(145deg, rgba(48,62,67,.96), rgba(46,51,70,.96));
+        }
+
+
         .manga-card:hover {
             transform:
                 translateY(-3px);
@@ -1605,6 +1621,11 @@
 
             card.className =
                 "manga-card";
+
+            const cardStatus = ["end", "end-season", "hiatus"].includes(manga.status)
+                ? manga.status
+                : "ongoing";
+            if (cardStatus !== "ongoing") card.classList.add(`status-${cardStatus}`);
 
 
             card.onclick =
