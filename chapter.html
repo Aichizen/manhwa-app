@@ -2000,11 +2000,15 @@
                             );
 
 
-                        return ascending
+                        const uploadedA = Number(a && typeof a === "object" ? a.uploaded_at : 0) || 0;
+                        const uploadedB = Number(b && typeof b === "object" ? b.uploaded_at : 0) || 0;
+                        let order;
+                        if (uploadedA && uploadedB) order = uploadedA - uploadedB;
+                        else if (uploadedA) order = 1;
+                        else if (uploadedB) order = -1;
+                        else order = numberA - numberB;
 
-                            ? numberA - numberB
-
-                            : numberB - numberA;
+                        return ascending ? order : -order;
                     }
                 );
 
