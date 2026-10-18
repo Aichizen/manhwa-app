@@ -428,6 +428,10 @@
         let isLoadingChapter = false;
         let resumePage = Math.max(1, Number(params.get("page") || 1));
         let progressSaveTimer = null;
+        let pageRenderObserver = null;
+        let activePdfDocument = null;
+        let pendingPageRenders = new Set();
+        let renderingPage = false;
         const commentToggle = document.getElementById("readerCommentToggle");
         const commentPanel = document.getElementById("readerCommentPanel");
         const commentForm = document.getElementById("readerCommentForm");
@@ -941,6 +945,14 @@
 
 
             container.innerHTML = "";
+            if (pageRenderObserver) pageRenderObserver.disconnect();
+            pageRenderObserver = null;
+            pendingPageRenders = new Set();
+            activePdfDocument = null;
+            renderingPage = false;
+            const loading = document.getElementById("loading");
+            loading.style.display = "flex";
+            loading.querySelector("p").textContent = "Memuat halaman pertama...";
 
 
             try {
@@ -955,6 +967,7 @@
 
                 const pdf =
                     await loadingTask.promise;
+                activePdfDocument = pdf;
 
 
                 console.log(
@@ -963,26 +976,38 @@
                 );
 
 
-                /* ==============================
-                   RENDER SEMUA HALAMAN
-                ============================== */
+                const firstPage = await pdf.getPage(1);
+                const firstViewport = firstPage.getViewport({ scale: 1 });
+                const pageRatio = firstViewport.width / firstViewport.height;
+                const pageSlots = [];
 
-                for (
-                    let pageNumber = 1;
-                    pageNumber <= pdf.numPages;
-                    pageNumber++
-                ) {
-
-                    await renderPage(
-                        pdf,
-                        pageNumber,
-                        container
-                    );
-
+                for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
+                    const slot = document.createElement("div");
+                    slot.className = "pdf-page";
+                    slot.dataset.page = String(pageNumber);
+                    slot.dataset.rendered = "false";
+                    slot.style.aspectRatio = String(pageRatio);
+                    container.appendChild(slot);
+                    pageSlots.push(slot);
                 }
 
-
+                await renderPage(pdf, 1, container, pageSlots[0], firstPage);
                 hideLoading();
+
+                if ("IntersectionObserver" in window) {
+                    pageRenderObserver = new IntersectionObserver(entries => {
+                        for (const entry of entries) {
+                            if (!entry.isIntersecting) continue;
+                            const pageNumber = Number(entry.target.dataset.page);
+                            if (entry.target.dataset.rendered === "false") pendingPageRenders.add(pageNumber);
+                        }
+                        renderPendingPages(pageSlots);
+                    }, { rootMargin: "1200px 0px", threshold: 0 });
+                    pageSlots.slice(1).forEach(slot => pageRenderObserver.observe(slot));
+                } else {
+                    pageSlots.slice(1).forEach(slot => pendingPageRenders.add(Number(slot.dataset.page)));
+                    renderPendingPages(pageSlots);
+                }
 
 
             } catch (error) {
@@ -1010,13 +1035,12 @@
         async function renderPage(
             pdf,
             pageNumber,
-            container
+            container,
+            pageWrapper,
+            suppliedPage
         ) {
 
-            const page =
-                await pdf.getPage(
-                    pageNumber
-                );
+            const page = suppliedPage || await pdf.getPage(pageNumber);
 
 
             /* ==============================
@@ -1058,18 +1082,6 @@
                WRAPPER HALAMAN
             ============================== */
 
-            const pageWrapper =
-                document.createElement(
-                    "div"
-                );
-
-
-            pageWrapper.className =
-                "pdf-page";
-            pageWrapper.dataset.page = String(pageNumber);
-
-
-
             /* ==============================
                CANVAS
             ============================== */
@@ -1103,14 +1115,9 @@
 
 
 
-            pageWrapper.appendChild(
-                canvas
-            );
-
-
-            container.appendChild(
-                pageWrapper
-            );
+            pageWrapper.replaceChildren(canvas);
+            pageWrapper.dataset.rendered = "true";
+            pageWrapper.style.aspectRatio = "auto";
 
 
 
@@ -1128,6 +1135,25 @@
 
             }).promise;
 
+        }
+
+        async function renderPendingPages(pageSlots) {
+            if (renderingPage || !activePdfDocument) return;
+            renderingPage = true;
+            try {
+                while (pendingPageRenders.size) {
+                    const pageNumber = Math.min(...pendingPageRenders);
+                    pendingPageRenders.delete(pageNumber);
+                    const slot = pageSlots[pageNumber - 1];
+                    if (!slot || slot.dataset.rendered !== "false") continue;
+                    await renderPage(activePdfDocument, pageNumber, document.getElementById("pdf-container"), slot);
+                }
+            } catch (error) {
+                console.error("PDF page render failed:", error);
+                showError("Sebagian halaman PDF tidak dapat dirender. Muat ulang reader untuk mencoba lagi.");
+            } finally {
+                renderingPage = false;
+            }
         }
 
 
