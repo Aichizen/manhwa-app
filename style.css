@@ -661,6 +661,33 @@ body {
         box-shadow 0.18s ease;
 }
 
+.manga-card.manga-card-status-end {
+    border-color: rgba(193, 151, 105, 0.42);
+    background: linear-gradient(145deg, #403a35 0%, #343044 100%);
+}
+
+.manga-card.manga-card-status-end-season {
+    border-color: rgba(143, 130, 177, 0.46);
+    background: linear-gradient(145deg, #393646 0%, #303044 100%);
+}
+
+.manga-card.manga-card-status-hiatus {
+    border-color: rgba(112, 151, 157, 0.44);
+    background: linear-gradient(145deg, #303e43 0%, #2e3346 100%);
+}
+
+.manga-card.manga-card-status-end:hover {
+    border-color: rgba(210, 173, 130, 0.64);
+}
+
+.manga-card.manga-card-status-end-season:hover {
+    border-color: rgba(166, 153, 197, 0.68);
+}
+
+.manga-card.manga-card-status-hiatus:hover {
+    border-color: rgba(135, 174, 178, 0.66);
+}
+
 
 .manga-card:hover {
 

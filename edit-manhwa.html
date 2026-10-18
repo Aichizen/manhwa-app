@@ -58,6 +58,14 @@
       <p id="status" role="status" aria-live="polite"></p>
       <section id="chapterList" class="chapter-list" aria-label="Daftar chapter"></section>
       <section id="descriptionSection" hidden>
+        <label for="statusInput">Status cerita</label>
+        <select id="statusInput">
+          <option value="ongoing">Ongoing</option>
+          <option value="end">End</option>
+          <option value="end-season">End Season</option>
+          <option value="hiatus">Hiatus</option>
+        </select>
+        <p class="hint">Manhwa tanpa status tersimpan dianggap ongoing.</p>
         <label for="descriptionInput">Deskripsi manhwa</label>
         <textarea id="descriptionInput" maxlength="5000" placeholder="Tulis deskripsi manhwa..."></textarea>
         <label for="coverInput">Ganti cover (opsional)</label>
@@ -77,6 +85,7 @@
     const chapterList = document.getElementById("chapterList");
     const descriptionSection = document.getElementById("descriptionSection");
     const descriptionInput = document.getElementById("descriptionInput");
+    const statusInput = document.getElementById("statusInput");
     const coverInput = document.getElementById("coverInput");
     const coverPreview = document.getElementById("coverPreview");
     const saveDescriptionButton = document.getElementById("saveDescriptionButton");
@@ -170,6 +179,7 @@
         const detail = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(detail.error || `Gagal memuat (${response.status}).`);
         descriptionInput.value = detail.summary || "";
+        statusInput.value = ["end", "end-season", "hiatus"].includes(detail.status) ? detail.status : "ongoing";
         coverPreview.src = detail.cover || "";
         coverPreview.hidden = !detail.cover;
         coverInput.value = "";
@@ -275,6 +285,7 @@
         const body = new FormData();
         body.append("mangaId", mangaId);
         body.append("summary", descriptionInput.value.trim());
+        body.append("status", ["ongoing", "end", "end-season", "hiatus"].includes(statusInput.value) ? statusInput.value : "ongoing");
         if (coverFile) body.append("cover", coverFile, coverFile.name);
         const response = await fetch(`${API_BASE}/api/admin/manga/update`, {
           method:"POST", headers:{ Authorization:`Bearer ${tokenInput.value.trim()}` }, body

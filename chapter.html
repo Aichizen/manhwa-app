@@ -228,6 +228,39 @@
             overflow-wrap: anywhere;
         }
 
+        .story-status {
+            display: inline-flex;
+            align-items: center;
+            margin-top: 10px;
+            padding: 4px 11px;
+            border: 1px solid rgba(137, 220, 160, .42);
+            border-radius: 999px;
+            color: #a9e8b7;
+            background: rgba(44, 112, 68, .2);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: .04em;
+            text-transform: uppercase;
+        }
+
+        .story-status.end {
+            border-color: rgba(255, 190, 116, .5);
+            color: #ffd19a;
+            background: rgba(150, 83, 28, .22);
+        }
+
+        .story-status.end-season {
+            border-color: rgba(166, 153, 197, .5);
+            color: #c5badf;
+            background: rgba(90, 79, 119, .25);
+        }
+
+        .story-status.hiatus {
+            border-color: rgba(135, 174, 178, .48);
+            color: #a8c8ca;
+            background: rgba(52, 101, 105, .24);
+        }
+
 
         .rating-summary {
             display: flex;
@@ -1111,6 +1144,8 @@
                 Loading...
             </h2>
 
+            <span id="storyStatus" class="story-status">Ongoing</span>
+
             <div class="rating-summary" aria-label="Community rating">
                 <span id="ratingStars" class="rating-stars" aria-hidden="true">☆☆☆☆☆</span>
                 <span id="ratingScore" class="rating-score">—</span>
@@ -1435,6 +1470,8 @@
                 "mainTitle"
             );
 
+        const storyStatus = document.getElementById("storyStatus");
+
 
         const cover =
             document.getElementById(
@@ -1628,6 +1665,17 @@
 
                 mainTitle.textContent =
                     title;
+
+                const statusLabels = {
+                    ongoing: "Ongoing",
+                    end: "End",
+                    "end-season": "End Season",
+                    hiatus: "Hiatus",
+                };
+                const storyStatusValue = statusLabels[manga.status] ? manga.status : "ongoing";
+                storyStatus.textContent = statusLabels[storyStatusValue];
+                storyStatus.classList.remove("end", "end-season", "hiatus");
+                if (storyStatusValue !== "ongoing") storyStatus.classList.add(storyStatusValue);
 
 
                 if (manga.cover) {
