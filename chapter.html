@@ -2002,8 +2002,18 @@
 
                         const uploadedA = Number(a && typeof a === "object" ? a.uploaded_at : 0) || 0;
                         const uploadedB = Number(b && typeof b === "object" ? b.uploaded_at : 0) || 0;
+                        const labelPrefix = chapter => {
+                            if (!chapter || typeof chapter !== "object") return "";
+                            if (chapter.label_prefix) return String(chapter.label_prefix).trim().toLowerCase();
+                            return String(chapter.label || "").replace(/\s+\d+$/, "").trim().toLowerCase();
+                        };
+                        const prefixA = labelPrefix(a);
+                        const prefixB = labelPrefix(b);
+                        const sequenceA = Number(a && typeof a === "object" ? a.label_sequence : 0) || 0;
+                        const sequenceB = Number(b && typeof b === "object" ? b.label_sequence : 0) || 0;
                         let order;
-                        if (uploadedA && uploadedB) order = uploadedA - uploadedB;
+                        if (prefixA && prefixA === prefixB && sequenceA && sequenceB) order = sequenceA - sequenceB;
+                        else if (uploadedA && uploadedB) order = uploadedA - uploadedB;
                         else if (uploadedA) order = 1;
                         else if (uploadedB) order = -1;
                         else order = numberA - numberB;
