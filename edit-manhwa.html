@@ -48,7 +48,7 @@
     <a class="back" href="admin.html">← Kembali ke Admin</a>
     <section class="panel">
       <h1>Edit Manhwa</h1>
-      <p class="intro">Pilih manhwa untuk mengganti file PDF atau menghapus chapter.</p>
+      <p class="intro">Pilih manhwa untuk mengubah detail, mengganti PDF, atau menghapus chapter.</p>
       <label for="adminToken">Admin token</label>
       <input id="adminToken" type="password" autocomplete="off" required>
       <label for="mangaSelect">Manhwa</label>
@@ -58,8 +58,11 @@
       <button id="loadButton" class="token-button" type="button">TAMPILKAN CHAPTER</button>
       <p class="hint">Penghapusan chapter tidak dapat dibatalkan. Pastikan chapter yang dipilih sudah benar.</p>
       <p id="status" role="status" aria-live="polite"></p>
-      <section id="chapterList" class="chapter-list" aria-label="Daftar chapter"></section>
       <section id="descriptionSection" hidden>
+        <label for="titleInput">Judul manhwa</label>
+        <input id="titleInput" type="text" maxlength="180" required>
+        <label for="descriptionInput">Deskripsi manhwa</label>
+        <textarea id="descriptionInput" maxlength="5000" placeholder="Tulis deskripsi manhwa..."></textarea>
         <label for="statusInput">Status cerita</label>
         <select id="statusInput">
           <option value="ongoing">Ongoing</option>
@@ -68,14 +71,13 @@
           <option value="hiatus">Hiatus</option>
         </select>
         <p class="hint">Manhwa tanpa status tersimpan dianggap ongoing.</p>
-        <label for="descriptionInput">Deskripsi manhwa</label>
-        <textarea id="descriptionInput" maxlength="5000" placeholder="Tulis deskripsi manhwa..."></textarea>
         <label for="coverInput">Ganti cover (opsional)</label>
         <input id="coverInput" type="file" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp">
         <p class="hint">Kosongkan jika cover tidak ingin diubah. Format JPG, PNG, atau WebP, maksimal 10 MB.</p>
         <img id="coverPreview" class="cover-preview" alt="Cover manhwa saat ini" hidden>
-        <button id="saveDescriptionButton" type="button" style="width:100%;margin-top:10px">SIMPAN</button>
+        <button id="saveDescriptionButton" type="button" style="width:100%;margin-top:10px">SIMPAN PERUBAHAN</button>
       </section>
+      <section id="chapterList" class="chapter-list" aria-label="Daftar chapter"></section>
     </section>
   </main>
   <script>
@@ -87,6 +89,7 @@
     const chapterList = document.getElementById("chapterList");
     const descriptionSection = document.getElementById("descriptionSection");
     const descriptionInput = document.getElementById("descriptionInput");
+    const titleInput = document.getElementById("titleInput");
     const statusInput = document.getElementById("statusInput");
     const coverInput = document.getElementById("coverInput");
     const coverPreview = document.getElementById("coverPreview");
@@ -181,6 +184,7 @@
         const detail = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(detail.error || `Gagal memuat (${response.status}).`);
         descriptionInput.value = detail.summary || "";
+        titleInput.value = detail.title || mangaSelect.selectedOptions[0]?.textContent || "";
         statusInput.value = ["end", "end-season", "hiatus"].includes(detail.status) ? detail.status : "ongoing";
         coverPreview.src = detail.cover || "";
         coverPreview.hidden = !detail.cover;
@@ -278,15 +282,17 @@
       const mangaId = mangaSelect.value;
       if (!mangaId) return setStatus("Pilih manhwa terlebih dahulu.", "error");
       if (!tokenInput.value.trim()) return setStatus("Masukkan admin token.", "error");
+      if (!titleInput.value.trim()) return setStatus("Judul manhwa tidak boleh kosong.", "error");
       const coverFile = coverInput.files[0];
       if (coverFile && (!/\.(jpe?g|png|webp)$/i.test(coverFile.name) || coverFile.size > 10 * 1024 * 1024)) {
         return setStatus("Cover harus berupa JPG, PNG, atau WebP dengan ukuran maksimal 10 MB.", "error");
       }
       saveDescriptionButton.disabled = true;
-      setStatus("Menyimpan deskripsi...");
+      setStatus("Menyimpan perubahan manhwa...");
       try {
         const body = new FormData();
         body.append("mangaId", mangaId);
+        body.append("title", titleInput.value.trim());
         body.append("summary", descriptionInput.value.trim());
         body.append("status", ["ongoing", "end", "end-season", "hiatus"].includes(statusInput.value) ? statusInput.value : "ongoing");
         body.append("broadcast", document.getElementById("broadcastEnabled").checked ? "true" : "false");
@@ -296,10 +302,11 @@
         });
         const result = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(result.error || `Gagal menyimpan (${response.status}).`);
+        mangaSelect.selectedOptions[0].textContent = result.title || titleInput.value.trim();
         if (result.cover) coverPreview.src = `${result.cover}${result.cover.includes("?") ? "&" : "?"}updated=${Date.now()}`;
         coverPreview.hidden = !result.cover;
         coverInput.value = "";
-        setStatus("Perubahan manhwa berhasil disimpan.", "success");
+        setStatus(`Perubahan manhwa berhasil disimpan.${result.broadcast?.queued ? " Notifikasi sedang dikirim bertahap." : result.broadcast?.error ? " Notifikasi gagal masuk antrean." : ""}`, "success");
       } catch (error) {
         setStatus(error.message || "Tidak dapat menyimpan deskripsi.", "error");
       } finally {
