@@ -15,7 +15,7 @@
     h1 { margin:0 0 6px; font:clamp(28px,5vw,36px)/1.15 Georgia,"Times New Roman",serif; }
     .intro { margin:0 0 24px; color:var(--muted); }
     label { display:block; margin:18px 0 7px; font-weight:650; }
-    input,textarea { width:100%; padding:12px 14px; border:1px solid var(--line); border-radius:10px; background:rgba(10,11,22,.76); color:var(--text); font:inherit; }
+    input,textarea,select { width:100%; padding:12px 14px; border:1px solid var(--line); border-radius:10px; background:rgba(10,11,22,.76); color:var(--text); font:inherit; }
     input[type=file] { padding:10px; } textarea { min-height:125px; resize:vertical; }
     .hint { margin:5px 0 0; color:var(--muted); font-size:13px; }
     button { width:100%; margin-top:24px; padding:13px 18px; border:0; border-radius:10px; background:var(--accent); color:#20182b; font:700 16px system-ui,sans-serif; cursor:pointer; }
@@ -38,12 +38,23 @@
         <label for="title">Judul</label>
         <input id="title" name="title" maxlength="120" required>
 
+        <label for="statusInput">Status manhwa</label>
+        <select id="statusInput" name="status">
+          <option value="ongoing">Ongoing</option>
+          <option value="end-season">End Season</option>
+          <option value="hiatus">Hiatus</option>
+          <option value="end">End</option>
+        </select>
+
         <label for="summary">Deskripsi <span class="hint">(opsional)</span></label>
         <textarea id="summary" name="summary" maxlength="5000" placeholder="Tulis ringkasan cerita jika tersedia..."></textarea>
 
         <label for="cover">Cover</label>
         <input id="cover" name="cover" type="file" accept="image/jpeg,image/png,image/webp" required>
         <p class="hint">JPG, PNG, atau WebP; maksimal 8 MB.</p>
+
+        <label style="display:flex;align-items:center;gap:10px;font-weight:500"><input id="broadcastEnabled" name="broadcast" type="checkbox" value="true" checked style="width:auto"> Kirim notifikasi broadcast Telegram</label>
+        <p class="hint">Matikan jika manhwa ini tidak perlu diumumkan ke subscriber Telegram.</p>
 
         <button id="submitButton" type="submit">TAMBAH MANHWA</button>
         <p id="status" role="status" aria-live="polite"></p>

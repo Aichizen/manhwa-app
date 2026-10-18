@@ -70,6 +70,9 @@
         <input id="chapterPdfs" name="pdfs" type="file" accept="application/pdf,.pdf" multiple required>
         <p class="hint">Pilih satu atau beberapa PDF. Maksimal 50 MB per file.</p>
 
+        <label style="display:flex;align-items:center;gap:10px;font-weight:500"><input id="broadcastEnabled" type="checkbox" checked style="width:auto"> Kirim notifikasi broadcast Telegram</label>
+        <p class="hint">Matikan jika chapter ini tidak perlu diumumkan ke subscriber Telegram.</p>
+
         <section id="previewSection" aria-label="Daftar file terpilih" hidden>
           <ul id="fileList" class="file-list"></ul>
         </section>
@@ -273,7 +276,7 @@
       if (uploading || !sortedFiles.length) return;
       uploading = true;
       uploadController = new AbortController();
-      [fileInput, mangaSelect, chapterNumber, chapterLabelInput, document.getElementById("adminToken")].forEach(input => { input.disabled = true; });
+      [fileInput, mangaSelect, chapterNumber, chapterLabelInput, document.getElementById("adminToken"), document.getElementById("broadcastEnabled")].forEach(input => { input.disabled = true; });
       submitButton.disabled = true;
       submitButton.textContent = "MENGUNGGAH...";
       cancelButton.hidden = false;
@@ -292,6 +295,7 @@
         formData.append("chapter", String(startingChapter + (batchIndices[0] || 0)));
         formData.append("chapterAuto", chapterNumberManuallyChanged ? "false" : "true");
         formData.append("chapterLabel", chapterLabelInput.value.trim());
+        formData.append("broadcast", document.getElementById("broadcastEnabled").checked ? "true" : "false");
         batchIndices.forEach(index => formData.append("pdfs", sortedFiles[index], sortedFiles[index].name));
         const response = await fetch(`${API_BASE}/api/admin/chapter`, {
           method:"POST",
@@ -319,7 +323,7 @@
       progressTrack.setAttribute("aria-valuenow", String(percent));
       uploading = false;
       uploadController = null;
-      [fileInput, mangaSelect, chapterNumber, chapterLabelInput, document.getElementById("adminToken")].forEach(input => { input.disabled = false; });
+      [fileInput, mangaSelect, chapterNumber, chapterLabelInput, document.getElementById("adminToken"), document.getElementById("broadcastEnabled")].forEach(input => { input.disabled = false; });
       cancelButton.hidden = true;
       submitButton.disabled = false;
       submitButton.textContent = "UPLOAD CHAPTER";

@@ -53,6 +53,8 @@
       <input id="adminToken" type="password" autocomplete="off" required>
       <label for="mangaSelect">Manhwa</label>
       <select id="mangaSelect"><option value="">Memuat daftar manhwa...</option></select>
+      <label style="display:flex;align-items:center;gap:10px;font-weight:500"><input id="broadcastEnabled" type="checkbox" checked style="width:auto"> Kirim notifikasi broadcast Telegram untuk perubahan</label>
+      <p class="hint">Pengaturan ini berlaku untuk simpan perubahan manhwa dan penggantian PDF.</p>
       <button id="loadButton" class="token-button" type="button">TAMPILKAN CHAPTER</button>
       <p class="hint">Penghapusan chapter tidak dapat dibatalkan. Pastikan chapter yang dipilih sudah benar.</p>
       <p id="status" role="status" aria-live="polite"></p>
@@ -220,6 +222,7 @@
         const body = new FormData();
         body.append("mangaId", mangaSelect.value);
         body.append("chapterNumber", String(number));
+        body.append("broadcast", document.getElementById("broadcastEnabled").checked ? "true" : "false");
         body.append("pdf", file, file.name);
         const response = await fetch(`${API_BASE}/api/admin/chapter/replace`, {
           method:"POST", headers:{ Authorization:`Bearer ${tokenInput.value.trim()}` }, body
@@ -286,6 +289,7 @@
         body.append("mangaId", mangaId);
         body.append("summary", descriptionInput.value.trim());
         body.append("status", ["ongoing", "end", "end-season", "hiatus"].includes(statusInput.value) ? statusInput.value : "ongoing");
+        body.append("broadcast", document.getElementById("broadcastEnabled").checked ? "true" : "false");
         if (coverFile) body.append("cover", coverFile, coverFile.name);
         const response = await fetch(`${API_BASE}/api/admin/manga/update`, {
           method:"POST", headers:{ Authorization:`Bearer ${tokenInput.value.trim()}` }, body
