@@ -2706,7 +2706,7 @@
             chapterPopupButton.disabled = true;
             chapterAdStatus.textContent = "Opening sponsor page...";
             try {
-                await window.show_12033217({ type: "pop" });
+                await window.show_12033217("pop");
                 chapterAdStatus.textContent = "Sponsor page opened. Thanks for your support.";
             } catch (error) {
                 chapterAdStatus.textContent = "The sponsor page could not be opened. Please try again later.";
