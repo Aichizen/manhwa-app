@@ -977,7 +977,7 @@
                 min-height: clamp(250px, 20vw, 330px);
                 justify-content: flex-end;
                 padding: 24px max(6vw, 52px) 26px;
-                background: linear-gradient(180deg, rgba(16, 22, 37, 0) 35%, rgba(16, 22, 37, .58) 72%, #101625 100%), url("https://cdn.storyabout-us.com/Theme/desktop-bg-theme.png") center 40% / cover no-repeat;
+                background: linear-gradient(180deg, rgba(16, 22, 37, 0) calc(100% - 62px), rgba(116, 72, 160, .48) calc(100% - 20px), #101625 100%), url("https://cdn.storyabout-us.com/Theme/desktop-bg-theme.png") center 40% / cover no-repeat;
             }
             /* The supplied desktop theme already includes its title and subtitle artwork. */
             .hero-title, .hero-description { visibility: hidden; }
@@ -985,7 +985,7 @@
             .admin-link { padding: 12px 20px; font-size: 15px; }
             .search-container { position: absolute; top: 32px; right: max(13vw, 170px); width: min(34vw, 420px); margin: 0; }
             .search-box { height: 54px; border-radius: 999px; font-size: 15px; }
-            .alphabet-nav { position: relative; z-index: 2; transform: none; width: calc(100% - 9vw); min-height: 62px; margin: -31px auto 28px; padding: 7px 12px; flex-direction: row; justify-content: space-between; gap: 3px; border: 1px solid rgba(170,177,216,.35); border-radius: 24px; background: rgba(25,30,52,.96); backdrop-filter: blur(12px); }
+            .alphabet-nav { position: relative; z-index: 2; transform: none; width: calc(100% - 9vw); min-height: 62px; margin: -31px auto 28px; padding: 7px 12px; flex-direction: row; justify-content: space-between; gap: 3px; border: 1px solid rgba(190,151,255,.48); border-radius: 24px; background: rgba(35,28,57,.96); box-shadow: 0 0 34px rgba(155,100,220,.24); backdrop-filter: blur(12px); }
             .alphabet-letter { flex: 1 1 0; width: auto; height: 38px; border-radius: 999px; font-size: 13px; }
             .alphabet-letter.active.current { color: #fff; background: linear-gradient(135deg, #bd98ff, #9872d8); box-shadow: 0 4px 14px rgba(157,112,226,.3); }
             .manga-grid { width: min(91%, 1660px); margin-inline: auto; grid-template-columns: repeat(auto-fill, minmax(156px, 1fr)); gap: 22px 20px; }
