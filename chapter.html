@@ -1128,6 +1128,20 @@
         .browser-view body { background-color:#101625; background-image:linear-gradient(rgba(16,22,37,.7),rgba(16,22,37,.7)),url("https://cdn.storyabout-us.com/Theme/desktop-body-theme.png"); background-position:center top; background-size:cover; background-attachment:fixed; background-repeat:no-repeat; }
         .browser-view .container { max-width:1200px; padding:32px 5vw 64px; }
 
+        @media (min-width:701px) {
+            .telegram-view body { background:linear-gradient(180deg,rgba(10,13,30,.25),rgba(10,13,30,.9)),url("https://cdn.storyabout-us.com/Theme/homepage-bg.png") center top / cover fixed no-repeat; }
+            .telegram-view .container { max-width:480px; padding:18px 14px 55px; }
+            .telegram-view .header { gap:14px; margin-bottom:25px; }
+            .telegram-view .back-button { width:54px; height:54px; }
+            .telegram-view .manga-title-header { font-size:29px; }
+            .telegram-view .cover { width:auto; height:auto; max-width:100%; max-height:min(60vh,480px); object-fit:contain; border-radius:18px; }
+            .telegram-view .main-title { font-size:30px; }
+            .telegram-view .chapter-heading { font-size:26px; }
+            .telegram-view .chapter-button { min-height:74px; border-radius:18px; }
+            .telegram-view .comment-form { padding:15px; }
+            .telegram-view .comment-header { align-items:flex-start; flex-direction:column; gap:5px; }
+        }
+
         .comment-account-actions { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom:16px; color:#a3a4bd; font-size:13px; }
         .comment-account-actions a { color:#c9a2ff; font-weight:600; text-decoration:underline; cursor:pointer; }
     </style>

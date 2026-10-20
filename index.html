@@ -1023,6 +1023,25 @@
             .browser-view .manga-title { font-family: Georgia,"Times New Roman",serif; font-size: 16px; line-height: 1.15; }
             .browser-view .favorite-button { flex: 0 0 36px; width: 36px; height: 36px; font-size: 21px; }
         }
+
+        @media (min-width: 701px) {
+            .telegram-view body { background: linear-gradient(180deg,rgba(10,13,30,.28),rgba(10,13,30,.8)),url("https://cdn.storyabout-us.com/Theme/homepage-bg.png") center top / cover fixed no-repeat; }
+            .telegram-view .container { width:100%; max-width:480px; margin:0 auto; padding:18px 34px 50px 14px; }
+            .telegram-view .hero { min-height:205px; justify-content:flex-start; padding:4px 0 12px; background:none; }
+            .telegram-view .hero-title,.telegram-view .hero-description { visibility:visible; }
+            .telegram-view .hero-title { max-width:350px; font-size:45px; line-height:.99; letter-spacing:-1.7px; }
+            .telegram-view .hero-description { max-width:310px; margin-top:20px; font-size:15px; line-height:1.65; }
+            .telegram-view .hero-actions { position:static; margin-top:12px; }
+            .telegram-view .search-container { position:relative; top:auto; right:auto; width:100%; margin-bottom:22px; }
+            .telegram-view .search-box { height:54px; border-radius:16px; font-size:15px; padding-left:51px; }
+            .telegram-view .alphabet-nav { position:fixed; top:50%; right:max(2px,calc((100vw - 480px)/2 + 2px)); width:auto; min-height:0; margin:0; padding:5px 2px; transform:translateY(-50%); flex-direction:column; gap:1px; border:0; border-radius:15px; background:rgba(20,24,46,.48); box-shadow:none; }
+            .telegram-view .alphabet-letter { flex:0 0 19px; width:21px; height:19px; font-size:9px; }
+            .telegram-view .manga-grid { width:100%; margin:0; grid-template-columns:repeat(3,minmax(0,1fr)); gap:9px; }
+            .telegram-view .cover-wrapper { aspect-ratio:4 / 5; }
+            .telegram-view .card-bottom { min-height:48px; padding:7px 5px; }
+            .telegram-view .manga-title { font-family:Arial,Helvetica,sans-serif; font-size:12px; line-height:1.25; }
+            .telegram-view .favorite-button { width:27px; height:27px; font-size:18px; }
+        }
     </style>
 </head>
 

@@ -280,6 +280,16 @@
         .browser-view .reader-back { flex-basis:50px; width:50px; height:50px; margin-right:13px; }
         .browser-view #readerTitle { font-size:24px; }
         .browser-view #readerMangaTitle { font-size:12px; }
+
+        @media (min-width:701px) {
+            .telegram-view body.reader-body { width:100%; max-width:480px; margin:0 auto; padding-top:82px; }
+            .telegram-view .reader-header { left:50%; right:auto; width:min(100%,480px); height:82px; padding:10px 14px; transform:translateX(-50%); }
+            .telegram-view .reader-back { flex-basis:48px; width:48px; height:48px; margin-right:12px; }
+            .telegram-view #readerTitle { font-size:22px; }
+            .telegram-view #readerMangaTitle { font-size:11px; }
+            .telegram-view #pdf-container { max-width:480px; margin:0 auto; }
+            .telegram-view .reader-loading { left:max(0px,calc((100vw - 480px)/2)); right:max(0px,calc((100vw - 480px)/2)); }
+        }
     </style>
 
 </head>
