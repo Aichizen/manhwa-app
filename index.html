@@ -371,6 +371,7 @@
         }
 
         .ad-action-button:disabled { opacity: .6; cursor: wait; }
+        .browser-view .mobile-popup-ad { display:none; }
         .ad-status { flex-basis: 100%; min-height: 18px; color: #a3a4bd; font-size: 12px; text-align: center; }
 
 
@@ -1120,6 +1121,7 @@
         ================================================== -->
         <div class="ad-slot" aria-label="Optional rewarded advertisement">
             <button id="watchHomeAd" class="ad-action-button" type="button">Watch an ad to support the site</button>
+            <button id="watchHomePopup" class="ad-action-button mobile-popup-ad" type="button">Open sponsor page</button>
             <span id="homeAdStatus" class="ad-status" role="status" aria-live="polite"></span>
         </div>
 
@@ -2151,6 +2153,24 @@
                 homeAdStatus.textContent = "No ad is available right now. Please try again later.";
             } finally {
                 watchHomeAdButton.disabled = false;
+            }
+        });
+
+        const watchHomePopupButton = document.getElementById("watchHomePopup");
+        watchHomePopupButton.addEventListener("click", async () => {
+            if (typeof window.show_12033217 !== "function") {
+                homeAdStatus.textContent = "The ad is not ready yet. Please try again shortly.";
+                return;
+            }
+            watchHomePopupButton.disabled = true;
+            homeAdStatus.textContent = "Opening sponsor page...";
+            try {
+                await window.show_12033217("pop");
+                homeAdStatus.textContent = "Sponsor page opened. Thanks for supporting the site.";
+            } catch (error) {
+                homeAdStatus.textContent = "The sponsor page could not be opened. Please try again later.";
+            } finally {
+                watchHomePopupButton.disabled = false;
             }
         });
 
