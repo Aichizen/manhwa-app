@@ -3,8 +3,10 @@
 
 <head>
     <script>
+        const pageParams = new URLSearchParams(location.search);
         const isTelegramView = /Telegram/i.test(navigator.userAgent)
-            || new URLSearchParams(location.search).has("tgWebAppPlatform");
+            || pageParams.has("tgWebAppPlatform")
+            || pageParams.get("view") === "mobile";
         document.documentElement.classList.add(isTelegramView ? "telegram-view" : "browser-view");
     </script>
     <script>
@@ -1269,7 +1271,8 @@
 
             window.location.href =
                 "chapter.html?title=" +
-                encodeURIComponent(id);
+                encodeURIComponent(id) +
+                (new URLSearchParams(location.search).get("view") === "mobile" ? "&view=mobile" : "");
         }
 
 
@@ -1608,7 +1611,7 @@
                     if (activeView === "last-read") {
                         const entry = readingEntries.find(item => item.manga_id === manga.id);
                         card.onclick = () => {
-                            location.href = `reader.html?title=${encodeURIComponent(manga.id)}&chapter=${encodeURIComponent(entry?.chapter_number || 1)}&page=${encodeURIComponent(entry?.page_number || 1)}`;
+                            location.href = `reader.html?title=${encodeURIComponent(manga.id)}&chapter=${encodeURIComponent(entry?.chapter_number || 1)}&page=${encodeURIComponent(entry?.page_number || 1)}${new URLSearchParams(location.search).get("view") === "mobile" ? "&view=mobile" : ""}`;
                         };
                         const label = document.createElement("p");
                         label.className = "last-read-label";

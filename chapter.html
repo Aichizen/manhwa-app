@@ -3,8 +3,10 @@
 
 <head>
     <script>
+        const pageParams = new URLSearchParams(location.search);
         const isTelegramView = /Telegram/i.test(navigator.userAgent)
-            || new URLSearchParams(location.search).has("tgWebAppPlatform");
+            || pageParams.has("tgWebAppPlatform")
+            || pageParams.get("view") === "mobile";
         document.documentElement.classList.add(isTelegramView ? "telegram-view" : "browser-view");
     </script>
     <script>
@@ -1142,6 +1144,8 @@
             .telegram-view .comment-header { align-items:flex-start; flex-direction:column; gap:5px; }
         }
 
+        .telegram-view #commentLoginPrompt { display:none !important; }
+
         .comment-account-actions { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom:16px; color:#a3a4bd; font-size:13px; }
         .comment-account-actions a { color:#c9a2ff; font-weight:600; text-decoration:underline; cursor:pointer; }
     </style>
@@ -1517,7 +1521,7 @@
         if (!mangaId) {
 
             window.location.href =
-                "index.html";
+                "index.html" + (pageParams.get("view") === "mobile" ? "?view=mobile" : "");
         }
 
 
@@ -1660,7 +1664,7 @@
         ===================================================== */
 
         function goBack() {
-            window.location.href = "index.html";
+            window.location.href = "index.html" + (new URLSearchParams(location.search).get("view") === "mobile" ? "?view=mobile" : "");
         }
 
 
@@ -2123,7 +2127,8 @@
                                 "&chapter=" +
                                 encodeURIComponent(
                                     chapterNumber
-                                );
+                                ) +
+                                (new URLSearchParams(location.search).get("view") === "mobile" ? "&view=mobile" : "");
 
                         };
 

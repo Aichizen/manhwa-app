@@ -4,8 +4,10 @@
 <head>
 
     <script>
+        const pageParams = new URLSearchParams(location.search);
         const isTelegramView = /Telegram/i.test(navigator.userAgent)
-            || new URLSearchParams(location.search).has("tgWebAppPlatform");
+            || pageParams.has("tgWebAppPlatform")
+            || pageParams.get("view") === "mobile";
         document.documentElement.classList.add(isTelegramView ? "telegram-view" : "browser-view");
     </script>
 
@@ -491,7 +493,10 @@
         function paintReaderCommentAccount() {
             const loggedIn = ReaderAccount.authenticated;
             const displayName = [ReaderAccount.user?.first_name, ReaderAccount.user?.last_name].filter(Boolean).join(" ") || ReaderAccount.user?.username || "akun Telegram";
-            commentToggle.hidden = !loggedIn && !ReaderAccount.hasTelegramData;
+            commentToggle.hidden = !loggedIn && (
+                !ReaderAccount.hasTelegramData ||
+                document.documentElement.classList.contains("telegram-view")
+            );
             commentToggle.textContent = loggedIn ? "Tap to comment" : "Login untuk komentar";
             commentAccountText.textContent = loggedIn ? `Komentar sebagai ${displayName}.` : "Login Telegram diperlukan untuk mengirim komentar dari reader.";
             if (!loggedIn) {
@@ -934,7 +939,7 @@
             if (!title) {
 
                 window.location.href =
-                    "index.html";
+                    "index.html" + (new URLSearchParams(location.search).get("view") === "mobile" ? "?view=mobile" : "");
 
                 return;
 
@@ -943,7 +948,8 @@
 
             window.location.href =
                 "chapter.html?title=" +
-                encodeURIComponent(title);
+                encodeURIComponent(title) +
+                (new URLSearchParams(location.search).get("view") === "mobile" ? "&view=mobile" : "");
 
         }
 
