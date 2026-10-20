@@ -3,7 +3,12 @@
 
 <head>
     <script>
-        if (window.matchMedia("(max-width: 700px)").matches) {
+        const isTelegramView = /Telegram/i.test(navigator.userAgent)
+            || new URLSearchParams(location.search).has("tgWebAppPlatform");
+        document.documentElement.classList.add(isTelegramView ? "telegram-view" : "browser-view");
+    </script>
+    <script>
+        if (document.documentElement.classList.contains("telegram-view")) {
             const mobileAdScript = document.createElement("script");
             mobileAdScript.src = "//libtl.com/sdk.js";
             mobileAdScript.dataset.zone = "12033217";
@@ -12,7 +17,7 @@
         }
     </script>
     <script>
-        if (window.matchMedia("(min-width: 701px)").matches) {
+        if (document.documentElement.classList.contains("browser-view")) {
             const desktopAdScript = document.createElement("script");
             desktopAdScript.src = "https://quge5.com/88/tag.min.js";
             desktopAdScript.dataset.zone = "298987";
@@ -995,6 +1000,28 @@
             .card-bottom { min-height: 64px; padding: 8px 10px 8px 15px; gap: 8px; }
             .manga-title { font-family: Georgia, "Times New Roman", serif; font-size: clamp(16px, 1.35vw, 21px); line-height: 1.15; -webkit-line-clamp: 2; }
             .favorite-button { flex: 0 0 44px; width: 44px; height: 44px; font-size: 25px; }
+        }
+
+        /* Non-Telegram browsers keep the desktop composition on narrow screens too. */
+        @media (max-width: 700px) {
+            html.browser-view body {
+                background-color: #101625;
+                background-image: linear-gradient(rgba(16,22,37,.7), rgba(16,22,37,.7)), url("https://cdn.storyabout-us.com/Theme/desktop-body-theme.png");
+                background-position: center top; background-size: cover; background-attachment: fixed; background-repeat: no-repeat;
+            }
+            .browser-view .container { position: relative; max-width: none; padding: 0 0 64px; }
+            .browser-view .hero { min-height: 250px; justify-content: flex-end; padding: 24px 6vw 26px; background: linear-gradient(180deg, rgba(16,22,37,0) calc(100% - 62px), rgba(116,72,160,.48) calc(100% - 20px), #101625 100%), url("https://cdn.storyabout-us.com/Theme/desktop-bg-theme.png") center 40% / cover no-repeat; }
+            .browser-view .hero-title, .browser-view .hero-description { visibility: hidden; }
+            .browser-view .hero-actions { position: absolute; top: 32px; right: 4.5vw; margin: 0; z-index: 2; }
+            .browser-view .search-container { position: absolute; top: 32px; right: max(13vw,170px); width: min(34vw,420px); margin: 0; }
+            .browser-view .search-box { height: 54px; border-radius: 999px; font-size: 15px; }
+            .browser-view .alphabet-nav { position: relative; z-index: 2; width: calc(100% - 9vw); min-height: 62px; margin: -31px auto 28px; padding: 7px 12px; flex-direction: row; justify-content: space-between; gap: 3px; border: 1px solid rgba(190,151,255,.48); border-radius: 24px; background: rgba(35,28,57,.96); box-shadow: 0 0 34px rgba(155,100,220,.24); }
+            .browser-view .alphabet-letter { flex: 1 1 0; width: auto; height: 38px; border-radius: 999px; font-size: 10px; }
+            .browser-view .manga-grid { width: min(91%,1660px); margin-inline: auto; grid-template-columns: repeat(auto-fill,minmax(156px,1fr)); gap: 22px 20px; }
+            .browser-view .cover-wrapper { aspect-ratio: 4 / 5; }
+            .browser-view .card-bottom { min-height: 64px; padding: 8px 10px 8px 15px; gap: 8px; }
+            .browser-view .manga-title { font-family: Georgia,"Times New Roman",serif; font-size: 16px; line-height: 1.15; }
+            .browser-view .favorite-button { flex: 0 0 36px; width: 36px; height: 36px; font-size: 21px; }
         }
     </style>
 </head>

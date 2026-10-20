@@ -3,6 +3,12 @@
 
 <head>
 
+    <script>
+        const isTelegramView = /Telegram/i.test(navigator.userAgent)
+            || new URLSearchParams(location.search).has("tgWebAppPlatform");
+        document.documentElement.classList.add(isTelegramView ? "telegram-view" : "browser-view");
+    </script>
+
     <meta charset="UTF-8">
 
     <meta
@@ -269,6 +275,11 @@
                 font-size: 11px;
             }
         }
+
+        .browser-view .reader-header { height:82px; padding:10px 16px; }
+        .browser-view .reader-back { flex-basis:50px; width:50px; height:50px; margin-right:13px; }
+        .browser-view #readerTitle { font-size:24px; }
+        .browser-view #readerMangaTitle { font-size:12px; }
     </style>
 
 </head>
@@ -392,10 +403,10 @@
            TELEGRAM
         ========================================== */
 
-        const tg = window.Telegram.WebApp;
+        const tg = window.Telegram?.WebApp;
 
-        tg.ready();
-        tg.expand();
+        tg?.ready();
+        tg?.expand();
 
 
 

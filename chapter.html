@@ -3,7 +3,12 @@
 
 <head>
     <script>
-        if (window.matchMedia("(max-width: 700px)").matches) {
+        const isTelegramView = /Telegram/i.test(navigator.userAgent)
+            || new URLSearchParams(location.search).has("tgWebAppPlatform");
+        document.documentElement.classList.add(isTelegramView ? "telegram-view" : "browser-view");
+    </script>
+    <script>
+        if (document.documentElement.classList.contains("telegram-view")) {
             const mobileAdScript = document.createElement("script");
             mobileAdScript.src = "//libtl.com/sdk.js";
             mobileAdScript.dataset.zone = "12033217";
@@ -1119,6 +1124,9 @@
                 background-repeat: no-repeat;
             }
         }
+
+        .browser-view body { background-color:#101625; background-image:linear-gradient(rgba(16,22,37,.7),rgba(16,22,37,.7)),url("https://cdn.storyabout-us.com/Theme/desktop-body-theme.png"); background-position:center top; background-size:cover; background-attachment:fixed; background-repeat:no-repeat; }
+        .browser-view .container { max-width:1200px; padding:32px 5vw 64px; }
 
         .comment-account-actions { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom:16px; color:#a3a4bd; font-size:13px; }
         .comment-account-actions a { color:#c9a2ff; font-weight:600; text-decoration:underline; cursor:pointer; }
