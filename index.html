@@ -1065,8 +1065,15 @@
 
             <div class="hero-actions">
                 <a class="admin-link" href="admin.html">Admin</a>
+                <button id="telegramLoginButton" class="admin-link login-link" type="button" hidden>Login</button>
             </div>
         </section>
+
+        <nav id="accountTabs" class="account-tabs" aria-label="Navigasi koleksi" hidden>
+            <button class="account-tab active" type="button" data-view="home">Home</button>
+            <button class="account-tab" type="button" data-view="favorites">Favorite</button>
+            <button class="account-tab" type="button" data-view="last-read">Last Read</button>
+        </nav>
 
 
         <!-- =================================================
@@ -2067,6 +2074,41 @@
 
 
         const accountTabs = document.getElementById("accountTabs");
+        const loginButton = document.getElementById("telegramLoginButton");
+        const adminButton = document.querySelector('.hero-actions .admin-link[href="admin.html"]');
+        const accountTabButtons = [...accountTabs.querySelectorAll("[data-view]")];
+
+        function updateAccountNavigation() {
+            const isTelegram = document.documentElement.classList.contains("telegram-view");
+            const loggedIn = ReaderAccount.authenticated;
+            loginButton.hidden = !isTelegram || loggedIn;
+            accountTabs.hidden = !isTelegram || !loggedIn;
+            adminButton.hidden = isTelegram && loggedIn;
+            if (loggedIn) loadReadingHistory();
+        }
+
+        accountTabButtons.forEach(button => {
+            button.addEventListener("click", () => {
+                activeView = button.dataset.view;
+                accountTabButtons.forEach(tab => tab.classList.toggle("active", tab === button));
+                if (activeView === "last-read") loadReadingHistory();
+                renderManga();
+            });
+        });
+
+        loginButton.addEventListener("click", async () => {
+            loginButton.disabled = true;
+            try {
+                await ReaderAccount.login();
+                updateAccountNavigation();
+            } catch (error) {
+                window.alert(error.message || "Login Telegram gagal.");
+            } finally {
+                loginButton.disabled = false;
+            }
+        });
+
+        ReaderAccount.init().then(updateAccountNavigation);
 
         async function loadReadingHistory() {
             try {
