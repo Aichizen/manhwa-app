@@ -118,6 +118,7 @@
     let uploadController = null;
     let uploading = false;
     let fileStatuses = [];
+    let pendingUploadPlan = null;
 
     function sortFiles(files) {
       return [...files].sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric:true, sensitivity:"base" }));
@@ -259,6 +260,7 @@
     chapterLabelInput.addEventListener("input", updateChapterLabelHint);
     fileInput.addEventListener("change", () => {
       if (uploading) return;
+      pendingUploadPlan = null;
       sortedFiles = sortFiles(fileInput.files);
       fileStatuses = sortedFiles.map(() => ({ label:"Menunggu", kind:"" }));
       uploadResults.hidden = true;
@@ -300,21 +302,33 @@
           "Content-Type": "application/json",
           Authorization: `Bearer ${document.getElementById("adminToken").value}`,
         };
-        const planResponse = await fetch(`${API_BASE}/api/admin/chapter/upload-urls`, {
-          method:"POST",
-          headers:uploadHeaders,
-          body:JSON.stringify({
-            mangaId:mangaSelect.value,
-            chapter:String(startingChapter + (batchIndices[0] || 0)),
-            chapterAuto:!chapterNumberManuallyChanged,
-            chapterLabel:chapterLabelInput.value.trim(),
-            broadcast:document.getElementById("broadcastEnabled").checked,
-            files:batchFiles.map(file => ({ name:file.name, size:file.size })),
-          }),
-          signal:uploadController.signal
+        const planRequest = {
+          mangaId:mangaSelect.value,
+          chapter:String(startingChapter + (batchIndices[0] || 0)),
+          chapterAuto:!chapterNumberManuallyChanged,
+          chapterLabel:chapterLabelInput.value.trim(),
+          broadcast:document.getElementById("broadcastEnabled").checked,
+          files:batchFiles.map(file => ({ name:file.name, size:file.size })),
+        };
+        const planSignature = JSON.stringify({
+          ...planRequest,
+          indices:batchIndices,
+          files:batchFiles.map(file => ({ name:file.name, size:file.size, lastModified:file.lastModified })),
         });
-        const plan = await planResponse.json().catch(() => ({}));
-        if (!planResponse.ok) throw new Error(plan.error || `Gagal menyiapkan upload (${planResponse.status}).`);
+        let plan;
+        if (pendingUploadPlan?.signature === planSignature && Date.now() - pendingUploadPlan.createdAt < 55 * 60 * 1000) {
+          plan = pendingUploadPlan.plan;
+        } else {
+          const planResponse = await fetch(`${API_BASE}/api/admin/chapter/upload-urls`, {
+            method:"POST",
+            headers:uploadHeaders,
+            body:JSON.stringify(planRequest),
+            signal:uploadController.signal
+          });
+          plan = await planResponse.json().catch(() => ({}));
+          if (!planResponse.ok) throw new Error(plan.error || `Gagal menyiapkan upload (${planResponse.status}).`);
+          pendingUploadPlan = { signature:planSignature, createdAt:Date.now(), plan };
+        }
 
         statusEl.textContent = `Mengunggah ${batchIndices.length} PDF langsung ke R2...`;
         let nextUpload = 0;
@@ -357,6 +371,7 @@
         });
         const result = await finalizeResponse.json().catch(() => ({}));
         if (!finalizeResponse.ok) throw new Error(result.error || `Gagal menyimpan data chapter (${finalizeResponse.status}).`);
+        pendingUploadPlan = null;
         if (result.broadcast?.queued) broadcastNotice = " Notifikasi sedang dikirim bertahap.";
         else if (result.broadcast?.error) broadcastNotice = " Notifikasi gagal masuk antrean.";
         batchIndices.forEach(index => { fileStatuses[index] = { label:"Berhasil", kind:"done" }; });
