@@ -941,6 +941,34 @@
                 padding: 6px 4px;
             }
         }
+
+        /* Desktop catalogue layout, with the same nearby card controls as mobile. */
+        @media (min-width: 701px) {
+            body { background: #101625; }
+            .container { position: relative; max-width: none; padding: 0 0 64px; }
+            .hero {
+                min-height: clamp(390px, 37.5vw, 560px);
+                justify-content: flex-end;
+                padding: 24px max(6vw, 52px) 26px;
+                background: linear-gradient(180deg, rgba(8, 12, 28, .04), rgba(8, 12, 28, .16)), url("https://cdn.storyabout-us.com/Theme/desktop-bg-theme.png") center 40% / cover no-repeat;
+            }
+            /* The supplied desktop theme already includes its title and subtitle artwork. */
+            .hero-title, .hero-description { visibility: hidden; }
+            .hero-actions { position: absolute; top: 32px; right: max(4.5vw, 40px); margin: 0; z-index: 2; }
+            .admin-link { padding: 12px 20px; font-size: 15px; }
+            .search-container { position: absolute; top: 32px; right: max(13vw, 170px); width: min(34vw, 420px); margin: 0; }
+            .search-box { height: 54px; border-radius: 999px; font-size: 15px; }
+            .alphabet-nav { position: relative; z-index: 2; transform: none; width: calc(100% - 9vw); min-height: 62px; margin: -88px auto 28px; padding: 7px 12px; flex-direction: row; justify-content: space-between; gap: 3px; border: 1px solid rgba(170,177,216,.35); border-radius: 24px; background: rgba(25,30,52,.88); backdrop-filter: blur(12px); }
+            .alphabet-letter { flex: 1 1 0; width: auto; height: 38px; border-radius: 999px; font-size: 13px; }
+            .alphabet-letter.active.current { color: #fff; background: linear-gradient(135deg, #bd98ff, #9872d8); box-shadow: 0 4px 14px rgba(157,112,226,.3); }
+            .manga-grid { width: min(91%, 1660px); margin-inline: auto; grid-template-columns: repeat(auto-fill, minmax(156px, 1fr)); gap: 22px 20px; }
+            .manga-card { border-radius: 18px; }
+            .cover-wrapper { aspect-ratio: 4 / 5; }
+            .manga-cover { object-fit: cover; }
+            .card-bottom { min-height: 64px; padding: 8px 10px 8px 15px; gap: 8px; }
+            .manga-title { font-family: Georgia, "Times New Roman", serif; font-size: clamp(16px, 1.35vw, 21px); line-height: 1.15; -webkit-line-clamp: 2; }
+            .favorite-button { flex: 0 0 44px; width: 44px; height: 44px; font-size: 25px; }
+        }
     </style>
 </head>
 
@@ -951,13 +979,6 @@
     <!-- =====================================================
          ALPHABET
     ====================================================== -->
-
-    <nav
-        id="alphabetNav"
-        class="alphabet-nav"
-        aria-label="Manga alphabet navigation"
-    ></nav>
-
 
     <main class="container">
         <section class="hero">
@@ -971,12 +992,6 @@
 
             <div class="hero-actions">
                 <a class="admin-link" href="admin.html">Admin</a>
-                <button id="telegramLoginButton" class="admin-link login-link" type="button">Login</button>
-                <nav id="accountTabs" class="account-tabs" aria-label="Navigasi koleksi" hidden>
-                    <button class="account-tab active" type="button" data-view="home">Home</button>
-                    <button class="account-tab" type="button" data-view="favorites">Favorit</button>
-                    <button class="account-tab" type="button" data-view="last-read">Last Read</button>
-                </nav>
             </div>
         </section>
 
@@ -1012,6 +1027,12 @@
             </div>
 
         </div>
+
+        <nav
+            id="alphabetNav"
+            class="alphabet-nav"
+            aria-label="Manga alphabet navigation"
+        ></nav>
 
 
         <!-- =================================================
@@ -1972,22 +1993,7 @@
         ===================================================== */
 
 
-        const loginButton = document.getElementById("telegramLoginButton");
         const accountTabs = document.getElementById("accountTabs");
-        const accountTabButtons = [...accountTabs.querySelectorAll("[data-view]")];
-
-        function paintAccount() {
-            accountTabs.hidden = !ReaderAccount.authenticated;
-            document.querySelector('.hero-actions > .admin-link[href="admin.html"]').hidden = ReaderAccount.authenticated;
-            loginButton.hidden = ReaderAccount.authenticated;
-            if (ReaderAccount.authenticated) loadReadingHistory();
-        }
-
-        accountTabButtons.forEach(button => button.addEventListener("click", () => {
-            activeView = button.dataset.view;
-            accountTabButtons.forEach(tab => tab.classList.toggle("active", tab === button));
-            renderManga();
-        }));
 
         async function loadReadingHistory() {
             try {
@@ -2000,10 +2006,6 @@
             }
         }
 
-        accountTabs.addEventListener("click", event => {
-            const button = event.target.closest("[data-view]");
-            if (button && activeView === "last-read") loadReadingHistory();
-        });
 
         const watchHomeAdButton = document.getElementById("watchHomeAd");
         const homeAdStatus = document.getElementById("homeAdStatus");
@@ -2037,13 +2039,6 @@
             }
         });
 
-        loginButton.addEventListener("click", async () => {
-            loginButton.disabled = true;
-            try { await ReaderAccount.login(); paintAccount(); }
-            catch (error) { loginButton.title = error.message; }
-            finally { loginButton.disabled = false; }
-        });
-        ReaderAccount.init().then(paintAccount);
         loadManga();
 
     </script>
