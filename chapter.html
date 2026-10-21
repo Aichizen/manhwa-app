@@ -2037,35 +2037,55 @@
 
             const batches = [];
             const batchWindowMs = 60 * 1000;
+            const batchForChapter = new Map();
             for (const chapter of byUpdatedTime) {
                 const uploadedAt = Number(chapter && typeof chapter === "object" ? chapter.uploaded_at : 0) || 0;
                 let batch = batches[batches.length - 1];
-
-                // Batch records are stamped as the Worker saves them; group adjacent save times.
                 if (!batch || !uploadedAt || !batch.startedAt || uploadedAt - batch.startedAt >= batchWindowMs) {
                     batch = { startedAt: uploadedAt, chapters: [] };
                     batches.push(batch);
                 }
                 if (uploadedAt && (!batch.startedAt || uploadedAt < batch.startedAt)) batch.startedAt = uploadedAt;
                 batch.chapters.push(chapter);
-            }
-            batches.sort((a, b) => {
-                if (a.startedAt && b.startedAt) return a.startedAt - b.startedAt;
-                if (a.startedAt) return 1;
-                if (b.startedAt) return -1;
-                return 0;
-            });
-            for (const batch of batches) {
-                batch.chapters.sort((a, b) => {
-                    const nameOf = item => String(item && typeof item === "object"
-                        ? item.sourceName || item.label || item.chapter || item.number || ""
-                        : item || "");
-                    return nameOf(a).localeCompare(nameOf(b), undefined, { numeric: true, sensitivity: "base" });
-                });
+                batchForChapter.set(chapter, batch);
             }
 
-            if (!ascending) batches.reverse();
-            const sorted = batches.flatMap(batch => batch.chapters);
+            const isSideStory = chapter => Boolean(chapter && typeof chapter === "object" && (
+                chapter.label_prefix || (chapter.label && !/^chapter\s*\d/i.test(String(chapter.label)))
+            ));
+            const nameOf = item => String(item && typeof item === "object"
+                ? item.sourceName || item.label || item.chapter || item.number || ""
+                : item || "");
+            const mainChapters = chapters.filter(chapter => !isSideStory(chapter)).sort((a, b) =>
+                getChapterNumber(a) - getChapterNumber(b)
+            );
+            const sideStories = chapters.filter(isSideStory).sort((a, b) => {
+                const batchA = batchForChapter.get(a);
+                const batchB = batchForChapter.get(b);
+                const timeA = batchA?.startedAt || 0;
+                const timeB = batchB?.startedAt || 0;
+                return timeA - timeB || nameOf(a).localeCompare(nameOf(b), undefined, { numeric: true, sensitivity: "base" });
+            });
+
+            const numberedMainChapters = [...mainChapters];
+            for (const sideStory of sideStories) {
+                const sideBatch = batchForChapter.get(sideStory);
+                const nextBatchChapter = numberedMainChapters.find(chapter => {
+                    const chapterBatch = batchForChapter.get(chapter);
+                    return sideBatch?.startedAt && chapterBatch?.startedAt && chapterBatch.startedAt > sideBatch.startedAt;
+                });
+                let insertAt = nextBatchChapter ? mainChapters.indexOf(nextBatchChapter) : -1;
+
+                // If no later upload batch exists, use its assigned chapter slot as the fallback.
+                if (insertAt < 0) {
+                    const sideNumber = getChapterNumber(sideStory);
+                    insertAt = mainChapters.findIndex(chapter => getChapterNumber(chapter) >= sideNumber);
+                    if (insertAt < 0) insertAt = mainChapters.length;
+                }
+                mainChapters.splice(insertAt, 0, sideStory);
+            }
+
+            const sorted = ascending ? mainChapters : [...mainChapters].reverse();
             sorted.forEach(
                 chapter => {
 
