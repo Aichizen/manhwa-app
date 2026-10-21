@@ -2027,52 +2027,45 @@
 
 
             const byUpdatedTime = [...chapters].sort((a, b) => {
-                const uploadedA = Number(a && typeof a === "object" ? a.uploaded_at : 0) || 0;
-                const uploadedB = Number(b && typeof b === "object" ? b.uploaded_at : 0) || 0;
-                if (uploadedA && uploadedB) return uploadedA - uploadedB;
-                if (uploadedA) return 1;
-                if (uploadedB) return -1;
+                const timeA = Number(a && typeof a === "object" ? a.uploaded_at : 0) || 0;
+                const timeB = Number(b && typeof b === "object" ? b.uploaded_at : 0) || 0;
+                if (timeA && timeB) return timeA - timeB;
+                if (timeA) return 1;
+                if (timeB) return -1;
                 return getChapterNumber(a) - getChapterNumber(b);
             });
 
-            // Form explicit batches before sorting their files. Comparing pairs inside
-            // Array.sort can produce inconsistent results when timestamps overlap.
             const batches = [];
+            const batchWindowMs = 60 * 1000;
             for (const chapter of byUpdatedTime) {
                 const uploadedAt = Number(chapter && typeof chapter === "object" ? chapter.uploaded_at : 0) || 0;
                 let batch = batches[batches.length - 1];
-                if (!batch || !uploadedAt || !batch[0].uploadedAt || uploadedAt - batch[0].uploadedAt >= 1000) {
-                    batch = [];
+
+                // Batch records are stamped as the Worker saves them; group adjacent save times.
+                if (!batch || !uploadedAt || !batch.startedAt || uploadedAt - batch.startedAt >= batchWindowMs) {
+                    batch = { startedAt: uploadedAt, chapters: [] };
                     batches.push(batch);
                 }
-                batch.push({ chapter, uploadedAt });
+                if (uploadedAt && (!batch.startedAt || uploadedAt < batch.startedAt)) batch.startedAt = uploadedAt;
+                batch.chapters.push(chapter);
             }
-
-            const sorted = batches.flatMap(batch => {
-                const hasBatchTimes = batch.length > 1 && batch.every(item => item.uploadedAt);
-                if (hasBatchTimes) {
-                    batch.sort((a, b) => {
-                        const nameA = String(a.chapter.sourceName || a.chapter.label || a.chapter.chapter || a.chapter.number || "");
-                        const nameB = String(b.chapter.sourceName || b.chapter.label || b.chapter.chapter || b.chapter.number || "");
-                        return nameA.localeCompare(nameB, undefined, { numeric: true, sensitivity: "base" });
-                    });
-                }
-                return batch.map(item => item.chapter);
+            batches.sort((a, b) => {
+                if (a.startedAt && b.startedAt) return a.startedAt - b.startedAt;
+                if (a.startedAt) return 1;
+                if (b.startedAt) return -1;
+                return 0;
             });
-
-            if (!ascending) {
-                // Reverse the order of batches while keeping A–Z order inside each batch.
-                const grouped = [];
-                let cursor = 0;
-                for (const batch of batches) {
-                    const count = batch.length;
-                    grouped.push(sorted.slice(cursor, cursor + count));
-                    cursor += count;
-                }
-                sorted.splice(0, sorted.length, ...grouped.reverse().flat());
+            for (const batch of batches) {
+                batch.chapters.sort((a, b) => {
+                    const nameOf = item => String(item && typeof item === "object"
+                        ? item.sourceName || item.label || item.chapter || item.number || ""
+                        : item || "");
+                    return nameOf(a).localeCompare(nameOf(b), undefined, { numeric: true, sensitivity: "base" });
+                });
             }
 
-
+            if (!ascending) batches.reverse();
+            const sorted = batches.flatMap(batch => batch.chapters);
             sorted.forEach(
                 chapter => {
 
