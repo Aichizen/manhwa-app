@@ -22,10 +22,11 @@
     .choice span:last-child { color:var(--muted); font-size:14px; }
     @media(max-width:520px) { .choices { grid-template-columns:1fr; } .choice { min-height:140px; } }
   </style>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
   <main>
-    <a class="back" href="index.html">← Back to Homepage</a>
+    <a id="homeBackLink" class="back" href="index.html">← Back to Homepage</a>
     <section class="panel">
       <h1>Admin Panel</h1>
       <p class="intro">Pilih tindakan yang ingin dilakukan.</p>
@@ -48,5 +49,28 @@
       </nav>
     </section>
   </main>
+  <script>
+    const adminParams = new URLSearchParams(location.search);
+    const adminLaunchParams = new URLSearchParams(location.hash.replace(/^#/, ""));
+    const adminLaunchedFromTelegram = Boolean(window.Telegram?.WebApp?.initData)
+      || /Telegram/i.test(navigator.userAgent)
+      || adminParams.has("tgWebAppPlatform")
+      || adminLaunchParams.has("tgWebAppPlatform");
+    if (adminLaunchedFromTelegram && adminParams.get("view") !== "mobile") {
+      adminParams.set("view", "mobile");
+      history.replaceState(null, "", `${location.pathname}?${adminParams.toString()}${location.hash}`);
+    }
+    const isMobileView = adminParams.get("view") === "mobile";
+    document.getElementById("homeBackLink").href = "index.html" + (isMobileView ? "?view=mobile" : "");
+    document.addEventListener("click", event => {
+      if (!isMobileView) return;
+      const link = event.target.closest("a[href]");
+      if (!link) return;
+      const target = new URL(link.href, location.href);
+      if (target.origin !== location.origin || !target.pathname.endsWith(".html")) return;
+      target.searchParams.set("view", "mobile");
+      link.href = target.href;
+    }, true);
+  </script>
 </body>
 </html>

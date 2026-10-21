@@ -4,9 +4,15 @@
 <head>
     <script>
         const pageParams = new URLSearchParams(location.search);
-        const isTelegramView = /Telegram/i.test(navigator.userAgent)
+        const launchParams = new URLSearchParams(location.hash.replace(/^#/, ""));
+        const launchedFromTelegram = /Telegram/i.test(navigator.userAgent)
             || pageParams.has("tgWebAppPlatform")
-            || pageParams.get("view") === "mobile";
+            || launchParams.has("tgWebAppPlatform");
+        if (launchedFromTelegram && pageParams.get("view") !== "mobile") {
+            pageParams.set("view", "mobile");
+            history.replaceState(null, "", `${location.pathname}?${pageParams.toString()}${location.hash}`);
+        }
+        const isTelegramView = pageParams.get("view") === "mobile";
         document.documentElement.classList.add(isTelegramView ? "telegram-view" : "browser-view");
     </script>
     <script>
@@ -1250,15 +1256,11 @@
         ===================================================== */
 
         function goBack() {
-
+            const isMobileView = new URLSearchParams(location.search).get("view") === "mobile";
             if (window.history.length > 1) {
-
                 window.history.back();
-
             } else {
-
-                window.location.href =
-                    "index.html";
+                window.location.href = "index.html" + (isMobileView ? "?view=mobile" : "");
             }
         }
 
@@ -2181,6 +2183,17 @@
 
     </script>
 
+    <script>
+        document.addEventListener("click", event => {
+            if (new URLSearchParams(location.search).get("view") !== "mobile") return;
+            const link = event.target.closest("a[href]");
+            if (!link) return;
+            const target = new URL(link.href, location.href);
+            if (target.origin !== location.origin || !target.pathname.endsWith(".html")) return;
+            target.searchParams.set("view", "mobile");
+            link.href = target.href;
+        }, true);
+    </script>
 </body>
 </html>
 

@@ -84,7 +84,7 @@
         const result = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(result.error || `Permintaan gagal (${response.status}).`);
         statusEl.className = "success";
-        statusEl.textContent = `${result.title || "Manhwa"} berhasil ditambahkan.`;
+        statusEl.textContent = `${result.title || "Manhwa"} berhasil ditambahkan.${result.broadcast?.queued ? " Notifikasi sedang dikirim bertahap." : result.broadcast?.error ? " Notifikasi gagal masuk antrean." : ""}`;
         form.reset();
       } catch (error) {
         statusEl.className = "error";
@@ -94,5 +94,15 @@
       }
     });
   </script>
-</body>
+  <script>
+    document.addEventListener("click", event => {
+      if (new URLSearchParams(location.search).get("view") !== "mobile") return;
+      const link = event.target.closest("a[href]");
+      if (!link) return;
+      const target = new URL(link.href, location.href);
+      if (target.origin !== location.origin || !target.pathname.endsWith(".html")) return;
+      target.searchParams.set("view", "mobile");
+      link.href = target.href;
+    }, true);
+  </script></body>
 </html>

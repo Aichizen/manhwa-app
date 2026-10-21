@@ -318,7 +318,17 @@
     mangaSelect.addEventListener("change", () => { descriptionSection.hidden = true; chapterList.replaceChildren(); });
     loadMangaList();
   </script>
-</body>
+  <script>
+    document.addEventListener("click", event => {
+      if (new URLSearchParams(location.search).get("view") !== "mobile") return;
+      const link = event.target.closest("a[href]");
+      if (!link) return;
+      const target = new URL(link.href, location.href);
+      if (target.origin !== location.origin || !target.pathname.endsWith(".html")) return;
+      target.searchParams.set("view", "mobile");
+      link.href = target.href;
+    }, true);
+  </script></body>
 </html>
 
 

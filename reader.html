@@ -5,9 +5,15 @@
 
     <script>
         const pageParams = new URLSearchParams(location.search);
-        const isTelegramView = /Telegram/i.test(navigator.userAgent)
+        const launchParams = new URLSearchParams(location.hash.replace(/^#/, ""));
+        const launchedFromTelegram = /Telegram/i.test(navigator.userAgent)
             || pageParams.has("tgWebAppPlatform")
-            || pageParams.get("view") === "mobile";
+            || launchParams.has("tgWebAppPlatform");
+        if (launchedFromTelegram && pageParams.get("view") !== "mobile") {
+            pageParams.set("view", "mobile");
+            history.replaceState(null, "", `${location.pathname}?${pageParams.toString()}${location.hash}`);
+        }
+        const isTelegramView = pageParams.get("view") === "mobile";
         document.documentElement.classList.add(isTelegramView ? "telegram-view" : "browser-view");
     </script>
 
@@ -935,24 +941,16 @@
         ========================================== */
 
         function backToChapters() {
+            const isMobileView = new URLSearchParams(location.search).get("view") === "mobile";
+            const viewParam = isMobileView ? "&view=mobile" : "";
 
             if (!title) {
-
-                window.location.href =
-                    "index.html" + (new URLSearchParams(location.search).get("view") === "mobile" ? "?view=mobile" : "");
-
+                window.location.href = "index.html" + (isMobileView ? "?view=mobile" : "");
                 return;
-
             }
 
-
-            window.location.href =
-                "chapter.html?title=" +
-                encodeURIComponent(title) +
-                (new URLSearchParams(location.search).get("view") === "mobile" ? "&view=mobile" : "");
-
+            window.location.href = "chapter.html?title=" + encodeURIComponent(title) + viewParam;
         }
-
 
         window.goBack =
             backToChapters;
