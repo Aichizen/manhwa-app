@@ -337,7 +337,7 @@
 
         </div>
 
-        <button id="readerCommentToggle" class="reader-comment-toggle" type="button" aria-expanded="false" aria-controls="readerCommentPanel" hidden>Tap to comment</button>
+        <button id="readerCommentToggle" class="reader-comment-toggle" type="button" aria-expanded="false" aria-controls="readerCommentPanel" hidden>Login to comment</button>
 
     </header>
 
@@ -499,11 +499,11 @@
         function paintReaderCommentAccount() {
             const loggedIn = ReaderAccount.authenticated;
             const displayName = [ReaderAccount.user?.first_name, ReaderAccount.user?.last_name].filter(Boolean).join(" ") || ReaderAccount.user?.username || "akun Telegram";
-            commentToggle.hidden = !loggedIn && (
-                !ReaderAccount.hasTelegramData ||
-                document.documentElement.classList.contains("telegram-view")
-            );
-            commentToggle.textContent = loggedIn ? "Tap to comment" : "Login untuk komentar";
+            commentToggle.hidden = !loggedIn && !ReaderAccount.hasTelegramData;
+            const isMobileReader = document.documentElement.classList.contains("telegram-view");
+            commentToggle.textContent = isMobileReader
+                ? (loggedIn ? "Comment" : "Login to comment")
+                : (loggedIn ? "Tap to comment" : "Login untuk komentar");
             commentAccountText.textContent = loggedIn ? `Komentar sebagai ${displayName}.` : "Login Telegram diperlukan untuk mengirim komentar dari reader.";
             if (!loggedIn) {
                 commentPanel.hidden = true;
