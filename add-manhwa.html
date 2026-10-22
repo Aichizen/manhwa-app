@@ -33,7 +33,7 @@
       <form id="addMangaForm">
         <label for="adminToken">Admin token</label>
         <input id="adminToken" name="adminToken" type="password" autocomplete="off" required>
-        <p class="hint">Gunakan secret <code>ADMIN_TOKEN</code> yang disetel di Cloudflare Worker.</p>
+        <p class="hint">Token menentukan bucket tujuan: <code>ADMIN_TOKEN</code> untuk bucket utama atau <code>SECONDARY_ADMIN_TOKEN</code> untuk bucket kedua.</p>
 
         <label for="title">Judul</label>
         <input id="title" name="title" maxlength="120" required>
@@ -52,9 +52,6 @@
         <label for="cover">Cover</label>
         <input id="cover" name="cover" type="file" accept="image/jpeg,image/png,image/webp" required>
         <p class="hint">JPG, PNG, atau WebP; maksimal 8 MB.</p>
-
-        <label style="display:flex;align-items:center;gap:10px;font-weight:500"><input id="broadcastEnabled" name="broadcast" type="checkbox" value="true" checked style="width:auto"> Kirim notifikasi broadcast Telegram</label>
-        <p class="hint">Matikan jika manhwa ini tidak perlu diumumkan ke subscriber Telegram.</p>
 
         <button id="submitButton" type="submit">TAMBAH MANHWA</button>
         <p id="status" role="status" aria-live="polite"></p>
@@ -76,8 +73,6 @@
         const formData = new FormData(form);
         const token = formData.get("adminToken");
         formData.delete("adminToken");
-        // Unchecked checkboxes are omitted from FormData, so send an explicit value.
-        formData.set("broadcast", document.getElementById("broadcastEnabled").checked ? "true" : "false");
         const response = await fetch(`${API_BASE}/api/admin/manga`, {
           method: "POST",
           headers: { Authorization: `Bearer ${token}` },
@@ -86,7 +81,7 @@
         const result = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(result.error || `Permintaan gagal (${response.status}).`);
         statusEl.className = "success";
-        statusEl.textContent = `${result.title || "Manhwa"} berhasil ditambahkan.${result.broadcast?.queued ? " Notifikasi sedang dikirim bertahap." : result.broadcast?.error ? " Notifikasi gagal masuk antrean." : ""}`;
+        statusEl.textContent = `${result.title || "Manhwa"} berhasil ditambahkan.`;
         form.reset();
       } catch (error) {
         statusEl.className = "error";
