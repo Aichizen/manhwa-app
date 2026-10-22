@@ -76,6 +76,8 @@
         const formData = new FormData(form);
         const token = formData.get("adminToken");
         formData.delete("adminToken");
+        // Unchecked checkboxes are omitted from FormData, so send an explicit value.
+        formData.set("broadcast", document.getElementById("broadcastEnabled").checked ? "true" : "false");
         const response = await fetch(`${API_BASE}/api/admin/manga`, {
           method: "POST",
           headers: { Authorization: `Bearer ${token}` },
