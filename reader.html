@@ -439,6 +439,9 @@
         const title =
             params.get("title");
 
+        // ID dipakai untuk API dan chapter; nama tampil diambil dari metadata terbaru.
+        let mangaDisplayTitle = title || "";
+
 
         const chapter =
             params.get("chapter");
@@ -628,6 +631,9 @@
 
 
                 const mangaData = await response.json();
+                if (!Array.isArray(mangaData) && typeof mangaData.title === "string" && mangaData.title.trim()) {
+                    mangaDisplayTitle = mangaData.title.trim();
+                }
                 chapters = Array.isArray(mangaData)
                     ? mangaData
                     : (Array.isArray(mangaData.chapters) ? mangaData.chapters : []);
@@ -706,7 +712,7 @@
             const displayChapter = chapterItem?.label || String(chapterNumber).split(".")[0];
 
             document.title =
-                title.replace(/-/g, " ") +
+                mangaDisplayTitle +
                 " - Chapter " +
                 displayChapter;
 
@@ -714,11 +720,7 @@
             document.getElementById(
                 "readerMangaTitle"
             ).textContent =
-                title
-                    .replace(/-/g, " ")
-                    .replace(/\b\w/g, letter =>
-                        letter.toUpperCase()
-                    );
+                mangaDisplayTitle;
 
 
             document.getElementById(
