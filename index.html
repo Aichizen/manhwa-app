@@ -202,10 +202,12 @@
         }
         .announcement-panel[hidden] { display:none !important; }
         .announcement-heading { color:#d8bdff; font-size:12px; font-weight:700; letter-spacing:1.1px; text-transform:uppercase; }
-        .announcement-block + .announcement-block { margin-top:14px; padding-top:13px; border-top:1px solid rgba(216,189,255,.18); }
-        .announcement-label { color:#d8bdff; font-size:11px; font-weight:700; letter-spacing:.7px; text-transform:uppercase; }
+        .announcement-content { min-height:70px; }
         .announcement-message { margin-top:6px; color:#f4f2fa; font-size:14px; line-height:1.65; white-space:pre-wrap; overflow-wrap:anywhere; }
         .announcement-date { display:block; margin-top:6px; color:#aaa9c5; font-size:11px; }
+        .announcement-pagination { display:flex; justify-content:flex-end; gap:5px; margin-top:10px; }
+        .announcement-dot { width:7px; height:7px; padding:0; border:0; border-radius:50%; background:rgba(216,189,255,.35); }
+        .announcement-dot.active { width:18px; border-radius:99px; background:#c49cff; }
 
 
         /* =====================================================
@@ -1097,15 +1099,11 @@
 
         <aside id="announcementPanel" class="announcement-panel" aria-live="polite" hidden>
             <h2 class="announcement-heading">Information</h2>
-            <section id="announcementManualBlock" class="announcement-block" hidden>
+            <div id="announcementContent" class="announcement-content" aria-atomic="true">
                 <p id="announcementMessage" class="announcement-message"></p>
                 <time id="announcementDate" class="announcement-date"></time>
-            </section>
-            <section id="announcementBroadcastBlock" class="announcement-block" hidden>
-                <h3 id="announcementBroadcastLabel" class="announcement-label">Broadcast Terbaru</h3>
-                <p id="announcementBroadcastMessage" class="announcement-message"></p>
-                <time id="announcementBroadcastDate" class="announcement-date"></time>
-            </section>
+            </div>
+            <nav id="announcementPagination" class="announcement-pagination" aria-label="Pilih informasi" hidden></nav>
         </aside>
 
         <!-- =================================================
@@ -1223,38 +1221,58 @@
                 const response = await fetch(ANNOUNCEMENT_URL);
                 if (!response.ok) return;
                 const info = await response.json();
-                const manual = info?.announcement;
-                const broadcast = info?.broadcast;
-                const hasManual = Boolean(manual?.message_text);
-                const hasBroadcast = Boolean(broadcast?.message_text);
-                if (!hasManual && !hasBroadcast) return;
+                const manualItems = (info?.announcements || []).map(item => ({ ...item, kind: "announcement" }));
+                const broadcastItems = (info?.broadcasts || []).map(item => ({ ...item, kind: "broadcast" }));
+                const items = [];
+                const rounds = Math.max(manualItems.length, broadcastItems.length);
+                for (let index = 0; index < rounds; index++) {
+                    if (manualItems[index]) items.push(manualItems[index]);
+                    if (broadcastItems[index]) items.push(broadcastItems[index]);
+                }
+                if (!items.length) return;
 
-                const manualBlock = document.getElementById("announcementManualBlock");
-                manualBlock.hidden = !hasManual;
-                if (hasManual) {
-                    document.getElementById("announcementMessage").textContent = manual.message_text;
-                    setAnnouncementDate("announcementDate", manual.updated_at);
+                let currentIndex = 0;
+                const message = document.getElementById("announcementMessage");
+                const date = document.getElementById("announcementDate");
+                const pagination = document.getElementById("announcementPagination");
+                pagination.replaceChildren();
+                items.forEach((item, index) => {
+                    const dot = document.createElement("button");
+                    dot.type = "button";
+                    dot.className = "announcement-dot";
+                    dot.setAttribute("aria-label", `Tampilkan informasi ${index + 1}`);
+                    dot.addEventListener("click", () => showAnnouncement(index));
+                    pagination.appendChild(dot);
+                });
+
+                function showAnnouncement(index) {
+                    currentIndex = index;
+                    const item = items[index];
+                    message.textContent = item.message_text;
+                    date.textContent = "";
+                    date.removeAttribute("datetime");
+                    if (item.updated_at) {
+                        const parsed = new Date(`${item.updated_at.replace(" ", "T")}Z`);
+                        if (!Number.isNaN(parsed.getTime())) {
+                            date.dateTime = parsed.toISOString();
+                            date.textContent = `Updated ${parsed.toLocaleDateString()}`;
+                        }
+                    }
+                    Array.from(pagination.children).forEach((dot, dotIndex) => {
+                        dot.classList.toggle("active", dotIndex === index);
+                        dot.setAttribute("aria-current", dotIndex === index ? "true" : "false");
+                    });
                 }
-                const broadcastBlock = document.getElementById("announcementBroadcastBlock");
-                broadcastBlock.hidden = !hasBroadcast;
-                if (hasBroadcast) {
-                    document.getElementById("announcementBroadcastMessage").textContent = broadcast.message_text;
-                    document.getElementById("announcementBroadcastLabel").textContent = hasManual ? "Broadcast Terbaru" : "Update Terbaru";
-                    setAnnouncementDate("announcementBroadcastDate", broadcast.updated_at);
-                }
+
+                showAnnouncement(0);
+                pagination.hidden = items.length < 2;
                 panel.hidden = false;
+                if (items.length > 1) {
+                    window.setInterval(() => showAnnouncement((currentIndex + 1) % items.length), 6000);
+                }
             } catch (error) {
                 console.warn("Announcement could not be loaded.", error);
             }
-        }
-
-        function setAnnouncementDate(elementId, value) {
-            if (!value) return;
-            const date = new Date(`${value.replace(" ", "T")}Z`);
-            if (Number.isNaN(date.getTime())) return;
-            const time = document.getElementById(elementId);
-            time.dateTime = date.toISOString();
-            time.textContent = `Updated ${date.toLocaleDateString()}`;
         }
 
 
