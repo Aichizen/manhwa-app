@@ -1321,6 +1321,7 @@
         ===================================================== */
 
         let mangaData = [];
+        const MANGA_CACHE_KEY = "storyAboutUsMangaCatalog";
 
         let favorites =
             JSON.parse(
@@ -1434,20 +1435,30 @@
                 );
 
 
-                const response =
-                    await fetch(API_URL);
+                let response;
+                let lastError;
+                for (let attempt = 0; attempt < 3; attempt++) {
+                    try {
+                        response = await fetch(API_URL, { cache: "no-store" });
+                        if (response.ok || (response.status < 500 && response.status !== 429)) break;
+                        lastError = new Error(`API request failed (${response.status})`);
+                    } catch (error) {
+                        lastError = error;
+                    }
+                    if (attempt < 2) await new Promise(resolve => setTimeout(resolve, 500 * (attempt + 1)));
+                }
 
 
-                if (!response.ok) {
+                if (!response?.ok) {
 
-                    throw new Error(
-                        "API request failed"
-                    );
+                    throw lastError || new Error("API request failed");
                 }
 
 
                 const data =
                     await response.json();
+
+                if (!Array.isArray(data)) throw new Error("Invalid manga catalog response");
 
 
                 mangaData =
@@ -1483,6 +1494,12 @@
                         )
                 );
 
+                try {
+                    localStorage.setItem(MANGA_CACHE_KEY, JSON.stringify(mangaData));
+                } catch (cacheError) {
+                    console.warn("Manga catalog cache could not be saved:", cacheError);
+                }
+
 
                 loading.style.display =
                     "none";
@@ -1500,12 +1517,27 @@
                 );
 
 
-                loading.style.display =
-                    "none";
+                let cachedCatalog = [];
+                try {
+                    const cached = JSON.parse(localStorage.getItem(MANGA_CACHE_KEY) || "[]");
+                    if (Array.isArray(cached)) cachedCatalog = cached.filter(item => item?.id && item?.title);
+                } catch (cacheError) {
+                    console.warn("Manga catalog cache could not be read:", cacheError);
+                }
 
-                errorMessage.classList.add(
-                    "show"
-                );
+                if (cachedCatalog.length) {
+                    mangaData = cachedCatalog;
+                    loading.style.display = "none";
+                    errorMessage.textContent = "Koneksi katalog sedang terganggu. Menampilkan daftar yang terakhir tersimpan.";
+                    errorMessage.classList.add("show");
+                    renderManga();
+                    renderAlphabet();
+                    return;
+                }
+
+                loading.style.display = "none";
+                errorMessage.textContent = "Daftar manhwa gagal dimuat. Periksa koneksi lalu coba muat ulang halaman.";
+                errorMessage.classList.add("show");
             }
         }
 
