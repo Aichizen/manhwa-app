@@ -21,6 +21,13 @@
     button:disabled { opacity:.6; cursor:wait; }
     .auth-row { display:grid; grid-template-columns:1fr auto; align-items:end; gap:12px; }
     .filters { display:grid; grid-template-columns:2fr 1fr; gap:12px; margin-top:20px; }
+    .pagination-settings { display:flex; align-items:end; gap:10px; margin-top:16px; }
+    .pagination-settings label { margin:0; }
+    .pagination-settings input { width:100px; }
+    .pagination { display:flex; align-items:center; justify-content:center; gap:8px; margin-top:16px; }
+    .pagination button { min-width:42px; min-height:40px; padding:7px 12px; }
+    .pagination button:disabled { opacity:.45; cursor:not-allowed; }
+    .page-indicator { min-width:130px; text-align:center; color:var(--muted); font-size:14px; }
     #status { min-height:24px; margin:12px 0 0; color:var(--muted); }
     #comments { display:grid; gap:12px; margin-top:18px; }
     .comment { padding:17px; border:1px solid var(--line); border-radius:14px; background:rgba(255,255,255,.045); }
@@ -40,7 +47,7 @@
     .reply-form button { justify-self:start; }
     .reply-status { margin:0; color:var(--muted); font-size:13px; }
     .empty { padding:24px; text-align:center; color:var(--muted); border:1px dashed var(--line); border-radius:12px; }
-    @media(max-width:560px) { .auth-row,.filters { grid-template-columns:1fr; } .auth-row button { width:100%; } }
+    @media(max-width:560px) { .auth-row,.filters { grid-template-columns:1fr; } .auth-row button { width:100%; } .pagination { gap:5px; } .pagination button { min-width:38px; padding:6px 9px; } .page-indicator { min-width:100px; font-size:12px; } }
   </style>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
@@ -60,7 +67,24 @@
           <div><label for="search">Cari komentar</label><input id="search" type="search" placeholder="Judul, nama pembaca, atau isi komentar"></div>
           <div><label for="filter">Tampilkan</label><select id="filter"><option value="all">Semua komentar</option><option value="revision">Kemungkinan meminta revisi</option></select></div>
         </div>
+        <div class="pagination-settings">
+          <div><label for="pageSize">Komentar per halaman</label><input id="pageSize" type="number" min="1" max="200" step="1" value="20"></div>
+        </div>
+        <nav class="pagination" aria-label="Navigasi halaman komentar">
+          <button type="button" data-page-action="first" aria-label="Ke halaman pertama">&lt;&lt;</button>
+          <button type="button" data-page-action="previous" aria-label="Halaman sebelumnya">&lt;</button>
+          <span class="page-indicator" data-page-indicator>Halaman 1 dari 1</span>
+          <button type="button" data-page-action="next" aria-label="Halaman berikutnya">&gt;</button>
+          <button type="button" data-page-action="last" aria-label="Ke halaman terakhir">&gt;&gt;</button>
+        </nav>
         <div id="comments" aria-live="polite"></div>
+        <nav class="pagination" aria-label="Navigasi halaman komentar bawah">
+          <button type="button" data-page-action="first" aria-label="Ke halaman pertama">&lt;&lt;</button>
+          <button type="button" data-page-action="previous" aria-label="Halaman sebelumnya">&lt;</button>
+          <span class="page-indicator" data-page-indicator>Halaman 1 dari 1</span>
+          <button type="button" data-page-action="next" aria-label="Halaman berikutnya">&gt;</button>
+          <button type="button" data-page-action="last" aria-label="Ke halaman terakhir">&gt;&gt;</button>
+        </nav>
       </div>
     </section>
   </main>
@@ -72,17 +96,27 @@
     const mobileView = params.get("view") === "mobile";
     document.getElementById("backLink").href = "admin.html" + (mobileView ? "?view=mobile" : "");
     const form = document.getElementById("authForm"), tokenInput = document.getElementById("token"), status = document.getElementById("status");
-    const commentsEl = document.getElementById("comments"), filterArea = document.getElementById("filterArea"), searchInput = document.getElementById("search"), filterInput = document.getElementById("filter");
+    const commentsEl = document.getElementById("comments"), filterArea = document.getElementById("filterArea"), searchInput = document.getElementById("search"), filterInput = document.getElementById("filter"), pageSizeInput = document.getElementById("pageSize");
     let comments = [];
+    let currentPage = 1;
     const revisionPattern = /\b(revisi|direvisi|salah|keliru|error|rusak|blur|buram|terpotong|kurang|hilang|typo|salah terjemah|perbaiki|perbaikan|fix)\b/i;
     const escapeHtml = value => String(value ?? "").replace(/[&<>"']/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[char]));
     function render() {
       const query = searchInput.value.trim().toLocaleLowerCase();
       const onlyRevision = filterInput.value === "revision";
-      const visible = comments.filter(item => {
+      const filtered = comments.filter(item => {
         const flagged = revisionPattern.test(item.text || "");
         const haystack = [item.manga_title,item.username,item.text,item.chapter_number].join(" ").toLocaleLowerCase();
         return (!onlyRevision || flagged) && (!query || haystack.includes(query));
+      });
+      const pageSize = Math.min(200, Math.max(1, Math.floor(Number(pageSizeInput.value) || 20)));
+      const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+      currentPage = Math.min(Math.max(1, currentPage), totalPages);
+      const visible = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+      document.querySelectorAll("[data-page-indicator]").forEach(element => { element.textContent = `Halaman ${currentPage} dari ${totalPages}`; });
+      document.querySelectorAll("[data-page-action]").forEach(button => {
+        const action = button.dataset.pageAction;
+        button.disabled = action === "first" || action === "previous" ? currentPage === 1 : currentPage === totalPages;
       });
       commentsEl.replaceChildren();
       if (!visible.length) { commentsEl.innerHTML = '<div class="empty">Tidak ada komentar yang cocok.</div>'; return; }
@@ -102,6 +136,7 @@
         const data = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(data.error || `Gagal memuat komentar (${response.status}).`);
         comments = Array.isArray(data) ? data : [];
+        currentPage = 1;
         filterArea.hidden = false; render();
         status.textContent = `${comments.length} komentar dimuat. Penanda revisi otomatis hanya membantu penyaringan; periksa konteksnya.`;
         return true;
@@ -165,7 +200,23 @@
       } catch (error) { replyStatus.textContent = error.message || "Balasan gagal dikirim."; }
       finally { button.disabled = false; }
     });
-    searchInput.addEventListener("input", render); filterInput.addEventListener("change", render);
+    document.querySelectorAll("[data-page-action]").forEach(button => button.addEventListener("click", () => {
+      const totalPages = Math.max(1, Math.ceil(comments.filter(item => {
+        const flagged = revisionPattern.test(item.text || "");
+        const haystack = [item.manga_title,item.username,item.text,item.chapter_number].join(" ").toLocaleLowerCase();
+        return (filterInput.value !== "revision" || flagged) && (!searchInput.value.trim() || haystack.includes(searchInput.value.trim().toLocaleLowerCase()));
+      }).length / Math.min(200, Math.max(1, Math.floor(Number(pageSizeInput.value) || 20)))));
+      switch (button.dataset.pageAction) {
+        case "first": currentPage = 1; break;
+        case "previous": currentPage = Math.max(1, currentPage - 1); break;
+        case "next": currentPage = Math.min(totalPages, currentPage + 1); break;
+        case "last": currentPage = totalPages; break;
+      }
+      render();
+    }));
+    searchInput.addEventListener("input", () => { currentPage = 1; render(); });
+    filterInput.addEventListener("change", () => { currentPage = 1; render(); });
+    pageSizeInput.addEventListener("input", () => { currentPage = 1; render(); });
   </script>
 </body>
 </html>
