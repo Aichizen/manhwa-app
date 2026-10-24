@@ -125,8 +125,8 @@
         }).then(async response => {
           const result = await response.json().catch(() => ({}));
           if (!response.ok || !result.success) throw new Error(result.error || `Komentar gagal dihapus (${response.status}).`);
-          status.textContent = `${result.deleted || 1} komentar beserta balasannya dihapus.`;
           await loadComments();
+          status.textContent = `${result.deleted || 1} komentar beserta balasannya dihapus. Daftar sudah diperbarui.`;
         }).catch(error => {
           status.textContent = error.message || "Komentar gagal dihapus.";
           deleteButton.disabled = false;
