@@ -1926,9 +1926,17 @@
 
             img.onerror =
                 function () {
-
-                    this.src =
-                        "https://cdn.storyabout-us.com/Theme/homepage-bg.png";
+                    const retries = Number(this.dataset.retryCount || 0);
+                    if (retries < 2 && this.src) {
+                        this.dataset.retryCount = String(retries + 1);
+                        const retryUrl = new URL(this.src);
+                        retryUrl.searchParams.set("_retry", String(Date.now()));
+                        this.src = retryUrl.toString();
+                        return;
+                    }
+                    this.onerror = null;
+                    this.removeAttribute("src");
+                    this.classList.add("cover-unavailable");
                 };
 
 

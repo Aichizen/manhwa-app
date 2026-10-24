@@ -1509,6 +1509,23 @@
         const API_BASE =
             "https://story-about-us-api.aichinose219.workers.dev";
 
+        async function fetchWithRetry(url, options = {}, maxAttempts = 3) {
+            let lastError;
+            for (let attempt = 0; attempt < maxAttempts; attempt++) {
+                try {
+                    const response = await fetch(url, options);
+                    if (response.ok || (response.status < 500 && response.status !== 429)) return response;
+                    lastError = new Error(`Server sementara tidak tersedia (${response.status}).`);
+                } catch (error) {
+                    lastError = error;
+                }
+                if (attempt < maxAttempts - 1) {
+                    await new Promise(resolve => setTimeout(resolve, 500 * (attempt + 1)));
+                }
+            }
+            throw lastError || new Error("Koneksi ke server gagal.");
+        }
+
 
         /* =====================================================
            MANGA ID
@@ -1553,6 +1570,19 @@
             document.getElementById(
                 "cover"
             );
+
+        cover.addEventListener("error", function retryCover() {
+            const retries = Number(cover.dataset.retryCount || 0);
+            if (retries < 2 && cover.src) {
+                cover.dataset.retryCount = String(retries + 1);
+                const retryUrl = new URL(cover.src);
+                retryUrl.searchParams.set("_retry", String(Date.now()));
+                cover.src = retryUrl.toString();
+                return;
+            }
+            cover.removeAttribute("src");
+            cover.classList.add("cover-unavailable");
+        });
 
 
         const chapterList =
@@ -1684,9 +1714,10 @@
             try {
 
                 const response =
-                    await fetch(
+                    await fetchWithRetry(
                         API_BASE +
-                        "/api/manga"
+                        "/api/manga",
+                        { cache: "no-store" }
                     );
 
 
@@ -1803,12 +1834,13 @@
             try {
 
                 const response =
-                    await fetch(
+                    await fetchWithRetry(
                         API_BASE +
                         "/api/manga/" +
                         encodeURIComponent(
                             mangaId
-                        )
+                        ),
+                        { cache: "no-store" }
                     );
 
 
@@ -2358,7 +2390,7 @@
             try {
 
                 const response =
-                    await fetch(
+                    await fetchWithRetry(
 
                         API_BASE +
 
@@ -2366,7 +2398,8 @@
 
                         encodeURIComponent(
                             mangaId
-                        )
+                        ),
+                        { cache: "no-store" }
                     );
 
 
