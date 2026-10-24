@@ -20,6 +20,7 @@
     .choice-icon { display:block; margin-bottom:18px; color:var(--accent); font-size:26px; }
     .choice strong { display:block; margin-bottom:6px; font-size:19px; }
     .choice span:last-child { color:var(--muted); font-size:14px; }
+    .choice-wide { grid-column:1 / -1; min-height:130px; }
     @media(max-width:520px) { .choices { grid-template-columns:1fr; } .choice { min-height:140px; } }
   </style>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -45,6 +46,11 @@
           <span class="choice-icon" aria-hidden="true">✎</span>
           <strong>Edit Manhwa</strong>
           <span>Ganti atau hapus PDF chapter manhwa yang sudah ada.</span>
+        </a>
+        <a class="choice choice-wide" href="admin-comments.html">
+          <span class="choice-icon" aria-hidden="true">☷</span>
+          <strong>Lihat Komentar</strong>
+          <span>Baca semua komentar pembaca, cari masukan, dan temukan komentar yang mungkin meminta revisi.</span>
         </a>
       </nav>
     </section>

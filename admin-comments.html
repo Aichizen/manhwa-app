@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Komentar Pembaca | Admin</title>
+  <style>
+    :root { color-scheme:dark; --text:#f4f2fa; --muted:#bbb7cc; --accent:#d4b1ff; --line:rgba(255,255,255,.18); }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; padding:28px 16px; color:var(--text); font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif; background:linear-gradient(rgba(10,10,28,.4),rgba(10,10,28,.62)),url("homepage-bg.png") center/cover fixed; }
+    main { width:min(100%,900px); margin:auto; }
+    a { color:inherit; text-decoration:none; }
+    .back { display:inline-block; margin-bottom:18px; color:var(--muted); }
+    .panel { padding:clamp(20px,4vw,34px); border:1px solid var(--line); border-radius:20px; background:rgba(24,22,42,.9); backdrop-filter:blur(10px); }
+    h1 { margin:0 0 6px; font:clamp(28px,6vw,40px)/1.1 Georgia,serif; }
+    .intro,.muted { color:var(--muted); }
+    .intro { margin:0 0 22px; }
+    label { display:block; margin:12px 0 6px; font-weight:650; }
+    input,select { width:100%; min-height:44px; padding:10px 12px; border:1px solid var(--line); border-radius:10px; background:rgba(10,11,22,.76); color:var(--text); font:inherit; }
+    button { min-height:44px; padding:10px 18px; border:0; border-radius:10px; background:var(--accent); color:#20182b; font:700 15px system-ui,sans-serif; cursor:pointer; }
+    button:disabled { opacity:.6; cursor:wait; }
+    .auth-row { display:grid; grid-template-columns:1fr auto; align-items:end; gap:12px; }
+    .filters { display:grid; grid-template-columns:2fr 1fr; gap:12px; margin-top:20px; }
+    #status { min-height:24px; margin:12px 0 0; color:var(--muted); }
+    #comments { display:grid; gap:12px; margin-top:18px; }
+    .comment { padding:17px; border:1px solid var(--line); border-radius:14px; background:rgba(255,255,255,.045); }
+    .comment.revision { border-color:rgba(255,190,130,.58); background:rgba(110,62,31,.18); }
+    .topline { display:flex; flex-wrap:wrap; align-items:center; gap:7px 12px; }
+    .title { font-weight:750; font-size:17px; }
+    .meta { color:var(--muted); font-size:13px; }
+    .badge { display:inline-block; padding:3px 8px; border-radius:99px; background:rgba(255,255,255,.1); font-size:12px; }
+    .badge.revision { background:rgba(255,177,111,.2); color:#ffd2aa; }
+    .body { margin:12px 0 0; white-space:pre-wrap; overflow-wrap:anywhere; }
+    .reply-context { margin:10px 0 0; padding:9px 12px; border-left:2px solid var(--accent); color:var(--muted); font-size:14px; }
+    .reply-toggle { min-height:36px; margin-top:12px; padding:7px 13px; background:rgba(212,177,255,.17); color:var(--text); border:1px solid rgba(212,177,255,.38); }
+    .delete-comment { min-height:36px; margin:12px 0 0 8px; padding:7px 13px; background:rgba(255,105,125,.14); color:#ffc0c8; border:1px solid rgba(255,135,150,.4); }
+    .reply-form { display:grid; gap:8px; margin-top:12px; }
+    .reply-form textarea { width:100%; min-height:86px; padding:10px 12px; border:1px solid var(--line); border-radius:10px; background:rgba(10,11,22,.76); color:var(--text); font:inherit; resize:vertical; }
+    .reply-form button { justify-self:start; }
+    .reply-status { margin:0; color:var(--muted); font-size:13px; }
+    .empty { padding:24px; text-align:center; color:var(--muted); border:1px dashed var(--line); border-radius:12px; }
+    @media(max-width:560px) { .auth-row,.filters { grid-template-columns:1fr; } .auth-row button { width:100%; } }
+  </style>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+  <main>
+    <a id="backLink" class="back" href="admin.html">← Kembali ke Admin</a>
+    <section class="panel">
+      <h1>Komentar Pembaca</h1>
+      <p class="intro">Semua komentar terbaru, termasuk komentar pada chapter. Gunakan pencarian untuk meninjau masukan revisi.</p>
+      <form id="authForm" class="auth-row">
+        <div><label for="token">Admin token</label><input id="token" type="password" autocomplete="current-password" required></div>
+        <button id="loadButton" type="submit">Muat Komentar</button>
+      </form>
+      <p id="status" role="status" aria-live="polite"></p>
+      <div id="filterArea" hidden>
+        <div class="filters">
+          <div><label for="search">Cari komentar</label><input id="search" type="search" placeholder="Judul, nama pembaca, atau isi komentar"></div>
+          <div><label for="filter">Tampilkan</label><select id="filter"><option value="all">Semua komentar</option><option value="revision">Kemungkinan meminta revisi</option></select></div>
+        </div>
+        <div id="comments" aria-live="polite"></div>
+      </div>
+    </section>
+  </main>
+  <script>
+    const API_BASE = "https://story-about-us-api.aichinose219.workers.dev";
+    const params = new URLSearchParams(location.search);
+    const fromTelegram = Boolean(window.Telegram?.WebApp?.initData) || /Telegram/i.test(navigator.userAgent) || params.has("tgWebAppPlatform");
+    if (fromTelegram && params.get("view") !== "mobile") { params.set("view", "mobile"); history.replaceState(null, "", `${location.pathname}?${params.toString()}${location.hash}`); }
+    const mobileView = params.get("view") === "mobile";
+    document.getElementById("backLink").href = "admin.html" + (mobileView ? "?view=mobile" : "");
+    const form = document.getElementById("authForm"), tokenInput = document.getElementById("token"), status = document.getElementById("status");
+    const commentsEl = document.getElementById("comments"), filterArea = document.getElementById("filterArea"), searchInput = document.getElementById("search"), filterInput = document.getElementById("filter");
+    let comments = [];
+    const revisionPattern = /\b(revisi|direvisi|salah|keliru|error|rusak|blur|buram|terpotong|kurang|hilang|typo|salah terjemah|perbaiki|perbaikan|fix)\b/i;
+    const escapeHtml = value => String(value ?? "").replace(/[&<>"']/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[char]));
+    function render() {
+      const query = searchInput.value.trim().toLocaleLowerCase();
+      const onlyRevision = filterInput.value === "revision";
+      const visible = comments.filter(item => {
+        const flagged = revisionPattern.test(item.text || "");
+        const haystack = [item.manga_title,item.username,item.text,item.chapter_number].join(" ").toLocaleLowerCase();
+        return (!onlyRevision || flagged) && (!query || haystack.includes(query));
+      });
+      commentsEl.replaceChildren();
+      if (!visible.length) { commentsEl.innerHTML = '<div class="empty">Tidak ada komentar yang cocok.</div>'; return; }
+      commentsEl.innerHTML = visible.map(item => {
+        const flagged = revisionPattern.test(item.text || "");
+        const chapter = item.chapter_number === null || item.chapter_number === "" ? "Komentar manhwa" : `Chapter ${escapeHtml(item.chapter_number)}`;
+        const rating = Number(item.rating) > 0 ? ` · ★ ${escapeHtml(item.rating)}/5` : "";
+        const date = item.created_at ? new Date(item.created_at.replace(" ", "T") + (/[zZ]|[+-]\d\d:\d\d$/.test(item.created_at) ? "" : "Z")).toLocaleString("id-ID", {dateStyle:"medium",timeStyle:"short"}) : "Waktu tidak tersedia";
+        const reply = item.reply_to_id ? `<p class="reply-context">Balasan untuk komentar #${escapeHtml(item.reply_to_id)}</p>` : "";
+        return `<article class="comment ${flagged ? "revision" : ""}"><div class="topline"><span class="title">${escapeHtml(item.manga_title)}</span><span class="badge">${chapter}</span>${flagged ? '<span class="badge revision">Kemungkinan revisi</span>' : ""}</div><div class="meta">${escapeHtml(item.username || "Pembaca")} · ${escapeHtml(date)}${rating}</div>${reply}<p class="body">${escapeHtml(item.text)}</p><button class="reply-toggle" type="button" data-toggle-reply="${escapeHtml(item.id)}">Balas komentar</button><button class="delete-comment" type="button" data-delete-comment="${escapeHtml(item.id)}">Hapus</button><form class="reply-form" data-comment-id="${escapeHtml(item.id)}" hidden><label for="reply-${escapeHtml(item.id)}">Balasan admin</label><textarea id="reply-${escapeHtml(item.id)}" name="text" maxlength="2000" required placeholder="Tulis balasan untuk komentar ini…"></textarea><button type="submit">Kirim Balasan</button><p class="reply-status" role="status"></p></form></article>`;
+      }).join("");
+    }
+    async function loadComments() {
+      status.textContent = "Memuat komentar…";
+      try {
+        const response = await fetch(`${API_BASE}/api/admin/comments`, {cache:"no-store",headers:{Authorization:`Bearer ${tokenInput.value.trim()}`}});
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(data.error || `Gagal memuat komentar (${response.status}).`);
+        comments = Array.isArray(data) ? data : [];
+        filterArea.hidden = false; render();
+        status.textContent = `${comments.length} komentar dimuat. Penanda revisi otomatis hanya membantu penyaringan; periksa konteksnya.`;
+        return true;
+      } catch (error) { status.textContent = error.message || "Komentar gagal dimuat."; return false; }
+    }
+    form.addEventListener("submit", async event => {
+      event.preventDefault();
+      const button = document.getElementById("loadButton"); button.disabled = true;
+      await loadComments();
+      button.disabled = false;
+    });
+    commentsEl.addEventListener("click", event => {
+      const deleteButton = event.target.closest("[data-delete-comment]");
+      if (deleteButton) {
+        const commentId = deleteButton.dataset.deleteComment;
+        if (!confirm("Hapus komentar ini beserta semua balasan di dalam rangkaiannya? Tindakan ini tidak dapat dibatalkan.")) return;
+        deleteButton.disabled = true;
+        status.textContent = "Menghapus komentar…";
+        fetch(`${API_BASE}/api/comments/${encodeURIComponent(commentId)}`, {
+          method:"DELETE", cache:"no-store", headers:{Authorization:`Bearer ${tokenInput.value.trim()}`}
+        }).then(async response => {
+          const result = await response.json().catch(() => ({}));
+          if (!response.ok || !result.success) throw new Error(result.error || `Komentar gagal dihapus (${response.status}).`);
+          status.textContent = `${result.deleted || 1} komentar beserta balasannya dihapus.`;
+          await loadComments();
+        }).catch(error => {
+          status.textContent = error.message || "Komentar gagal dihapus.";
+          deleteButton.disabled = false;
+        });
+        return;
+      }
+      const toggle = event.target.closest("[data-toggle-reply]");
+      if (!toggle) return;
+      const replyForm = commentsEl.querySelector(`.reply-form[data-comment-id="${CSS.escape(toggle.dataset.toggleReply)}"]`);
+      if (replyForm) { replyForm.hidden = !replyForm.hidden; if (!replyForm.hidden) replyForm.querySelector("textarea").focus(); }
+    });
+    commentsEl.addEventListener("submit", async event => {
+      const replyForm = event.target.closest(".reply-form");
+      if (!replyForm) return;
+      event.preventDefault();
+      const button = replyForm.querySelector("button[type=submit]");
+      const replyStatus = replyForm.querySelector(".reply-status");
+      button.disabled = true; replyStatus.textContent = "Mengirim balasan…";
+      try {
+        const response = await fetch(`${API_BASE}/api/admin/comments/reply`, {
+          method:"POST", headers:{"Content-Type":"application/json",Authorization:`Bearer ${tokenInput.value.trim()}`},
+          body:JSON.stringify({reply_to_id:Number(replyForm.dataset.commentId),text:replyForm.elements.text.value.trim()})
+        });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok || !result.success) throw new Error(result.error || `Balasan gagal dikirim (${response.status}).`);
+        status.textContent = "Balasan terkirim. Memperbarui komentar…";
+        await loadComments();
+      } catch (error) { replyStatus.textContent = error.message || "Balasan gagal dikirim."; }
+      finally { button.disabled = false; }
+    });
+    searchInput.addEventListener("input", render); filterInput.addEventListener("change", render);
+  </script>
+</body>
+</html>
