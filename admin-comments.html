@@ -152,8 +152,16 @@
         });
         const result = await response.json().catch(() => ({}));
         if (!response.ok || !result.success) throw new Error(result.error || `Balasan gagal dikirim (${response.status}).`);
-        status.textContent = "Balasan terkirim. Memperbarui komentar…";
+        status.textContent = "Balasan tersimpan. Memperbarui komentar…";
         await loadComments();
+        const notificationMessage = {
+          sent:"Notifikasi Telegram terkirim.",
+          queued:"Notifikasi ditahan sampai antrean broadcast selesai.",
+          not_started:"Notifikasi dilewati karena pengguna belum pernah mengirim /start ke bot.",
+          unavailable:"Komentar ini tidak terhubung ke akun Telegram, jadi notifikasi tidak dikirim.",
+          failed:"Balasan tersimpan, tetapi notifikasi Telegram gagal dikirim."
+        }[result.notification] || "Status notifikasi tidak tersedia.";
+        status.textContent = `Balasan tersimpan. ${notificationMessage}`;
       } catch (error) { replyStatus.textContent = error.message || "Balasan gagal dikirim."; }
       finally { button.disabled = false; }
     });
