@@ -453,7 +453,7 @@
         ========================================== */
 
         const API_BASE =
-            "https://story-about-us-api.aichinose219.workers.dev";
+            "";
 
         let chapters = [];
         let currentChapterIndex = -1;
@@ -886,7 +886,7 @@
             }
             const current = chapters[currentChapterIndex];
             try {
-                await ReaderAccount.apiFetch("https://story-about-us-api.aichinose219.workers.dev/api/history", {
+                await ReaderAccount.apiFetch("/api/history", {
                     method: "POST", headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ manga_id: title, chapter_number: Number(current.number), page_number: pageNumber })
                 });

@@ -55,7 +55,7 @@ const mangaData = [
     }
 ];
 
-const MANGA_API_BASE = "https://story-about-us-api.aichinose219.workers.dev";
+const MANGA_API_BASE = "";
 
 
 /* =========================================

@@ -51,6 +51,7 @@
       <p class="intro">Pilih manhwa untuk mengubah detail, mengganti PDF, atau menghapus chapter.</p>
       <label for="adminToken">Admin token</label>
       <input id="adminToken" type="password" autocomplete="off" required>
+      <p class="hint">Token menentukan bucket manhwa yang dikelola.</p>
       <label for="mangaSelect">Manhwa</label>
       <select id="mangaSelect"><option value="">Memuat daftar manhwa...</option></select>
       <label style="display:flex;align-items:center;gap:10px;font-weight:500"><input id="broadcastEnabled" type="checkbox" checked style="width:auto"> Kirim notifikasi broadcast Telegram untuk perubahan</label>
@@ -81,7 +82,7 @@
     </section>
   </main>
   <script>
-    const API_BASE = "https://story-about-us-api.aichinose219.workers.dev";
+    const API_BASE = "";
     const mangaSelect = document.getElementById("mangaSelect");
     const tokenInput = document.getElementById("adminToken");
     const loadButton = document.getElementById("loadButton");
@@ -101,8 +102,13 @@
     }
 
     async function loadMangaList() {
+      const token = tokenInput.value.trim();
+      if (!token) {
+        mangaSelect.replaceChildren(new Option("Masukkan admin token terlebih dahulu", ""));
+        return;
+      }
       try {
-        const response = await fetch(`${API_BASE}/api/manga`, { cache:"no-store" });
+        const response = await fetch(`${API_BASE}/api/admin/manga/list`, { cache:"no-store", headers: { Authorization: `Bearer ${token}` } });
         if (!response.ok) throw new Error(`Daftar manhwa gagal dimuat (${response.status}).`);
         const list = await response.json();
         mangaSelect.replaceChildren(new Option("Pilih manhwa", ""));
@@ -316,6 +322,7 @@
     loadButton.addEventListener("click", loadChapters);
     saveDescriptionButton.addEventListener("click", saveDescription);
     mangaSelect.addEventListener("change", () => { descriptionSection.hidden = true; chapterList.replaceChildren(); });
+    tokenInput.addEventListener("change", loadMangaList);
     loadMangaList();
   </script>
   <script>

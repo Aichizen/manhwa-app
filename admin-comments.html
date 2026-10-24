@@ -89,7 +89,7 @@
     </section>
   </main>
   <script>
-    const API_BASE = "https://story-about-us-api.aichinose219.workers.dev";
+    const API_BASE = "";
     const params = new URLSearchParams(location.search);
     const fromTelegram = Boolean(window.Telegram?.WebApp?.initData) || /Telegram/i.test(navigator.userAgent) || params.has("tgWebAppPlatform");
     if (fromTelegram && params.get("view") !== "mobile") { params.set("view", "mobile"); history.replaceState(null, "", `${location.pathname}?${params.toString()}${location.hash}`); }

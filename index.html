@@ -1212,8 +1212,8 @@
         ===================================================== */
 
         const API_URL =
-            "https://story-about-us-api.aichinose219.workers.dev/api/manga";
-        const ANNOUNCEMENT_URL = "https://story-about-us-api.aichinose219.workers.dev/api/announcement";
+            "/api/manga";
+        const ANNOUNCEMENT_URL = "/api/announcement";
 
         async function loadAnnouncement() {
             const panel = document.getElementById("announcementPanel");
@@ -2247,7 +2247,7 @@
 
         async function loadReadingHistory() {
             try {
-                const response = await ReaderAccount.apiFetch("https://story-about-us-api.aichinose219.workers.dev/api/history");
+                const response = await ReaderAccount.apiFetch("/api/history");
                 if (!response.ok) throw new Error("Riwayat belum tersedia.");
                 readingEntries = await response.json();
                 if (activeView === "last-read") renderManga();

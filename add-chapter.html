@@ -52,6 +52,7 @@
       <form id="addChapterForm">
         <label for="adminToken">Admin token</label>
         <input id="adminToken" name="adminToken" type="password" autocomplete="off" required>
+        <p class="hint">Token menentukan bucket manhwa yang dikelola.</p>
 
         <label for="mangaSelect">Manhwa</label>
         <select id="mangaSelect" name="mangaId" required>
@@ -93,7 +94,7 @@
     </section>
   </main>
   <script>
-    const API_BASE = "https://story-about-us-api.aichinose219.workers.dev";
+    const API_BASE = "";
     const form = document.getElementById("addChapterForm");
     const mangaSelect = document.getElementById("mangaSelect");
     const chapterNumber = document.getElementById("chapterNumber");
@@ -199,8 +200,13 @@
     }
 
     async function loadMangaList() {
+      const token = document.getElementById("adminToken").value.trim();
+      if (!token) {
+        mangaSelect.replaceChildren(new Option("Masukkan admin token terlebih dahulu", ""));
+        return;
+      }
       try {
-        const response = await fetch(`${API_BASE}/api/manga`, { cache:"no-store" });
+        const response = await fetch(`${API_BASE}/api/admin/manga/list`, { cache:"no-store", headers: { Authorization: `Bearer ${token}` } });
         if (!response.ok) throw new Error("Daftar manhwa tidak dapat dimuat.");
         const mangaList = await response.json();
         mangaSelect.replaceChildren(new Option("Pilih manhwa", ""));
@@ -256,6 +262,7 @@
     }
 
     mangaSelect.addEventListener("change", () => setNextChapter(mangaSelect.value));
+    document.getElementById("adminToken").addEventListener("change", loadMangaList);
     chapterNumber.addEventListener("input", () => { chapterNumberManuallyChanged = true; });
     chapterLabelInput.addEventListener("input", updateChapterLabelHint);
     fileInput.addEventListener("change", () => {
