@@ -192,7 +192,7 @@
         }
 
         .announcement-panel {
-            margin: 8px 0 18px;
+            margin: 18px 0 24px;
             padding: 16px 18px;
             border: 1px solid rgba(196,156,255,.28);
             border-radius: 16px;
@@ -375,7 +375,7 @@
         .ad-slot {
             width: 100%;
             min-height: 50px;
-            margin: 0 0 16px;
+            margin: 18px 0 24px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1019,6 +1019,9 @@
             .search-container { position: absolute; top: 32px; right: max(13vw, 170px); width: min(34vw, 420px); margin: 0; }
             .search-box { height: 54px; border-radius: 999px; font-size: 15px; }
             .alphabet-nav { position: relative; z-index: 2; transform: none; width: calc(100% - 9vw); min-height: 62px; margin: -31px auto 28px; padding: 7px 12px; flex-direction: row; justify-content: space-between; gap: 3px; border: 1px solid rgba(190,151,255,.48); border-radius: 24px; background: rgba(35,28,57,.96); box-shadow: 0 0 34px rgba(155,100,220,.24); backdrop-filter: blur(12px); }
+            .announcement-panel, .ad-slot { width: min(91%, 1660px); margin-inline: auto; }
+            .announcement-panel { margin-top: 0; margin-bottom: 22px; }
+            .ad-slot { margin-top: 0; margin-bottom: 30px; }
             .alphabet-letter { flex: 1 1 0; width: auto; height: 38px; border-radius: 999px; font-size: 13px; }
             .alphabet-letter.active.current { color: #fff; background: linear-gradient(135deg, #bd98ff, #9872d8); box-shadow: 0 4px 14px rgba(157,112,226,.3); }
             .manga-grid { width: min(91%, 1660px); margin-inline: auto; grid-template-columns: repeat(auto-fill, minmax(156px, 1fr)); gap: 22px 20px; }
@@ -1044,6 +1047,9 @@
             .browser-view .search-container { position: absolute; top: 32px; right: max(13vw,170px); width: min(34vw,420px); margin: 0; }
             .browser-view .search-box { height: 54px; border-radius: 999px; font-size: 15px; }
             .browser-view .alphabet-nav { position: relative; z-index: 2; width: calc(100% - 9vw); min-height: 62px; margin: -31px auto 28px; padding: 7px 12px; flex-direction: row; justify-content: space-between; gap: 3px; border: 1px solid rgba(190,151,255,.48); border-radius: 24px; background: rgba(35,28,57,.96); box-shadow: 0 0 34px rgba(155,100,220,.24); }
+            .browser-view .announcement-panel, .browser-view .ad-slot { width: min(91%, 1660px); margin-inline: auto; }
+            .browser-view .announcement-panel { margin-top: 0; margin-bottom: 22px; }
+            .browser-view .ad-slot { margin-top: 0; margin-bottom: 30px; }
             .browser-view .alphabet-letter { flex: 1 1 0; width: auto; height: 38px; border-radius: 999px; font-size: 10px; }
             .browser-view .manga-grid { width: min(91%,1660px); margin-inline: auto; grid-template-columns: repeat(auto-fill,minmax(156px,1fr)); gap: 22px 20px; }
             .browser-view .cover-wrapper { aspect-ratio: 4 / 5; }
@@ -1097,15 +1103,6 @@
             </div>
         </section>
 
-        <aside id="announcementPanel" class="announcement-panel" aria-live="polite" hidden>
-            <h2 class="announcement-heading">Information</h2>
-            <div id="announcementContent" class="announcement-content" aria-atomic="true">
-                <p id="announcementMessage" class="announcement-message"></p>
-                <time id="announcementDate" class="announcement-date"></time>
-            </div>
-            <nav id="announcementPagination" class="announcement-pagination" aria-label="Pilih informasi" hidden></nav>
-        </aside>
-
         <!-- =================================================
              SEARCH
         ================================================== -->
@@ -1149,6 +1146,15 @@
             class="alphabet-nav"
             aria-label="Manga alphabet navigation"
         ></nav>
+
+        <aside id="announcementPanel" class="announcement-panel" aria-live="polite" hidden>
+            <h2 class="announcement-heading">Information</h2>
+            <div id="announcementContent" class="announcement-content" aria-atomic="true">
+                <p id="announcementMessage" class="announcement-message"></p>
+                <time id="announcementDate" class="announcement-date"></time>
+            </div>
+            <nav id="announcementPagination" class="announcement-pagination" aria-label="Pilih informasi" hidden></nav>
+        </aside>
 
 
         <!-- =================================================
