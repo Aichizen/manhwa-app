@@ -136,7 +136,8 @@
             cursor: pointer;
         }
         .reader-comment-toggle svg { display:block; width:22px; height:22px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
-        .reader-mode-toggle { flex:0 0 auto; margin-left:8px; padding:10px 12px; border:1px solid rgba(212,177,255,.45); border-radius:12px; background:#292d50; color:#eadbff; font:600 12px system-ui,sans-serif; cursor:pointer; white-space:nowrap; }
+        .reader-mode-toggle { flex:0 0 42px; width:42px; height:42px; margin-left:8px; padding:9px; border:1px solid rgba(212,177,255,.45); border-radius:12px; background:#292d50; color:#eadbff; cursor:pointer; }
+        .reader-mode-toggle svg { display:block; width:22px; height:22px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
         @media (min-width:701px) { .reader-comment-toggle { display:none !important; } }
         .reader-chapter-nav { display:none; width:min(100% - 32px, 760px); margin:24px auto 32px; gap:16px; justify-content:space-between; }
         .reader-chapter-nav.is-visible { display:flex; }
@@ -346,8 +347,8 @@
 
         </div>
 
-        <button id="readerModeToggle" class="reader-mode-toggle" type="button" aria-label="Ganti mode baca">Mode: Scroll</button>
         <button id="readerCommentToggle" class="reader-comment-toggle" type="button" aria-label="Komentar" title="Komentar" aria-expanded="false" aria-controls="readerCommentPanel" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H6l-3 2v-6.5A7.5 7.5 0 1 1 20 11.5Z"></path></svg></button>
+        <button id="readerModeToggle" class="reader-mode-toggle" type="button" aria-label="Ganti mode baca" title="Mode Scroll" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h12a3 3 0 0 1 0 6h-1v9.5H5z"></path><path d="M17 3.5c2 0 3.5 1.3 3.5 3.1s-1.5 2.9-3.5 2.9M8 6.5h6M8 10h6M8 13.5h6M5 19h12a3 3 0 0 1 3 2.5H4a2 2 0 0 1-2-2V18h3z"></path></svg></button>
 
     </header>
 
@@ -499,8 +500,12 @@
         }
 
         function paintReaderMode() {
-            readerModeToggle.textContent = readerMode === "scroll" ? "Mode: Scroll" : "Mode: Chapter";
-            readerModeToggle.setAttribute("aria-label", `Mode baca ${readerMode === "scroll" ? "scroll" : "per chapter"}; klik untuk berganti`);
+            readerModeToggle.innerHTML = readerMode === "scroll"
+                ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5h12a3 3 0 0 1 0 6h-1v9.5H5z"></path><path d="M17 3.5c2 0 3.5 1.3 3.5 3.1s-1.5 2.9-3.5 2.9M8 6.5h6M8 10h6M8 13.5h6M5 19h12a3 3 0 0 1 3 2.5H4a2 2 0 0 1-2-2V18h3z"></path></svg>'
+                : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5h8l4.5 4.5v12.5H6z"></path><path d="M14 3.5V8h4.5M9 12h6M9 15h6M9 18h4"></path></svg>';
+            readerModeToggle.title = readerMode === "scroll" ? "Mode Scroll" : "Mode Chapter";
+            readerModeToggle.setAttribute("aria-label", `Mode baca saat ini ${readerMode === "scroll" ? "scroll" : "per chapter"}; klik untuk berganti`);
+            readerModeToggle.setAttribute("aria-pressed", String(readerMode === "chapter"));
             readerChapterNav.classList.toggle("is-visible", readerMode === "chapter" && currentChapterIndex >= 0);
             readerChapterNavLabel.textContent = `Chapter ${currentChapterIndex + 1} dari ${chapters.length}`;
             readerPreviousChapter.disabled = currentChapterIndex <= 0 || isLoadingChapter;
