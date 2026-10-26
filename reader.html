@@ -124,16 +124,25 @@
         }
 
         .reader-comment-toggle {
-            flex: 0 0 auto;
-            margin-left: 10px;
-            padding: 9px 12px;
+            flex: 0 0 42px;
+            width: 42px;
+            height: 42px;
+            margin-left: 8px;
+            padding: 9px;
             border: 1px solid rgba(212,177,255,.45);
             border-radius: 12px;
             background: #292d50;
             color: #eadbff;
-            font: 600 13px system-ui, sans-serif;
             cursor: pointer;
         }
+        .reader-comment-toggle svg { display:block; width:22px; height:22px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+        .reader-mode-toggle { flex:0 0 auto; margin-left:8px; padding:10px 12px; border:1px solid rgba(212,177,255,.45); border-radius:12px; background:#292d50; color:#eadbff; font:600 12px system-ui,sans-serif; cursor:pointer; white-space:nowrap; }
+        @media (min-width:701px) { .reader-comment-toggle { display:none !important; } }
+        .reader-chapter-nav { display:none; width:min(100% - 32px, 760px); margin:24px auto 32px; gap:16px; justify-content:space-between; }
+        .reader-chapter-nav.is-visible { display:flex; }
+        .reader-chapter-nav button { min-width:110px; padding:13px 20px; border:1px solid rgba(212,177,255,.45); border-radius:12px; background:#292d50; color:#f4f2fa; font:600 15px system-ui,sans-serif; cursor:pointer; }
+        .reader-chapter-nav button:disabled { opacity:.4; cursor:default; }
+        .reader-chapter-nav span { align-self:center; color:#aaa9bd; font:13px system-ui,sans-serif; }
 
         .reader-comment-panel {
             position: fixed;
@@ -337,7 +346,8 @@
 
         </div>
 
-        <button id="readerCommentToggle" class="reader-comment-toggle" type="button" aria-expanded="false" aria-controls="readerCommentPanel" hidden>Login to comment</button>
+        <button id="readerModeToggle" class="reader-mode-toggle" type="button" aria-label="Ganti mode baca">Mode: Scroll</button>
+        <button id="readerCommentToggle" class="reader-comment-toggle" type="button" aria-label="Komentar" title="Komentar" aria-expanded="false" aria-controls="readerCommentPanel" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H6l-3 2v-6.5A7.5 7.5 0 1 1 20 11.5Z"></path></svg></button>
 
     </header>
 
@@ -401,6 +411,11 @@
     <!-- PDF -->
 
     <main id="pdf-container"></main>
+    <nav id="readerChapterNav" class="reader-chapter-nav" aria-label="Navigasi chapter">
+        <button id="readerPreviousChapter" type="button" aria-label="Chapter sebelumnya">&lt;</button>
+        <span id="readerChapterNavLabel">Navigasi chapter</span>
+        <button id="readerNextChapter" type="button" aria-label="Chapter berikutnya">&gt;</button>
+    </nav>
 
 
 
@@ -471,6 +486,39 @@
         const commentSubmit = document.getElementById("readerCommentSubmit");
         const commentMessage = document.getElementById("readerCommentMessage");
         const commentAccountText = document.getElementById("readerCommentAccountText");
+        const readerModeToggle = document.getElementById("readerModeToggle");
+        const readerChapterNav = document.getElementById("readerChapterNav");
+        const readerChapterNavLabel = document.getElementById("readerChapterNavLabel");
+        const readerPreviousChapter = document.getElementById("readerPreviousChapter");
+        const readerNextChapter = document.getElementById("readerNextChapter");
+        let readerMode = "scroll";
+
+        function readerModeStorageKey() {
+            const userId = ReaderAccount.user?.id;
+            return userId ? `storyAboutUsReaderMode:${userId}` : "";
+        }
+
+        function paintReaderMode() {
+            readerModeToggle.textContent = readerMode === "scroll" ? "Mode: Scroll" : "Mode: Chapter";
+            readerModeToggle.setAttribute("aria-label", `Mode baca ${readerMode === "scroll" ? "scroll" : "per chapter"}; klik untuk berganti`);
+            readerChapterNav.classList.toggle("is-visible", readerMode === "chapter" && currentChapterIndex >= 0);
+            readerChapterNavLabel.textContent = `Chapter ${currentChapterIndex + 1} dari ${chapters.length}`;
+            readerPreviousChapter.disabled = currentChapterIndex <= 0 || isLoadingChapter;
+            readerNextChapter.disabled = currentChapterIndex < 0 || currentChapterIndex >= chapters.length - 1 || isLoadingChapter;
+        }
+
+        function setReaderMode(mode, persist = true) {
+            readerMode = mode === "chapter" ? "chapter" : "scroll";
+            paintReaderMode();
+            if (persist) {
+                const key = readerModeStorageKey();
+                if (key) localStorage.setItem(key, readerMode);
+            }
+        }
+
+        readerModeToggle.addEventListener("click", () => setReaderMode(readerMode === "scroll" ? "chapter" : "scroll"));
+        readerPreviousChapter.addEventListener("click", () => navigateChapter(-1));
+        readerNextChapter.addEventListener("click", () => navigateChapter(1));
         commentToggle.addEventListener("click", async () => {
             if (!ReaderAccount.authenticated) {
                 if (!ReaderAccount.hasTelegramData) return;
@@ -482,6 +530,8 @@
                 try {
                     await ReaderAccount.login();
                     paintReaderCommentAccount();
+                    const savedMode = readerModeStorageKey() ? localStorage.getItem(readerModeStorageKey()) : null;
+                    setReaderMode(savedMode === "chapter" ? "chapter" : readerMode, !savedMode);
                     commentMessage.className = "reader-comment-message";
                     commentMessage.textContent = "";
                     commentText.focus();
@@ -502,11 +552,8 @@
         function paintReaderCommentAccount() {
             const loggedIn = ReaderAccount.authenticated;
             const displayName = [ReaderAccount.user?.first_name, ReaderAccount.user?.last_name].filter(Boolean).join(" ") || ReaderAccount.user?.username || "akun Telegram";
-            commentToggle.hidden = !loggedIn && !ReaderAccount.hasTelegramData;
-            const isMobileReader = document.documentElement.classList.contains("telegram-view");
-            commentToggle.textContent = isMobileReader
-                ? (loggedIn ? "Comment" : "Login to comment")
-                : (loggedIn ? "Tap to comment" : "Login untuk komentar");
+            const isMobileReader = document.documentElement.classList.contains("telegram-view") || window.matchMedia("(max-width: 700px)").matches;
+            commentToggle.hidden = !isMobileReader || (!loggedIn && !ReaderAccount.hasTelegramData);
             commentAccountText.textContent = loggedIn ? `Komentar sebagai ${displayName}.` : "Login Telegram diperlukan untuk mengirim komentar dari reader.";
             if (!loggedIn) {
                 commentPanel.hidden = true;
@@ -592,6 +639,8 @@
             try {
                 await ReaderAccount.init();
                 paintReaderCommentAccount();
+                const savedMode = readerModeStorageKey() ? localStorage.getItem(readerModeStorageKey()) : null;
+                setReaderMode(savedMode === "chapter" ? "chapter" : "scroll", false);
 
                 const chapterNumber =
                     parseFloat(chapter);
@@ -670,6 +719,8 @@
                     );
 
                 }
+
+                paintReaderMode();
 
 
                 updateHeader(
@@ -791,6 +842,7 @@
             updateHeader(
                 Number(item.number)
             );
+            paintReaderMode();
 
 
             window.scrollTo({
@@ -812,6 +864,7 @@
             } finally {
 
                 isLoadingChapter = false;
+                paintReaderMode();
 
             }
 
@@ -831,6 +884,8 @@
             }
 
             scheduleProgressSave();
+
+            if (readerMode === "chapter") return;
 
 
             if (bottomTimer) {
@@ -933,6 +988,15 @@
 
             }
 
+        }
+
+        async function navigateChapter(offset) {
+            const nextIndex = currentChapterIndex + offset;
+            if (isLoadingChapter || nextIndex < 0 || nextIndex >= chapters.length) return;
+            currentChapterIndex = nextIndex;
+            resumePage = 1;
+            paintReaderMode();
+            await loadCurrentChapter();
         }
 
 
