@@ -5,6 +5,29 @@
     <script>
         const pageParams = new URLSearchParams(location.search);
         const launchParams = new URLSearchParams(location.hash.replace(/^#/, ""));
+        const miniAppStartParam = pageParams.get("tgWebAppStartParam") || launchParams.get("tgWebAppStartParam");
+        if (miniAppStartParam?.startsWith("read_")) {
+            try {
+                const encoded = miniAppStartParam.slice(5).replace(/-/g, "+").replace(/_/g, "/");
+                const padded = encoded + "=".repeat((4 - encoded.length % 4) % 4);
+                const bytes = Uint8Array.from(atob(padded), char => char.charCodeAt(0));
+                const destination = JSON.parse(new TextDecoder().decode(bytes));
+                const chapter = Number(destination.chapter);
+                if (typeof destination.title === "string" && destination.title) {
+                    const isReader = destination.page === "reader" || (destination.page == null && Number.isFinite(chapter));
+                    const target = new URL(isReader ? "reader.html" : "chapter.html", location.href);
+                    target.searchParams.set("title", destination.title);
+                    if (isReader && Number.isFinite(chapter)) {
+                        target.searchParams.set("chapter", String(chapter));
+                        target.searchParams.set("page", "1");
+                    }
+                    target.searchParams.set("view", "mobile");
+                    location.replace(target.toString());
+                }
+            } catch (error) {
+                console.warn("Invalid Telegram Mini App start parameter.");
+            }
+        }
         const launchedFromTelegram = /Telegram/i.test(navigator.userAgent)
             || pageParams.has("tgWebAppPlatform")
             || launchParams.has("tgWebAppPlatform");
