@@ -25,7 +25,7 @@
   }
 
   async function init() {
-    if (sessionStorage.getItem("storyAboutUsAccountMode") === "telegram" && initData) {
+    if (initData) {
       try { await authenticate(); } catch (error) {
         user = null;
         sessionStorage.setItem("storyAboutUsAccountMode", "guest");
