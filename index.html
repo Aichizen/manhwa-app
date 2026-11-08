@@ -22,6 +22,10 @@
                         target.searchParams.set("page", "1");
                     }
                     target.searchParams.set("view", "mobile");
+                    for (const [key, value] of pageParams) {
+                        if (key.startsWith("tgWebApp")) target.searchParams.set(key, value);
+                    }
+                    target.hash = location.hash;
                     location.replace(target.toString());
                 }
             } catch (error) {
