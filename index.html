@@ -1127,6 +1127,7 @@
             <div class="hero-actions">
                 <a class="admin-link" href="admin.html">Admin</a>
                 <button id="telegramLoginButton" class="admin-link login-link" type="button" hidden>Login</button>
+                <button id="telegramLogoutButton" class="admin-link login-link" type="button" hidden>Log out</button>
             </div>
         </section>
 
@@ -2243,6 +2244,7 @@
 
         const accountTabs = document.getElementById("accountTabs");
         const loginButton = document.getElementById("telegramLoginButton");
+        const logoutButton = document.getElementById("telegramLogoutButton");
         const adminButton = document.querySelector('.hero-actions .admin-link[href="admin.html"]');
         const accountTabButtons = [...accountTabs.querySelectorAll("[data-view]")];
 
@@ -2250,6 +2252,7 @@
             const isTelegram = document.documentElement.classList.contains("telegram-view");
             const loggedIn = ReaderAccount.authenticated;
             loginButton.hidden = !isTelegram || loggedIn;
+            logoutButton.hidden = !isTelegram || !loggedIn;
             accountTabs.hidden = !isTelegram || !loggedIn;
             adminButton.hidden = isTelegram && loggedIn;
             if (loggedIn) loadReadingHistory();
@@ -2274,6 +2277,15 @@
             } finally {
                 loginButton.disabled = false;
             }
+        });
+
+        logoutButton.addEventListener("click", () => {
+            ReaderAccount.guest();
+            activeView = "home";
+            accountTabButtons.forEach(tab => tab.classList.toggle("active", tab.dataset.view === "home"));
+            readingEntries = [];
+            updateAccountNavigation();
+            renderManga();
         });
 
         ReaderAccount.init().then(updateAccountNavigation);

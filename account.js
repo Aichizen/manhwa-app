@@ -25,7 +25,8 @@
   }
 
   async function init() {
-    if (initData) {
+    const accountMode = sessionStorage.getItem("storyAboutUsAccountMode");
+    if (initData && accountMode !== "guest") {
       try { await authenticate(); } catch (error) {
         user = null;
         sessionStorage.setItem("storyAboutUsAccountMode", "guest");
