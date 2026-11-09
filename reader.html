@@ -539,6 +539,42 @@
         readerModeToggle.addEventListener("click", () => setReaderMode(readerMode === "scroll" ? "chapter" : "scroll"));
         readerPreviousChapter.addEventListener("click", () => navigateChapter(-1));
         readerNextChapter.addEventListener("click", () => navigateChapter(1));
+
+        let readerTapStart = null;
+        document.addEventListener("pointerdown", event => {
+            if (!event.isPrimary || (event.pointerType === "mouse" && event.button !== 0)) return;
+            readerTapStart = {
+                pointerId: event.pointerId,
+                x: event.clientX,
+                y: event.clientY,
+                time: performance.now(),
+            };
+        }, { passive: true });
+
+        document.addEventListener("pointerup", event => {
+            const start = readerTapStart;
+            readerTapStart = null;
+            if (!start || start.pointerId !== event.pointerId) return;
+
+            const moved = Math.hypot(event.clientX - start.x, event.clientY - start.y);
+            if (performance.now() - start.time > 450 || moved > 12) return;
+
+            // Keep header/navigation controls usable; side taps elsewhere on the reader
+            // work across the full viewport, including while the reader is in scroll mode.
+            if (event.target.closest("button, a, input, textarea, select, .reader-header, .reader-chapter-nav, .reader-comment-panel")) return;
+
+            const edgeWidth = Math.min(140, Math.max(64, window.innerWidth * 0.28));
+            if (event.clientX <= edgeWidth) {
+                navigateChapter(-1);
+            } else if (event.clientX >= window.innerWidth - edgeWidth) {
+                navigateChapter(1);
+            }
+        }, { passive: true });
+
+        document.addEventListener("pointercancel", () => {
+            readerTapStart = null;
+        }, { passive: true });
+
         commentToggle.addEventListener("click", async () => {
             if (!ReaderAccount.authenticated && ReaderAccount.hasTelegramData) {
                 commentToggle.disabled = true;
@@ -1109,15 +1145,18 @@
             throw lastError || new Error("Koneksi gagal.");
         }
 
-        async function openPdfWithRetry(pdfUrl, maxAttempts = 3) {
+        async function openPdfWithRetry(pdfUrl, maxAttempts = 3, options = {}) {
             let lastError;
+            const fullDownload = options.fullDownload === true;
             for (let attempt = 0; attempt < maxAttempts; attempt++) {
                 let loadingTask;
                 try {
                     loadingTask = pdfjsLib.getDocument({
                         url: pdfUrl,
                         withCredentials: false,
-                        disableAutoFetch: true,
+                        disableAutoFetch: !fullDownload,
+                        disableRange: fullDownload,
+                        disableStream: fullDownload,
                         rangeChunkSize: 256 * 1024,
                     });
                     return await loadingTask.promise;
@@ -1155,7 +1194,19 @@
 
             try {
 
-                const pdf = await openPdfWithRetry(pdfUrl);
+                let pdf;
+                let firstPage;
+                try {
+                    pdf = await openPdfWithRetry(pdfUrl, isTelegramView ? 1 : 3);
+                    firstPage = await pdf.getPage(1);
+                } catch (error) {
+                    if (!isTelegramView) throw error;
+                    try { await pdf?.destroy(); } catch {}
+                    console.warn("PDF.js range loading failed in Telegram Mini App; retrying as a full download.", error);
+                    loading.querySelector("p").textContent = "Mengunduh PDF untuk membuka chapter...";
+                    pdf = await openPdfWithRetry(pdfUrl, 1, { fullDownload: true });
+                    firstPage = await pdf.getPage(1);
+                }
                 activePdfDocument = pdf;
 
 
@@ -1165,7 +1216,6 @@
                 );
 
 
-                const firstPage = await pdf.getPage(1);
                 const firstViewport = firstPage.getViewport({ scale: 1 });
                 const pageRatio = firstViewport.width / firstViewport.height;
                 const pageSlots = [];
